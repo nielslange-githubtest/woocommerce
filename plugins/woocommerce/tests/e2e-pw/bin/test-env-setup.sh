@@ -33,6 +33,9 @@ wp-env run tests-cli wp plugin activate test-helper-apis
 echo -e 'Install Plugin-check utility plugin \n'
 wp-env run tests-cli wp plugin install plugin-check --activate
 
+echo -e 'Activate BIS Acceptance Test Helper utility plugin \n'
+wp-env run tests-cli wp plugin activate bis-acceptance-test-helper
+
 echo -e 'Add Customer user \n'
 wp-env run tests-cli wp user create customer customer@woocommercecoree2etestsuite.com \
 	--user_pass=password \
