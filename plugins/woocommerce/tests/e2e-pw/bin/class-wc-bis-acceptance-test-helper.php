@@ -322,4 +322,4 @@ class WC_BIS_Acceptance_Test_Helper {
 	}
 }
 
-SW_BIS_Acceptance_Test_Helper::init();
+WC_BIS_Acceptance_Test_Helper::init();
