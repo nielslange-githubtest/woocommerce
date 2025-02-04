@@ -541,6 +541,7 @@ class AcceptanceHelper {
 	}
 
 	async signUpsAreDoubleOptInAndANewAccountIsCreatedOnSignUp() {
+		this.scenario = 'double';
 		await setOption(
 			request,
 			this.baseURL,
@@ -859,7 +860,11 @@ class AcceptanceHelper {
 
 	iSeeThatMySignupRequestWasSuccessful() {
 		return expect(
-			this.page.getByText( 'You have successfully signed up' )
+			this.page.getByText(
+				this.scenario === 'double'
+					? 'Thanks for signing up!'
+					: 'You have successfully signed up'
+			)
 		).toBeVisible();
 	}
 

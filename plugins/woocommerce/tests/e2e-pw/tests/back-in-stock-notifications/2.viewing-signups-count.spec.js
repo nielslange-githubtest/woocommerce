@@ -3,36 +3,55 @@
  */
 import { setOption } from '../../utils/options';
 import AcceptanceHelper from './helper';
+import { activateTheme } from '../../utils/themes';
 const { test, request } = require( '@playwright/test' );
-test.describe( 'Feature: Viewing Subscribers Count', () => {
-	let helper;
 
-	test.beforeEach( async ( { baseURL, page } ) => {
-		await setOption( request, baseURL, 'woocommerce_coming_soon', 'no' );
-		await setOption( request, baseURL, 'wc_bis_account_required', 'no' );
-		await setOption( request, baseURL, 'wc_bis_opt_in_required', 'no' );
-		await setOption(
-			request,
-			baseURL,
-			'wc_bis_double_opt_in_required',
-			'no'
-		);
-		helper = new AcceptanceHelper( baseURL, page );
-	} );
-	test.afterEach( async ( {} ) => {
-		helper.deleteCurrentProduct();
-	} );
-	test( 'View number of customers who have joined the waitlist', async () => {
-		const { given, when, then } = helper;
-		await given.numberOfCustomerWhoHaveJoinedTheWaitlistIsVisible();
-		await given.signUpsAreSingleOptInWithoutCheckbox();
-		await given.iGoToTheProductPage();
-		await when.iEnterMyEmail();
-		await when.iClickTheNotifyMeButton();
+[ 'twentytwentyfour', 'storefront' ].forEach( ( theme ) => {
+	test.describe( `Feature: Viewing Subscribers Count: ${ theme }`, () => {
+		let helper;
 
-		await when.iGoToTheProductPage();
-		await then.iSeeAPromptToSignUpAndBeNotifiedWhenTheProductIsBackInStock();
-		await then.iSeeASignUpButton();
-		await then.iSeeThatSomeCustomersHaveAlreadySignedUp();
+		test.beforeAll( async ( { baseURL } ) => {
+			activateTheme( baseURL, theme );
+		} );
+
+		test.beforeEach( async ( { baseURL, page } ) => {
+			await setOption(
+				request,
+				baseURL,
+				'woocommerce_coming_soon',
+				'no'
+			);
+			await setOption(
+				request,
+				baseURL,
+				'wc_bis_account_required',
+				'no'
+			);
+			await setOption( request, baseURL, 'wc_bis_opt_in_required', 'no' );
+			await setOption(
+				request,
+				baseURL,
+				'wc_bis_double_opt_in_required',
+				'no'
+			);
+			helper = new AcceptanceHelper( baseURL, page );
+		} );
+		test.afterEach( async ( {} ) => {
+			helper.deleteCurrentProduct();
+		} );
+		test( 'View number of customers who have joined the waitlist', async () => {
+			const { given, when, then } = helper;
+			await given.numberOfCustomerWhoHaveJoinedTheWaitlistIsVisible();
+			await given.signUpsAreSingleOptInWithoutCheckbox();
+			await given.iGoToTheProductPage();
+			await when.iEnterMyEmail();
+			await when.iClickTheNotifyMeButton();
+			await then.iSeeThatMySignupRequestWasSuccessful();
+
+			await when.iGoToTheProductPage();
+			await then.iSeeAPromptToSignUpAndBeNotifiedWhenTheProductIsBackInStock();
+			await then.iSeeASignUpButton();
+			await then.iSeeThatSomeCustomersHaveAlreadySignedUp();
+		} );
 	} );
 } );

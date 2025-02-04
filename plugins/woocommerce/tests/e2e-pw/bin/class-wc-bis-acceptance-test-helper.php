@@ -140,9 +140,9 @@ class WC_BIS_Acceptance_Test_Helper {
 	 * @return  void
 	 */
 	public static function register_shortcodes() {
-		add_shortcode( 'confirmation_received_email', array( __CLASS__, 'render_confirmation_received_email_shortcode' ) );
-		add_shortcode( 'notification_received_email', array( __CLASS__, 'render_notification_received_email_shortcode' ) );
-		add_shortcode( 'verify_received_email', array( __CLASS__, 'render_verification_received_email_shortcode' ) );
+		add_shortcode( 'bis_confirmation_received_email', array( __CLASS__, 'render_confirmation_received_email_shortcode' ) );
+		add_shortcode( 'bis_notification_received_email', array( __CLASS__, 'render_notification_received_email_shortcode' ) );
+		add_shortcode( 'bis_verify_received_email', array( __CLASS__, 'render_verification_received_email_shortcode' ) );
 	}
 
 	/**

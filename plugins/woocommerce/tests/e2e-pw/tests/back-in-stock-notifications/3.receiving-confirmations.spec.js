@@ -2,102 +2,120 @@
  * Internal dependencies
  */
 import { setOption } from '../../utils/options';
+import { activateTheme } from '../../utils/themes';
 import AcceptanceHelper from './helper';
 const { CUSTOMER_STATE_PATH } = require( '../../playwright.config' );
 const { test, request } = require( '@playwright/test' );
-test.describe( 'Feature: Receiving Confirmations', () => {
-	let helper;
 
-	test.beforeEach( async ( { baseURL, page } ) => {
-		await setOption( request, baseURL, 'woocommerce_coming_soon', 'no' );
-		await setOption( request, baseURL, 'wc_bis_account_required', 'no' );
-		await setOption( request, baseURL, 'wc_bis_opt_in_required', 'no' );
-		await setOption(
-			request,
-			baseURL,
-			'wc_bis_double_opt_in_required',
-			'no'
-		);
-		helper = new AcceptanceHelper( baseURL, page );
-	} );
-	test.afterEach( async ( {} ) => {
-		helper.deleteCurrentProduct();
-	} );
-	test.describe( 'Receiving Confirmations', () => {
-		test.use( { storageState: CUSTOMER_STATE_PATH } );
-		test( 'Receive a simple product sign-up confirmation', async () => {
-			const { given, when, then } = helper;
-			await given.aSimpleProductThatIsOutOfStock();
-			await given.theProductHasNotifications();
+[ 'twentytwentyfour', 'storefront' ].forEach( ( theme ) => {
+	test.describe( `Feature: Receiving Confirmations: ${ theme }`, () => {
+		let helper;
 
-			await when.iViewTheConfirmationIReceivedViaEmail();
-
-			await then.iSeeSomeDetailsAboutTheProductISubscribedTo();
+		test.beforeAll( async ( { baseURL } ) => {
+			activateTheme( baseURL, theme );
 		} );
-		test( 'Receive a variation sign-up confirmation', async () => {
-			const { given, when, then } = helper;
-			await given.aVariableProductThatContainsOutOfStockVariations();
-			await given.theVariationHasNotifications();
 
-			await when.iViewTheConfirmationIReceivedViaEmail();
-
-			await then.iSeeSomeDetailsAboutTheVariationProductISubscribedTo();
+		test.beforeEach( async ( { baseURL, page } ) => {
+			await setOption(
+				request,
+				baseURL,
+				'woocommerce_coming_soon',
+				'no'
+			);
+			await setOption(
+				request,
+				baseURL,
+				'wc_bis_account_required',
+				'no'
+			);
+			await setOption( request, baseURL, 'wc_bis_opt_in_required', 'no' );
+			await setOption(
+				request,
+				baseURL,
+				'wc_bis_double_opt_in_required',
+				'no'
+			);
+			helper = new AcceptanceHelper( baseURL, page );
 		} );
-		test( 'Receive a sign-up confirmation for a variation with free attributes', async () => {
-			const { given, when, then } = helper;
-			await given.aVariableProductThatContainsOutOfStockVariationsWithAnAttributeWithValueAny();
-			await given.theVariationHasNotifications();
-
-			await when.iViewTheConfirmationIReceivedViaEmail();
-
-			await then.iSeeSomeDetailsAboutTheVariationProductISubscribedTo();
+		test.afterEach( async ( {} ) => {
+			helper.deleteCurrentProduct();
 		} );
-		test( 'Follow link to cancel notification', async () => {
-			const { given, when, then } = helper;
-			await given.aSimpleProductThatIsOutOfStock();
-			await given.theProductHasNotifications();
+		test.describe( 'Receiving Confirmations', () => {
+			test.use( { storageState: CUSTOMER_STATE_PATH } );
+			test( 'Receive a simple product sign-up confirmation', async () => {
+				const { given, when, then } = helper;
+				await given.aSimpleProductThatIsOutOfStock();
+				await given.theProductHasNotifications();
 
-			await when.iViewTheConfirmationIReceivedViaEmail();
+				await when.iViewTheConfirmationIReceivedViaEmail();
 
-			await then.iSeeALinkToCancelMyRequest();
+				await then.iSeeSomeDetailsAboutTheProductISubscribedTo();
+			} );
+			test( 'Receive a variation sign-up confirmation', async () => {
+				const { given, when, then } = helper;
+				await given.aVariableProductThatContainsOutOfStockVariations();
+				await given.theVariationHasNotifications();
 
-			await when.iFollowTheLink();
+				await when.iViewTheConfirmationIReceivedViaEmail();
 
-			await then.iSeeThatMyRequestWasCancelled();
-			await then.iSeeAPromptToManageMyNotifications();
+				await then.iSeeSomeDetailsAboutTheVariationProductISubscribedTo();
+			} );
+			test( 'Receive a sign-up confirmation for a variation with free attributes', async () => {
+				const { given, when, then } = helper;
+				await given.aVariableProductThatContainsOutOfStockVariationsWithAnAttributeWithValueAny();
+				await given.theVariationHasNotifications();
+
+				await when.iViewTheConfirmationIReceivedViaEmail();
+
+				await then.iSeeSomeDetailsAboutTheVariationProductISubscribedTo();
+			} );
+			test( 'Follow link to cancel notification', async () => {
+				const { given, when, then } = helper;
+				await given.aSimpleProductThatIsOutOfStock();
+				await given.theProductHasNotifications();
+
+				await when.iViewTheConfirmationIReceivedViaEmail();
+
+				await then.iSeeALinkToCancelMyRequest();
+
+				await when.iFollowTheLink();
+
+				await then.iSeeThatMyRequestWasCancelled();
+				await then.iSeeAPromptToManageMyNotifications();
+			} );
+			test( 'Verify sign-up request when double opt-in is enabled', async () => {
+				const { given, when, then } = helper;
+
+				await given.signUpsAreDoubleOptInAndANewAccountIsCreatedOnSignUp();
+				await given.aSimpleProductThatIsOutOfStock();
+				await given.theProductHasNotifications();
+
+				await when.iViewTheDoubleOptInVerificationIReceivedViaEmail();
+
+				await then.iSeeTheTitleOfTheVerificationEmail();
+				await then.iAmPromptedToVerifyMyRequest();
+				await then.iSeeALinkToVerifyMyRequest();
+
+				await when.iFollowTheConfirmLink();
+
+				await then.iSeeAMessageThatMyConfirmRequestWasSuccessful();
+				await then.iCanSeeAConfirmationEmailWithDetailsAboutTheProductISubscribedTo();
+			} );
 		} );
-		test( 'Verify sign-up request when double opt-in is enabled', async () => {
-			const { given, when, then } = helper;
+		test.describe( 'Receiving Confirmations, guest', () => {
+			test( 'Follow link to cancel notification, guest', async () => {
+				const { given, when, then } = helper;
+				await given.aSimpleProductThatIsOutOfStock();
+				await given.theProductHasNotifications();
 
-			await given.signUpsAreDoubleOptInAndANewAccountIsCreatedOnSignUp();
-			await given.aSimpleProductThatIsOutOfStock();
-			await given.theProductHasNotifications();
+				await when.iViewTheConfirmationIReceivedViaEmail();
 
-			await when.iViewTheDoubleOptInVerificationIReceivedViaEmail();
+				await then.iSeeALinkToCancelMyRequest();
 
-			await then.iSeeTheTitleOfTheVerificationEmail();
-			await then.iAmPromptedToVerifyMyRequest();
-			await then.iSeeALinkToVerifyMyRequest();
+				await when.iFollowTheLink();
 
-			await when.iFollowTheConfirmLink();
-
-			await then.iSeeAMessageThatMyConfirmRequestWasSuccessful();
-			await then.iCanSeeAConfirmationEmailWithDetailsAboutTheProductISubscribedTo();
-		} );
-	} );
-	test.describe( 'Receiving Confirmations, guest', () => {
-		test( 'Follow link to cancel notification, guest', async () => {
-			const { given, when, then } = helper;
-			await given.aSimpleProductThatIsOutOfStock();
-			await given.theProductHasNotifications();
-
-			await when.iViewTheConfirmationIReceivedViaEmail();
-
-			await then.iSeeALinkToCancelMyRequest();
-
-			await when.iFollowTheLink();
-
-			await then.iSeeThatMyRequestWasCancelled();
+				await then.iSeeThatMyRequestWasCancelled();
+			} );
 		} );
 	} );
 } );
