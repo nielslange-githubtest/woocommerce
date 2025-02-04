@@ -2,14 +2,11 @@
  * Internal dependencies
  */
 import { setOption } from '../../utils/options';
-import { activateTheme } from '../../utils/themes';
 import AcceptanceHelper from './helper';
 const { test, request } = require( '@playwright/test' );
 test.describe( 'Feature: Viewing Subscribers Count', () => {
 	let helper;
-	test.beforeAll( async ( { baseURL } ) => {
-		activateTheme( baseURL, 'twentytwentythree' );
-	} );
+
 	test.beforeEach( async ( { baseURL, page } ) => {
 		await setOption( request, baseURL, 'woocommerce_coming_soon', 'no' );
 		await setOption( request, baseURL, 'wc_bis_account_required', 'no' );
