@@ -61,7 +61,7 @@ class OrderCountCacheService {
 					},
 				)
 			);
-			$background_caching->register_action( $background_cache_action );
+			$background_caching->schedule_action( $background_cache_action );
 		}
 	}
 
