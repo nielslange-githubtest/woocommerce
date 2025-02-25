@@ -286,6 +286,9 @@ class WC_Unit_Tests_Bootstrap {
 		require_once $this->tests_dir . '/framework/class-wc-api-unit-test-case.php';
 		require_once $this->tests_dir . '/framework/class-wc-rest-unit-test-case.php';
 
+		// bis helper (needs WC_Unit_Test_Case).
+		require_once $this->tests_dir . '/framework/class-wc-bis-test-case.php';
+
 		// Helpers.
 		require_once $this->tests_dir . '/framework/helpers/class-wc-helper-product.php';
 		require_once $this->tests_dir . '/framework/helpers/class-wc-helper-coupon.php';
@@ -300,6 +303,7 @@ class WC_Unit_Tests_Bootstrap {
 		require_once $this->tests_dir . '/framework/helpers/class-wc-helper-admin-notes.php';
 		require_once $this->tests_dir . '/framework/helpers/class-wc-test-action-queue.php';
 		require_once $this->tests_dir . '/framework/helpers/class-wc-helper-queue.php';
+		require_once $this->tests_dir . '/framework/helpers/class-wc-bis-product-helpers.php';
 
 		// Traits.
 		require_once $this->tests_dir . '/framework/traits/trait-wc-rest-api-complex-meta.php';
