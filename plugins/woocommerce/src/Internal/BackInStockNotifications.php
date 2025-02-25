@@ -209,7 +209,7 @@ class BackInStockNotifications {
 	 * @return bool
 	 */
 	public static function is_enabled_for_rollout() {
-		return false;
+		return true;
 	}
 
 	/**
