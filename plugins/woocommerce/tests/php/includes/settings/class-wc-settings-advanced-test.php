@@ -114,6 +114,7 @@ class WC_Settings_Advanced_Test extends WC_Settings_Unit_Test_Case {
 			'woocommerce_myaccount_payment_methods_endpoint' => 'text',
 			'woocommerce_myaccount_lost_password_endpoint' => 'text',
 			'woocommerce_logout_endpoint'                  => 'text',
+			'woocommerce_myaccount_backinstock_endpoint'   => 'text',
 		);
 
 		if ( $site_is_https ) {

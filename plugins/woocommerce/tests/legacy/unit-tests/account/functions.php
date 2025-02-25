@@ -80,6 +80,7 @@ class WC_Tests_Account_Functions extends WC_Unit_Test_Case {
 				'edit-address'    => 'Addresses',
 				'edit-account'    => 'Account details',
 				'customer-logout' => 'Log out',
+				'backinstock'     => 'Back in stock',
 			),
 			wc_get_account_menu_items()
 		);
