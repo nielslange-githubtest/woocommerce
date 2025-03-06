@@ -3,21 +3,19 @@
  */
 import { setOption } from '../../utils/options';
 import AcceptanceHelper from './helper';
-import { activateTheme, getCurrentTheme } from '../../utils/themes';
+import { activateTheme, DEFAULT_THEME } from '../../utils/themes';
 const { test, request } = require( '@playwright/test' );
 
 [ 'twentytwentyfour', 'storefront' ].forEach( ( theme ) => {
 	test.describe( `Feature: Viewing Subscribers Count: ${ theme }`, () => {
 		let helper;
-		let originalTheme;
 
 		test.beforeAll( async ( { baseURL } ) => {
-			originalTheme = await getCurrentTheme( baseURL );
 			await activateTheme( baseURL, theme );
 		} );
 
 		test.afterAll( async ( { baseURL } ) => {
-			await activateTheme( baseURL, originalTheme );
+			await activateTheme( baseURL, DEFAULT_THEME );
 		} );
 
 		test.beforeEach( async ( { baseURL, page } ) => {
