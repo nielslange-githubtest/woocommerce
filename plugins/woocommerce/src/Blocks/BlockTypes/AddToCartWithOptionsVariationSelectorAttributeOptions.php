@@ -56,8 +56,6 @@ class AddToCartWithOptionsVariationSelectorAttributeOptions extends AbstractBloc
 
 			$field_style = $attributes['style'];
 
-			$default_selected_attribute = $this->get_default_selected_attribute();
-
 			$wrapper_attributes = get_block_wrapper_attributes(
 				array(
 					'data-wp-interactive' => 'woocommerce/add-to-cart-with-options',
