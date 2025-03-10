@@ -63,7 +63,7 @@ const getClassicTemplateBlocksInInserter = async ( {
 	await editor.openGlobalBlockInserter();
 
 	await editor.page
-		.getByLabel( 'Search for blocks and patterns' )
+		.getByRole( 'searchbox', { name: 'Search' } )
 		.fill( 'classic' );
 
 	// Wait for blocks search to have finished.
