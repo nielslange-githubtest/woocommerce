@@ -256,13 +256,18 @@ test.describe( `${ blockData.name } Block `, () => {
 		const searchResults = editor.page.getByLabel( 'Actions', {
 			exact: true,
 		} );
+		// Wait until there's only one search result.
 		await expect.poll( async () => await searchResults.count() ).toBe( 1 );
-		await searchResults.first().click();
+
+		const actionsButton = editor.page.getByRole('button', { name: 'Actions' });
+		await actionsButton.click();
+
 		await editor.page.getByRole( 'menuitem', { name: 'Reset' } ).click();
 		await editor.page.getByRole( 'button', { name: 'Reset' } ).click();
 		await expect( resetNotice ).toBeVisible();
 
-		// Open the template again.
+		// Edit the template again.
+		await actionsButton.click();
 		await editor.page.getByRole( 'menuitem', { name: 'Edit' } ).click();
 
 		// Verify the Classic Template block is still registered.
