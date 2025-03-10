@@ -21,9 +21,9 @@ export class Admin extends CoreAdmin {
 	async createNewPattern( name: string, synced = true ) {
 		await this.page.goto( '/wp-admin/site-editor.php?postType=wp_block' );
 		await this.page.getByRole( 'button', { name: 'Patterns' } ).click();
-		await this.page.getByLabel( 'Add New Pattern' ).click();
+		await this.page.getByLabel( 'Add Pattern' ).click();
 		await this.page
-			.getByRole( 'menuitem', { name: 'Add New Pattern' } )
+			.getByRole( 'menuitem', { name: 'Add Pattern' } )
 			.click();
 		await this.page.getByLabel( 'Name' ).fill( name );
 
