@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { Editor as CoreEditor } from '@wordpress/e2e-test-utils-playwright';
+import {
+	Editor as CoreEditor,
+	expect,
+} from '@wordpress/e2e-test-utils-playwright';
 
 export class Editor extends CoreEditor {
 	async getBlockByName( name: string ) {
@@ -76,6 +79,8 @@ export class Editor extends CoreEditor {
 
 	async revertTemplate( { templateName }: { templateName: string } ) {
 		await this.page.getByPlaceholder( 'Search' ).fill( templateName );
+		const searchResults = this.page.getByLabel( 'Actions' );
+		await expect( searchResults ).toHaveCount( 1 );
 
 		// Depending on the context, we need to click either on a link (in the template page)
 		// or a button (in the template-parts/patterns page) to visit the template.
@@ -99,7 +104,8 @@ export class Editor extends CoreEditor {
 			await button.click();
 		}
 
-		await this.page.getByLabel( 'Actions' ).click();
+		// await this.page.pause();
+		await this.page.getByRole( 'button', { name: 'Actions' } ).click();
 		await this.page
 			.getByRole( 'menuitem', { name: /Reset|Delete/ } )
 			.click();
