@@ -33,15 +33,18 @@ export class Editor extends CoreEditor {
 	 * Opens the global inserter.
 	 */
 	async openGlobalBlockInserter() {
-		const toggleButton = this.page.getByRole( 'button', {
-			name: 'Toggle block inserter',
-		} );
+		const toggleButton = this.page
+			.getByLabel( 'Editor top bar' )
+			.getByRole( 'button', {
+				name: 'Block Inserter',
+				exact: true,
+			} );
+
 		const isOpen =
 			( await toggleButton.getAttribute( 'aria-pressed' ) ) === 'true';
 
 		if ( ! isOpen ) {
 			await toggleButton.click();
-			await this.page.locator( '.block-editor-inserter__menu' ).waitFor();
 		}
 	}
 
