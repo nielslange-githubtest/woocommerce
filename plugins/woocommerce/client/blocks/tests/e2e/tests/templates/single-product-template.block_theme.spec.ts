@@ -20,7 +20,7 @@ test.describe( 'Single Product template', () => {
 
 		// Create the specific product template.
 		await admin.visitSiteEditor( { path: `/${ testData.templateType }` } );
-		await page.getByLabel( 'Add New Template' ).click();
+		await page.getByLabel( 'Add Template' ).click();
 		await page
 			.getByRole( 'button', { name: 'Single item: Product' } )
 			.click();
