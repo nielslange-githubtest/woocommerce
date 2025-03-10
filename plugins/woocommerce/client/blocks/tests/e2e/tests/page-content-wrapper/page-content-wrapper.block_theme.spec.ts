@@ -33,7 +33,6 @@ const templates = [
 		},
 	},
 ];
-const userText = 'Hello World in the page';
 
 for ( const template of templates ) {
 	test.describe( 'Page Content Wrapper', () => {
@@ -50,30 +49,18 @@ for ( const template of templates ) {
 			const pageId = pageData[ 0 ].id;
 
 			await admin.editPost( pageId );
-
-			// Prevent trying to insert the paragraph block before the editor is
-			// ready.
-			await expect(
-				editor.canvas.locator( template.blockClassName )
-			).toBeVisible();
-
-			await editor.insertBlock( {
-				name: 'core/paragraph',
-				attributes: { content: userText },
+			await editor.canvas
+				.getByRole( 'document', { name: 'Block: Title' } )
+				.fill( 'Foo Cart' );
+			await editor.saveSiteEditorEntities( {
+				isOnlyCurrentEntityDirty: true,
 			} );
-
-			await page
-				.getByRole( 'button', { name: 'Save', exact: true } )
-				.click();
-
-			await page
-				.getByRole( 'button', { name: 'Dismiss this notice' } )
-				.filter( { hasText: 'updated' } )
-				.waitFor();
 
 			// Verify edits are in the template when viewed from the frontend.
 			await template.visitPage( { frontendUtils } );
-			await expect( page.getByText( userText ).first() ).toBeVisible();
+			await expect(
+				page.getByRole( 'heading', { name: 'Foo Cart' } )
+			).toBeVisible();
 		} );
 	} );
 }
