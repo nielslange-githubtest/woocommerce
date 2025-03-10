@@ -141,14 +141,15 @@ test.describe( 'registerProductBlockType registers', () => {
 				blockName,
 				editor
 			);
-			await expect(
-				editor.insertBlock(
-					{ name: blockName },
-					{ clientId: singleProductClientId }
-				)
-			).rejects.toThrow(
-				new RegExp( `Block type '${ blockName }' is not registered.` )
+			await editor.insertBlock(
+				{ name: blockName },
+				{ clientId: singleProductClientId }
 			);
+			await expect(
+				editor.canvas.getByText(
+					`Your site doesn’t include support for the "${ blockName }" block`
+				)
+			).toBeVisible();
 		} );
 
 		await test.step( 'Available in Single Product template globally', async () => {
