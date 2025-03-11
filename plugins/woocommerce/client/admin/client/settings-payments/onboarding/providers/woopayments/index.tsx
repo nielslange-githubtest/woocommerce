@@ -56,6 +56,10 @@ const WooPaymentsSteps = [
 		label: __( 'Welcome', 'woocommerce' ),
 		order: 1,
 		content: WelcomeStep,
+		confirmCompletion: () =>
+			new Promise( ( resolve ) => {
+				setTimeout( () => resolve( true ), 2000 );
+			} ),
 	},
 	{
 		key: 'jetpack',
@@ -63,13 +67,15 @@ const WooPaymentsSteps = [
 		label: __( 'Connect Jetpack', 'woocommerce' ),
 		order: 2,
 		content: JetpackStep,
+		confirmCompletion: () => Promise.resolve( false ),
 	},
 	{
-		key: 'other',
-		path: '/onboarding/other',
+		key: 'final',
+		path: '/onboarding/final',
 		label: __( 'Final Step', 'woocommerce' ),
 		order: 3,
 		content: OtherStep,
+		confirmCompletion: () => Promise.resolve( true ),
 	},
 ];
 
