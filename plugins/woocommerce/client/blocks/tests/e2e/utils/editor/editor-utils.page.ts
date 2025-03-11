@@ -37,7 +37,6 @@ export class Editor extends CoreEditor {
 	 */
 	async openGlobalBlockInserter() {
 		const toggleButton = this.page
-			.getByLabel( 'Editor top bar' )
 			.getByRole( 'button', {
 				name: 'Block Inserter',
 				exact: true,
