@@ -6,16 +6,10 @@ import { Admin as CoreAdmin } from '@wordpress/e2e-test-utils-playwright';
 export class Admin extends CoreAdmin {
 	async visitWidgetEditor() {
 		await this.page.goto( '/wp-admin/widgets.php' );
-		await this.page.waitForFunction( () => {
-			window.wp.data
-				.dispatch( window.wp.preferences.store )
-				.set( 'core/edit-widgets', 'welcomeGuide', false );
-			return (
-				window.wp.data
-					.select( window.wp.preferences.store )
-					.get( 'core/edit-widgets', 'welcomeGuide' ) === false
-			);
-		} );
+		await this.page
+			.getByRole( 'dialog', { name: 'Welcome to block Widgets' } )
+			.getByRole( 'button', { name: 'Close' } )
+			.click();
 	}
 
 	async createNewPattern( name: string, synced = true ) {
