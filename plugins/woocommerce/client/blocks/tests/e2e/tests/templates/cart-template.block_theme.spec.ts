@@ -46,6 +46,8 @@ test.describe( 'Test the cart template', () => {
 		).toBeVisible();
 	} );
 
+	// TMP COMMENT: This is a legit failure. The button does not open the cart
+	// template - it opens the homepage.
 	test( 'Admin bar edit site link opens site editor', async ( { admin } ) => {
 		await admin.page.goto( permalink );
 		await admin.page.locator( '#wp-admin-bar-site-editor a' ).click();
