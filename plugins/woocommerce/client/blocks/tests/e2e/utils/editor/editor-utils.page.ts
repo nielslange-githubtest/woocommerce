@@ -77,33 +77,15 @@ export class Editor extends CoreEditor {
 
 	async revertTemplate( { templateName }: { templateName: string } ) {
 		await this.page.getByPlaceholder( 'Search' ).fill( templateName );
-		const searchResults = this.page.getByLabel( 'Actions' );
-		await expect( searchResults ).toHaveCount( 1 );
+		// Let's wait for the search to finish.
+		await expect(
+			this.page.locator( '.dataviews-view-grid__title-actions' ).first()
+		).toHaveText( templateName );
 
-		// Depending on the context, we need to click either on a link (in the template page)
-		// or a button (in the template-parts/patterns page) to visit the template.
-		const link = this.page.getByRole( 'link', {
-			name: templateName,
-			exact: true,
-		} );
-
-		if ( await link.isVisible() ) {
-			await link.click();
-		}
-
-		const button = this.page
-			.getByRole( 'button', {
-				name: new RegExp( templateName, 'i' ),
-				exact: true,
-			} )
-			.and( this.page.locator( '.is-link' ) );
-
-		if ( await button.isVisible() ) {
-			await button.click();
-		}
-
-		// await this.page.pause();
-		await this.page.getByRole( 'button', { name: 'Actions' } ).click();
+		await this.page
+			.getByRole( 'button', { name: 'Actions' } )
+			.first()
+			.click();
 		await this.page
 			.getByRole( 'menuitem', { name: /Reset|Delete/ } )
 			.click();
