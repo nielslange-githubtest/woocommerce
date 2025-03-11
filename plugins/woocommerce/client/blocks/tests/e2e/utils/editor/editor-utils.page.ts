@@ -36,11 +36,10 @@ export class Editor extends CoreEditor {
 	 * Opens the global inserter.
 	 */
 	async openGlobalBlockInserter() {
-		const toggleButton = this.page
-			.getByRole( 'button', {
-				name: 'Block Inserter',
-				exact: true,
-			} );
+		const toggleButton = this.page.getByRole( 'button', {
+			name: 'Block Inserter',
+			exact: true,
+		} );
 
 		const isOpen =
 			( await toggleButton.getAttribute( 'aria-pressed' ) ) === 'true';

@@ -434,9 +434,7 @@ test.describe( 'Product Collection', () => {
 		} ) => {
 			await admin.visitSiteEditor( { path: '/wp_template' } );
 
-			await page
-				.getByRole( 'button', { name: 'Add Template' } )
-				.click();
+			await page.getByRole( 'button', { name: 'Add Template' } ).click();
 			await page
 				.getByRole( 'button', { name: 'Single Item: Product' } )
 				.click();
@@ -870,9 +868,7 @@ test.describe( 'Product Collection', () => {
 
 			await admin.visitSiteEditor( { path: '/wp_template' } );
 
-			await page
-				.getByRole( 'button', { name: 'Add Template' } )
-				.click();
+			await page.getByRole( 'button', { name: 'Add Template' } ).click();
 			await page
 				.getByRole( 'button', { name: 'Products by Category' } )
 				.click();
@@ -906,9 +902,7 @@ test.describe( 'Product Collection', () => {
 
 			await admin.visitSiteEditor( { path: '/wp_template' } );
 
-			await page
-				.getByRole( 'button', { name: 'Add Template' } )
-				.click();
+			await page.getByRole( 'button', { name: 'Add Template' } ).click();
 			await page
 				.getByRole( 'button', { name: 'Products by Tag' } )
 				.click();
