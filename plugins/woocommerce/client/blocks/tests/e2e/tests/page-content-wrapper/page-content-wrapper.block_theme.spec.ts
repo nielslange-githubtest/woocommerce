@@ -33,6 +33,7 @@ const templates = [
 		},
 	},
 ];
+const userText = 'Hello World in the page';
 
 for ( const template of templates ) {
 	test.describe( 'Page Content Wrapper', () => {
@@ -49,18 +50,24 @@ for ( const template of templates ) {
 			const pageId = pageData[ 0 ].id;
 
 			await admin.editPost( pageId );
+
+			await expect(
+				editor.canvas.locator( template.blockClassName )
+			).toBeVisible();
+
+			// editor.isertBlock() doesn't work here.
+			await editor.insertBlockUsingGlobalInserter( 'Paragraph' );
 			await editor.canvas
-				.getByRole( 'document', { name: 'Block: Title' } )
-				.fill( 'Foo Cart' );
+				.getByRole( 'document', { name: 'Empty block' } )
+				.fill( userText );
+
 			await editor.saveSiteEditorEntities( {
 				isOnlyCurrentEntityDirty: true,
 			} );
 
 			// Verify edits are in the template when viewed from the frontend.
 			await template.visitPage( { frontendUtils } );
-			await expect(
-				page.getByRole( 'heading', { name: 'Foo Cart' } )
-			).toBeVisible();
+			await expect( page.getByText( userText ).first() ).toBeVisible();
 		} );
 	} );
 }
