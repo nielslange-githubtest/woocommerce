@@ -49,6 +49,7 @@ export interface SidebarItemProps {
 export interface StepperProps {
 	active: string;
 	steps: WooPaymentsProviderOnboardingStep[];
+	title: string;
 }
 
 /**
