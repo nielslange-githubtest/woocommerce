@@ -297,16 +297,72 @@ class BackInStockNotifications {
 	 * @return string
 	 */
 	public static function get_bis_db_schema() : string {
+		global $wpdb;
+		$collate = '';
+		if ( $wpdb->has_cap( 'collation' ) ) {
+			$collate = $wpdb->get_charset_collate();
+		}
+		$max_index_length = 191;
+		$tables = "CREATE TABLE {$wpdb->prefix}woocommerce_bis_notifications (
+  `id` BIGINT UNSIGNED NOT NULL auto_increment,
+  `type` VARCHAR(128) default 'one-time' NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `user_email` VARCHAR($max_index_length) NOT NULL,
+  `create_date` INT UNSIGNED default 0 NOT NULL,
+  `subscribe_date` INT UNSIGNED default 0 NOT NULL,
+  `last_notified_date` INT UNSIGNED default 0 NOT NULL,
+  `is_queued` CHAR(3) default 'off' NOT NULL,
+  `is_active` CHAR(3) default 'off' NOT NULL,
+  `is_verified` CHAR(3) default 'yes' NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `user_id` (`user_id`),
+  KEY `user_email` (`user_email`),
+  KEY `is_queued` (`is_queued`),
+  KEY `is_active` (`is_active`),
+  KEY `is_verified` (`is_verified`),
+  KEY `idx_product_active_queue` (`product_id`,`is_active`,`is_queued`)
+) $collate;
+CREATE TABLE {$wpdb->prefix}woocommerce_bis_notificationsmeta (
+  meta_id BIGINT UNSIGNED NOT NULL auto_increment,
+  bis_notifications_id BIGINT UNSIGNED NOT NULL,
+  meta_key varchar($max_index_length) default NULL,
+  meta_value longtext NULL,
+  PRIMARY KEY  (meta_id),
+  KEY bis_notifications_id (bis_notifications_id),
+  KEY meta_key (meta_key($max_index_length))
+) $collate;
+CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
+  `id` BIGINT UNSIGNED NOT NULL auto_increment,
+  `notification_id` BIGINT UNSIGNED NOT NULL,
+  `product_id` BIGINT UNSIGNED NOT NULL,
+  `type` VARCHAR(20) NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `user_email` VARCHAR(255) NOT NULL,
+  `object_id` BIGINT UNSIGNED default 0 NOT NULL,
+  `date` INT UNSIGNED NOT NULL,
+  `note` text NULL,
+  PRIMARY KEY  (`id`),
+  KEY `notification_id` (`notification_id`),
+  KEY `type` (`type`),
+  KEY `user_id` (`user_id`)
+) $collate;";
+		return $tables;
+	}
+	/**
+	 * Get BIS db schema if the feature is enabled. Otherwise, return an empty string.
+	 * 
+	 * @return string
+	 */
+	public static function maybe_get_bis_db_schema() : string {
 		if ( ! self::is_enabled() ) {
 			return '';
 		}
 
-		if ( ! class_exists( 'WC_BIS_Install' ) ) {
-			include_once WC_ABSPATH . '/includes/bis/class-wc-bis-install.php';
-		}
+		return self::get_bis_db_schema();
 
 
-		return wc_get_container()->get( LegacyProxy::class )->call_static( 'WC_BIS_Install', 'get_schema' );
 	}
 
 	/**
@@ -318,13 +374,10 @@ class BackInStockNotifications {
 	 */
 	public static function bis_tables_exist(): bool {
 
-		if ( ! class_exists( 'WC_BIS_Install' ) ) {
-			include_once WC_ABSPATH . '/includes/bis/class-wc-bis-install.php';
-		}
 
 		self::$db_utils = wc_get_container()->get( DatabaseUtil::class );
 
-		$missing_tables = self::$db_utils->get_missing_tables( wc_get_container()->get( LegacyProxy::class )->call_static( 'WC_BIS_Install', 'get_schema' ) );
+		$missing_tables = self::$db_utils->get_missing_tables( self::maybe_get_bis_db_schema() );
 
 		if ( 0 === count( $missing_tables ) ) {
 			return true;
@@ -341,15 +394,12 @@ class BackInStockNotifications {
 	 * @return mixed
 	 */
 	public static function create_database_tables() {
-		if ( ! class_exists( 'WC_BIS_Install' ) ) {
-			include_once WC_ABSPATH . '/includes/bis/class-wc-bis-install.php';
-		}
 
 		if ( ! isset( self::$db_utils ) ) {	
 			self::$db_utils = wc_get_container()->get( DatabaseUtil::class );
 		}
 
-		$db_schema = wc_get_container()->get( LegacyProxy::class )->call_static( 'WC_BIS_Install', 'get_schema' );
+		$db_schema = self::maybe_get_bis_db_schema();
 		self::$db_utils->dbdelta( $db_schema );
 		$success = self::bis_tables_exist();
 		if ( ! $success ) {

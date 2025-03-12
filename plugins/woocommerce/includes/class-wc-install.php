@@ -1532,7 +1532,7 @@ class WC_Install {
 		$hpos_table_schema  = $hpos_enabled ? wc_get_container()->get( OrdersTableDataStore::class )->get_database_schema() : '';
 
 		// Back In Stock Notifications db tables schema.
-		$bis_table_schema = BackInStockNotifications::get_bis_db_schema();
+		$bis_table_schema = BackInStockNotifications::maybe_get_bis_db_schema();
 
 		$tables = "
 CREATE TABLE {$wpdb->prefix}woocommerce_sessions (
