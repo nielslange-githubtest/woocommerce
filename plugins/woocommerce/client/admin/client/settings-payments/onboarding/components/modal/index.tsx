@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { Modal } from '@wordpress/components';
+import { Modal, Spinner } from '@wordpress/components';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Internal dependencies
@@ -29,37 +29,85 @@ function ModalContent( {
 } ) {
 	const location = useLocation();
 	const history = getHistory();
+	const [ currentStep, setCurrentStep ] = useState< string | null >( null );
+	const [ isValidating, setIsValidating ] = useState( true );
 
-	// Get current step from pathname
-	const getCurrentStep = (): string => {
+	// Get current step from pathname and validate previous steps
+	const getCurrentStep = async (): Promise< string > => {
 		const path = location.pathname;
 		// Find the step that matches the current path
-		return (
-			steps.find( ( s ) => path.endsWith( s.path ) )?.key ||
-			steps[ 0 ].key
-		);
+		const matchingStep = steps.find( ( s ) => path === s.path );
+		const targetStepKey = matchingStep?.key || steps[ 0 ].key;
+		const targetStep = steps.find( ( s ) => s.key === targetStepKey );
+
+		if ( ! targetStep ) return steps[ 0 ].key;
+
+		// Get all steps that need to be validated (steps before the current one)
+		const stepsToValidate = steps
+			.filter( ( s ) => s.order < targetStep.order )
+			.sort( ( a, b ) => a.order - b.order );
+
+		// Check completion of previous steps
+		for ( const step of stepsToValidate ) {
+			if ( step.confirmCompletion ) {
+				const isCompleted = await step.confirmCompletion();
+				if ( ! isCompleted ) {
+					// If a step is not completed, navigate to it
+					const stepPath = step.path;
+					const newPath = getNewPath( { path: stepPath }, stepPath, {
+						page: 'wc-settings',
+						tab: 'checkout',
+					} );
+					history.push( newPath );
+					return step.key;
+				}
+			}
+		}
+
+		return targetStepKey;
 	};
 
-	const navigateToStep = ( step: string ) => {
+	const navigateToStep = async ( step: string ) => {
 		const stepPath = steps.find( ( s ) => s.key === step )?.path;
 		if ( ! stepPath ) return;
+
+		setIsValidating( true );
+		// Validate steps before navigating
+		const targetStep = steps.find( ( s ) => s.key === step );
+		if ( targetStep ) {
+			const actualStep = await getCurrentStep();
+			if ( actualStep !== step ) {
+				// If getCurrentStep returned a different step, it means we were redirected
+				setIsValidating( false );
+				return;
+			}
+		}
 
 		const newPath = getNewPath( { path: stepPath }, stepPath, {
 			page: 'wc-settings',
 			tab: 'checkout',
 		} );
 		history.push( newPath );
+		setIsValidating( false );
 	};
+
+	// Update current step when location changes
+	useEffect( () => {
+		setIsValidating( true );
+		getCurrentStep().then( ( step ) => {
+			setCurrentStep( step );
+			setIsValidating( false );
+		} );
+	}, [ location.pathname ] );
 
 	const sidebarSteps = steps
 		.map( ( { key, label, order } ) => ( {
 			key,
 			label,
-			isActive: key === getCurrentStep(),
+			isActive: key === currentStep,
 			isCompleted:
 				order <
-				( steps.find( ( s ) => s.key === getCurrentStep() )?.order ||
-					0 ),
+				( steps.find( ( s ) => s.key === currentStep )?.order || 0 ),
 		} ) )
 		.sort(
 			( a, b ) =>
@@ -67,29 +115,52 @@ function ModalContent( {
 				( steps.find( ( s ) => s.key === b.key )?.order || 0 )
 		);
 
+	const renderContent = () => {
+		if ( isValidating ) {
+			return (
+				<div className="settings-payments-onboarding-modal__loading">
+					<Spinner />
+				</div>
+			);
+		}
+
+		if ( ! currentStep ) {
+			return null;
+		}
+
+		return (
+			<Stepper active={ currentStep }>
+				{ steps.map( ( { key, content, order } ) => (
+					<Step
+						id={ key }
+						key={ key }
+						onFinish={ () =>
+							navigateToStep(
+								steps.find( ( s ) => s.order === order + 1 )
+									?.key as string
+							)
+						}
+					>
+						{ content }
+					</Step>
+				) ) }
+			</Stepper>
+		);
+	};
+
+	if ( isValidating ) {
+		return (
+			<div className="settings-payments-onboarding-modal__loading">
+				<Spinner />
+			</div>
+		);
+	}
+
 	return (
 		<>
-			<Sidebar steps={ sidebarSteps } />
+			{ currentStep && <Sidebar steps={ sidebarSteps } /> }
 			<div className="settings-payments-onboarding-modal__content">
-				<Stepper active={ getCurrentStep() }>
-					{ steps.map( ( { key, content, order } ) => {
-						return (
-							<Step
-								id={ key }
-								key={ key }
-								onFinish={ () =>
-									navigateToStep(
-										steps.find(
-											( s ) => s.order === order + 1
-										)?.key as string
-									)
-								}
-							>
-								{ content }
-							</Step>
-						);
-					} ) }
-				</Stepper>
+				{ renderContent() }
 			</div>
 		</>
 	);
@@ -105,14 +176,26 @@ export default function OnboardingModal( {
 	topLevelPath,
 	children,
 }: OnboardingModalProps ): React.ReactNode {
+	const location = useLocation();
 	const history = getHistory();
 
-	// Force navigation to topLevelPath when modal opens
+	// Check if current path matches any step
+	const isValidStepPath = steps.some(
+		( step ) => location.pathname === step.path
+	);
+
+	// Redirect to appropriate step when modal opens with invalid path
 	useEffect( () => {
-		if ( isOpen ) {
+		if ( ! isOpen ) return;
+
+		if ( ! isValidStepPath ) {
+			// Get the last step (highest order)
+			const lastStep = [ ...steps ].sort(
+				( a, b ) => b.order - a.order
+			)[ 0 ];
 			const newPath = getNewPath(
-				{ path: steps[ 0 ].path },
-				steps[ 0 ].path,
+				{ path: lastStep.path },
+				lastStep.path,
 				{
 					page: 'wc-settings',
 					tab: 'checkout',
@@ -120,7 +203,7 @@ export default function OnboardingModal( {
 			);
 			history.push( newPath );
 		}
-	}, [ isOpen, steps, history ] );
+	}, [ isOpen, isValidStepPath, steps ] );
 
 	return (
 		<Modal
