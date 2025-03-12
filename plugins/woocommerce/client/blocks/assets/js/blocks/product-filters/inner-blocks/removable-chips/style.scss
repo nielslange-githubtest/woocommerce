@@ -22,6 +22,12 @@
 			justify-content: space-between;
 		}
 	}
+
+	&.is-horizontal {
+		.wc-block-product-filter-removable-chips__items {
+			width: 100%;
+		}
+	}
 }
 
 .wc-block-product-filter-removable-chips__items {
@@ -32,10 +38,6 @@
 	padding: 0;
 	margin: 0;
 	color: var(--wc-product-filter-removable-chips-text, currentColor);
-
-	&.is-horizontal {
-		width: 100%;
-	}
 
 	.wc-block-product-filter-removable-chips__item {
 		border: 1px solid var(--wc-product-filter-removable-chips-border, color-mix(in srgb, currentColor 20%, transparent));
