@@ -5,80 +5,83 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
 import '../../style.scss';
 import Modal from '../../components/modal';
+import { WooPaymentsModalProps } from '~/settings-payments/onboarding/types';
+import Stepper from '../../components/stepper';
 import {
-	StepContent,
-	WooPaymentsModalProps,
-} from '~/settings-payments/onboarding/types';
+	OnboardingProvider,
+	useOnboardingContext,
+} from '../../context/OnboardingContext';
 
 // Step components
-const WelcomeStep = ( { onFinish }: { onFinish?: () => void } ) => {
-	return (
-		<div>
-			Welcome Step Content
-			<button onClick={ onFinish }>
-				{ __( 'Continue to Jetpack Setup', 'woocommerce' ) }
-			</button>
-		</div>
-	);
+const WelcomeStep = () => {
+	return <div>Welcome Step Content</div>;
 };
-const JetpackStep = ( { onFinish }: { onFinish?: () => void } ) => {
-	return (
-		<div>
-			Jetpack Step Content
-			<button onClick={ onFinish }>
-				{ __( 'Continue to Other Step', 'woocommerce' ) }
-			</button>
-		</div>
-	);
+const JetpackStep = () => {
+	return <div>Jetpack Step Content</div>;
 };
-const OtherStep = ( { onFinish }: { onFinish?: () => void } ) => {
-	return (
-		<div>
-			Other Step Content
-			<button onClick={ onFinish }>
-				{ __( 'Finish', 'woocommerce' ) }
-			</button>
-		</div>
-	);
+const OtherStep = () => {
+	return <div>Other Step Content</div>;
 };
 
-// Define step configuration with labels and order
-const WooPaymentsSteps = [
-	{
-		key: 'welcome',
-		path: '/onboarding/welcome',
-		label: __( 'Welcome', 'woocommerce' ),
-		order: 1,
-		content: WelcomeStep,
-		confirmCompletion: () =>
-			new Promise( ( resolve ) => {
-				setTimeout( () => resolve( true ), 2000 );
-			} ),
-	},
-	{
-		key: 'jetpack',
-		path: '/onboarding/jetpack',
-		label: __( 'Connect Jetpack', 'woocommerce' ),
-		order: 2,
-		content: JetpackStep,
-		confirmCompletion: () => Promise.resolve( false ),
-	},
-	{
-		key: 'final',
-		path: '/onboarding/final',
-		label: __( 'Final Step', 'woocommerce' ),
-		order: 3,
-		content: OtherStep,
-		confirmCompletion: () => Promise.resolve( true ),
-	},
-];
+const getStepContentFromStepKey = ( stepKey: string ) => {
+	switch ( stepKey ) {
+		case 'welcome':
+			return <WelcomeStep />;
+		case 'jetpack':
+			return <JetpackStep />;
+		case 'final':
+			return <OtherStep />;
+		default:
+			return null;
+	}
+};
 
+const WooPaymentsProvider = () => {
+	const { steps, isLoading } = useOnboardingContext();
+
+	// If still loading, show a loading indicator
+	if ( isLoading ) {
+		return (
+			<div className="settings-payments-onboarding-modal__loading">
+				Loading...
+			</div>
+		);
+	}
+
+	// If we have steps, render the Stepper
+	if ( steps && steps.length > 0 ) {
+		const stepsMapped = steps.map( ( step ) => ( {
+			...step,
+			content: getStepContentFromStepKey( step.key ),
+		} ) );
+
+		const currentStep = stepsMapped
+			.sort( ( a, b ) => a.order - b.order )
+			.find( ( step ) => step.status === 'incomplete' );
+
+		return (
+			<div className="settings-payments-onboarding-modal__wrapper">
+				<Stepper
+					title={ __( 'Set up WooPayments', 'woocommerce' ) }
+					steps={ stepsMapped }
+					active={ currentStep?.key ?? '' }
+				/>
+			</div>
+		);
+	}
+
+	// If no steps are available after loading
+	return (
+		<div className="settings-payments-onboarding-modal__error">
+			No onboarding steps available
+		</div>
+	);
+};
 /**
  * Modal component for WooPayments onboarding
  */
@@ -109,11 +112,10 @@ export default function WooPaymentsModal( {
 	if ( ! isOpen ) return null;
 
 	return (
-		<Modal
-			isOpen={ isOpen }
-			setIsOpen={ handleClose }
-			steps={ WooPaymentsSteps as StepContent[] }
-			topLevelPath="/onboarding"
-		/>
+		<Modal setIsOpen={ handleClose }>
+			<OnboardingProvider>
+				<WooPaymentsProvider />
+			</OnboardingProvider>
+		</Modal>
 	);
 }
