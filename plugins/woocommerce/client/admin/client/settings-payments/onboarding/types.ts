@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { ReactNode } from 'react';
+import { WooPaymentsOnboardingStepContent } from '@woocommerce/data';
 
 /**
  * Props for the Onboarding Sidebar component.
@@ -20,11 +21,8 @@ export interface OnboardingSidebarProps {
  * Props for the Onboarding Modal component.
  */
 export interface OnboardingModalProps {
-	isOpen: boolean;
 	setIsOpen: ( isOpen: boolean ) => void;
 	children?: ReactNode;
-	steps: StepContent[];
-	topLevelPath: string;
 }
 
 /**
@@ -50,7 +48,16 @@ export interface SidebarItemProps {
  */
 export interface StepperProps {
 	active: string;
-	children: ReactNode;
+	steps: WooPaymentsProviderOnboardingStep[];
+}
+
+/**
+ * WooPayments provider onboarding step that extends the base WooPaymentsOnboardingStepContent
+ * with additional fields specific to the provider implementation.
+ */
+export interface WooPaymentsProviderOnboardingStep
+	extends WooPaymentsOnboardingStepContent {
+	content: ReactNode;
 }
 
 /**
@@ -59,6 +66,7 @@ export interface StepperProps {
 export interface StepProps {
 	id: string;
 	children: ReactNode;
+	onFinish?: () => void;
 }
 
 /**
