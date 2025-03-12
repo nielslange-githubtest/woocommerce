@@ -1025,6 +1025,38 @@ class PaymentsRestController extends RestApiControllerBase {
 	}
 
 	/**
+	 * Get the onboarding steps.
+	 *
+	 * @return array The onboarding steps.
+	 */
+	protected function get_onboarding_steps() {
+		return rest_ensure_response(
+			array(
+				'steps' => array(
+					array(
+						'id' => 'welcome',
+						'title' => 'Welcome',
+						'description' => 'Welcome to WooCommerce',
+						'order' => 1,
+					),
+					array(
+						'id' => 'jetpack',
+						'title' => 'Jetpack',
+						'description' => 'Jetpack is a WordPress plugin that allows you to connect your WordPress site to Jetpack.',
+						'order' => 2,
+					),
+					array(
+						'id' => 'final',
+						'title' => 'Final',
+						'description' => 'Final step to finish the onboarding process.',
+						'order' => 3,
+					),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Get the schema for a suggestion.
 	 *
 	 * @return array The schema for a suggestion.
