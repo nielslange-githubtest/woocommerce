@@ -67,6 +67,11 @@ class OnboardingPlugins extends WC_REST_Data_Controller {
 							},
 							'required'          => true,
 						),
+						'context' => array(
+							'description'       => 'Context under which the request is made',
+							'type'              => 'string',
+							'default'           => 'default',
+						),
 					),
 				),
 				'schema' => array( $this, 'get_install_async_schema' ),
@@ -153,9 +158,10 @@ class OnboardingPlugins extends WC_REST_Data_Controller {
 	 */
 	public function install_and_activate_async( WP_REST_Request $request ) {
 		$plugins = $request->get_param( 'plugins' );
+		$context = $request->get_param( 'context' );
 		$job_id  = uniqid();
 
-		WC()->queue()->add( 'woocommerce_plugins_install_and_activate_async_callback', array( $plugins, $job_id ) );
+		WC()->queue()->add( 'woocommerce_plugins_install_and_activate_async_callback', array( $plugins, $job_id, $context ) );
 
 		$plugin_status = array();
 		foreach ( $plugins as $plugin ) {

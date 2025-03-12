@@ -241,6 +241,7 @@ class Plugins extends \WC_REST_Data_Controller {
 	 */
 	public function install_plugins( $request ) {
 		$plugins = explode( ',', $request['plugins'] );
+		$context = ! empty( $request['context'] ) ? $request['context'] : 'default';
 
 		if ( empty( $request['plugins'] ) || ! is_array( $plugins ) ) {
 			return new \WP_Error( 'woocommerce_rest_invalid_plugins', __( 'Plugins must be a non-empty array.', 'woocommerce' ), 404 );
@@ -258,7 +259,7 @@ class Plugins extends \WC_REST_Data_Controller {
 			);
 		}
 
-		$data = PluginsHelper::install_plugins( $plugins );
+		$data = PluginsHelper::install_plugins( $plugins, null, $context );
 
 		// Gather some plugin details for each installed plugin.
 		$plugin_details = array();
