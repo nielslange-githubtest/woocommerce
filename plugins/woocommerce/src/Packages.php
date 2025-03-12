@@ -80,6 +80,12 @@ class Packages {
 		// Display a notice in the Plugins tab next to plugins already merged into WooCommerce core.
 		add_filter( 'all_plugins', array( __CLASS__, 'mark_merged_plugins_as_pending_update' ), 10, 1 );
 		add_action( 'after_plugin_row', array( __CLASS__, 'display_notice_for_merged_plugins' ), 10, 1 );
+		// Check for deactivated plugins from previous redirect
+		$deactivated_plugins = get_transient( 'wc_deactivated_merged_plugins' );
+		if ( $deactivated_plugins ) {
+			delete_transient( 'wc_deactivated_merged_plugins' );
+			self::show_deactivation_notices( $deactivated_plugins );
+		}
 	}
 
 	/**
@@ -192,13 +198,16 @@ class Packages {
 	 * ensure that a plugin gets deactivated. Note that for the first request it will still be active,
 	 * and as such, there may be some odd behavior. This is unlikely to cause any issues though
 	 * because it will be deactivated on the request that updates or activates WooCommerce.
+	 * 
+	 * @param bool $is_redirecting Whether this deactivation is followed by a redirect.
 	 */
-	protected static function deactivate_merged_packages() {
+	public static function deactivate_merged_packages( $is_redirecting = false ) {
 		// Developers may need to be able to run merged feature plugins alongside merged packages for testing purposes.
 		if ( Constants::is_true( 'WC_ALLOW_MERGED_FEATURE_PLUGINS' ) ) {
 			return;
 		}
 
+		$deactivated_plugins = array();
 		// Scroll through all of the active plugins and disable them if they're merged packages.
 		$active_plugins = get_option( 'active_plugins', array() );
 		// Deactivate the plugin if possible so that there are no conflicts.
@@ -214,12 +223,30 @@ class Packages {
 			// Make sure to display a message informing the user that the plugin has been deactivated.
 			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $active_plugin_path );
 			deactivate_plugins( $active_plugin_path );
+			$deactivated_plugins[] = $plugin_data;
+		}
+
+		if ( empty( $deactivated_plugins ) ) {
+			return;
+		}
+
+		// If we're about to redirect, store deactivated plugins in transient.
+		if ( $is_redirecting ) {
+			set_transient( 'wc_deactivated_merged_plugins', $deactivated_plugins, 30 );
+		} else {
+			// Otherwise show notice immediately.
+			self::show_deactivation_notices( $deactivated_plugins );
+		}
+	}
+
+	protected static function show_deactivation_notices( $plugins_data ) {
+		foreach ( $plugins_data as $plugin_data ) {
 			add_action(
 				'admin_notices',
 				function () use ( $plugin_data ) {
 					echo '<div class="error"><p>';
 					printf(
-					/* translators: %s: is referring to the plugin's name. */
+						/* translators: %s: is referring to the plugin's name. */
 						esc_html__( 'The %1$s plugin has been deactivated as the latest improvements are now included with the %2$s plugin.', 'woocommerce' ),
 						'<code>' . esc_html( $plugin_data['Name'] ) . '</code>',
 						'<code>WooCommerce</code>'

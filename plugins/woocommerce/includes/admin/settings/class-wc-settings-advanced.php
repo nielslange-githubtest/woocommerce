@@ -7,6 +7,7 @@
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Internal\BackInStockNotifications;
+use Automattic\WooCommerce\Packages;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -551,7 +552,11 @@ class WC_Settings_Advanced extends WC_Settings_Page {
 		// Check if back in stock notification setting was changed and reload the page to ensure it's active immediately.
 		$new_bis_setting = get_option( BackInStockNotifications::$ENABLE_OPTION_NAME );
 		if ( $previous_bis_setting !== $new_bis_setting ) {
-			wp_redirect( add_query_arg( 'reload', '1' ) );
+			if ( 'yes' === $new_bis_setting ) {
+				Packages::deactivate_merged_packages( true );
+			}
+
+			wp_safe_redirect( add_query_arg( 'reload', '1' ) );
 			exit;
 		}
 	}
