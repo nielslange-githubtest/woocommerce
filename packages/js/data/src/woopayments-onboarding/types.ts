@@ -3,7 +3,6 @@ export interface StepContent {
 	title: string;
 	description: string;
 	completed: boolean;
-	content: React.ReactNode;
 	order: number;
 }
 
