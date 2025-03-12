@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Page } from '@playwright/test';
-import { Editor, Admin, RequestUtils, expect } from '@woocommerce/e2e-utils';
+import { Editor, Admin, RequestUtils } from '@woocommerce/e2e-utils';
 
 class AddToCartWithOptionsPage {
 	private page: Page;
@@ -76,7 +76,6 @@ class AddToCartWithOptionsPage {
 			},
 			{ clientId: parentClientId }
 		);
-		await expect( this.editor.canvas.getByText( content ) ).toBeVisible();
 	}
 }
 

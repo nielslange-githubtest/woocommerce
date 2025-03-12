@@ -41,7 +41,13 @@ test.describe( 'Add to Cart with Options Block', () => {
 			'This is a test paragraph added to the Add to Cart with Options template part.'
 		);
 
+		// eslint-disable-next-line playwright/no-wait-for-timeout, no-restricted-syntax
+		await page.waitForTimeout( 3000 );
+
 		await editor.saveSiteEditorEntities();
+
+		// eslint-disable-next-line playwright/no-wait-for-timeout, no-restricted-syntax
+		await page.waitForTimeout( 3000 );
 
 		await page.goto( '/product/cap' );
 
