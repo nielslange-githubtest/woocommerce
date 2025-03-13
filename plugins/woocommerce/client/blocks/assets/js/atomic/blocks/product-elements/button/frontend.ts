@@ -57,6 +57,15 @@ const { state: wooState } = store< WooCommerce >(
 	{ lock: universalLock }
 );
 
+const { state: wooAddToCartWithOptions } = store(
+	'woocommerce/add-to-cart-with-options',
+	{},
+	{
+		// Stores are locked to prevent 3PD usage until the API is stable.
+		lock: 'I acknowledge that using a private store means my plugin will inevitably break on the next store release.',
+	}
+);
+
 const { state } = store< Store >(
 	'woocommerce/product-button',
 	{
@@ -103,7 +112,9 @@ const { state } = store< Store >(
 			},
 		},
 		actions: {
-			*addCartItem() {
+			*addCartItem( event: MouseEvent ) {
+				event.preventDefault();
+
 				const context = getContext();
 				const { productId, quantityToAdd } = context;
 
@@ -119,6 +130,7 @@ const { state } = store< Store >(
 				yield actions.addCartItem( {
 					id: productId,
 					quantity: state.quantity + quantityToAdd,
+					variation: wooAddToCartWithOptions.variation ?? [],
 				} );
 
 				context.displayViewCart = true;
