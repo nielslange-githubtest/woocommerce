@@ -10,7 +10,8 @@
 	"usesContext": [ "postId", "postType", "queryId" ],
 	"ancestor": [
 		"woocommerce/single-product",
-		"woocommerce/product-template"
+		"woocommerce/product-template",
+		"core/post-template"
 	],
 	"supports": {
 		"align": [ "wide", "full" ],
