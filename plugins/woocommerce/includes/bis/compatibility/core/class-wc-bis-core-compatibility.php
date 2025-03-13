@@ -184,6 +184,7 @@ class WC_BIS_Core_Compatibility {
 	 * @return boolean
 	 */
 	public static function wc_current_theme_is_fse_theme() {
+		wc_deprecated_function( __METHOD__, 9.9, 'wc_current_theme_is_fse_theme' );
 		return function_exists( 'wc_current_theme_is_fse_theme' ) ? wc_current_theme_is_fse_theme() : false;
 	}
 }
