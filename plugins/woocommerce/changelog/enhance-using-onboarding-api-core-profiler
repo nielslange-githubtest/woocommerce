@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Move Core Profiler to using the onboarding API instead of setting options directly
