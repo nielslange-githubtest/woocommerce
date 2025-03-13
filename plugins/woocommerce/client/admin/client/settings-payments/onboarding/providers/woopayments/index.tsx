@@ -5,6 +5,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@wordpress/components';
+
 /**
  * Internal dependencies
  */
@@ -53,7 +55,7 @@ const WooPaymentsProvider = () => {
 	if ( isLoading ) {
 		return (
 			<div className="settings-payments-onboarding-modal__loading">
-				Loading...
+				<Spinner />
 			</div>
 		);
 	}
