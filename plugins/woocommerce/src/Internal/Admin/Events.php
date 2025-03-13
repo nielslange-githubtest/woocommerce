@@ -283,6 +283,7 @@ class Events {
 	 * ProcessInstallOptions will process 'install_options' property.
 	 *
 	 * @param PluginsInstallLogger|null $logger The logger instance.
+	 * @param null                      $source The source of the plugin install.
 	 *
 	 * @return ProcessInstallOptions|null
 	 */

@@ -222,9 +222,9 @@ class PluginsHelper {
 	/**
 	 * Install an array of plugins.
 	 *
-	 * @param array $plugins Plugins to install.
+	 * @param array                     $plugins Plugins to install.
 	 * @param PluginsInstallLogger|null $logger an optional logger.
-	 * @param string|null $source place where the request is coming from.
+	 * @param string|null               $source place where the request is coming from.
 	 *
 	 * @return array
 	 */
@@ -396,9 +396,9 @@ class PluginsHelper {
 	 *
 	 * It is used to call install_plugins and activate_plugins with a custom logger.
 	 *
-	 * @param array $plugins A list of plugins to install.
-	 * @param string $job_id An unique job I.D.
-	 * @param string|null $source
+	 * @param array       $plugins A list of plugins to install.
+	 * @param string      $job_id An unique job I.D.
+	 * @param string|null $source The source of the request.
 	 *
 	 * @return bool
 	 */
