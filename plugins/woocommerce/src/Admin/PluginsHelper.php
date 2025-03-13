@@ -244,6 +244,13 @@ class PluginsHelper {
 			);
 		}
 
+		/**
+		 * Get a PluginsInstallLogger instance.
+		 *
+		 * @since 9.9
+		 */
+		$logger = apply_filters( 'woocommerce_rest_api_plugins_install_logger', $logger );
+
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		include_once ABSPATH . '/wp-admin/includes/admin.php';
 		include_once ABSPATH . '/wp-admin/includes/plugin-install.php';
