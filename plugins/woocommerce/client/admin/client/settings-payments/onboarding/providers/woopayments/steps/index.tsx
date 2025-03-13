@@ -60,28 +60,38 @@ export const OtherStep = () => {
 };
 
 export const FrontendStep = () => {
-	return <div>Frontend Step Content</div>;
+	const { navigateToNextStep, refreshOnboardingSteps } =
+		useOnboardingContext();
+	return (
+		<div>
+			Frontend Step Content
+			<button onClick={ () => navigateToNextStep() }>
+				Next (Front-end only)
+			</button>
+			<button onClick={ () => refreshOnboardingSteps() }>
+				Refresh redux store
+			</button>
+		</div>
+	);
 };
-
 /**
  * Frontend-only steps that are not part of the backend steps data
  */
 export const frontEndOnlySteps = [
 	{
-		key: 'congratulations',
-		title: 'Congratulations',
-		path: '/onboarding/congratulations',
-		description: 'You have completed the onboarding process.',
-		order: 10,
+		id: 'congratulations',
+		label: 'Congratulations',
+		path: '/woopayments/onboarding/congratulations',
 		status: 'incomplete' as 'incomplete' | 'completed',
+		dependencies: [ 'final' ],
 	},
 ];
 
 /**
  * Map step keys to their components
  */
-export const getStepContent = ( stepKey: string ): React.ReactNode => {
-	switch ( stepKey ) {
+export const getStepContent = ( stepId: string ): React.ReactNode => {
+	switch ( stepId ) {
 		case 'welcome':
 			return <WelcomeStep />;
 		case 'jetpack':
@@ -92,5 +102,20 @@ export const getStepContent = ( stepKey: string ): React.ReactNode => {
 			return <FrontendStep />;
 		default:
 			return null;
+	}
+};
+
+export const getStepOrder = ( stepId: string ): number => {
+	switch ( stepId ) {
+		case 'welcome':
+			return 1;
+		case 'jetpack':
+			return 2;
+		case 'final':
+			return 3;
+		case 'frontend':
+			return 4;
+		default:
+			return 99;
 	}
 };

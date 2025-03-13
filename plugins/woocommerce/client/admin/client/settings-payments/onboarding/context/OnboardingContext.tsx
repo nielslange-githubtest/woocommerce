@@ -1,28 +1,39 @@
 /**
  * External dependencies
  */
-import { createContext, useContext, useCallback } from '@wordpress/element';
-import { useDispatch, useSelect } from '@wordpress/data';
 import {
-	WooPaymentsOnboardingStepContent,
-	woopaymentsOnboardingStore,
-} from '@woocommerce/data';
-import { useLocation } from 'react-router-dom';
+	createContext,
+	useContext,
+	useCallback,
+	useMemo,
+} from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { woopaymentsOnboardingStore } from '@woocommerce/data';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
+
+/**
+ * Internal dependencies
+ */
+import {
+	frontEndOnlySteps,
+	getStepContent,
+	getStepOrder,
+} from '../providers/woopayments/steps';
+import { WooPaymentsProviderOnboardingStep } from '../types';
 
 /**
  * Internal dependencies
  */
 
 interface OnboardingContextType {
-	steps: WooPaymentsOnboardingStepContent[];
+	steps: WooPaymentsProviderOnboardingStep[];
 	isLoading: boolean;
-	currentStep: WooPaymentsOnboardingStepContent | undefined;
+	currentStep: WooPaymentsProviderOnboardingStep | undefined;
 	navigateToStep: ( stepKey: string ) => void;
 	navigateToNextStep: () => void;
 	getStepByKey: (
 		stepKey: string
-	) => WooPaymentsOnboardingStepContent | undefined;
+	) => WooPaymentsProviderOnboardingStep | undefined;
 	refreshOnboardingSteps: () => void;
 }
 
@@ -41,7 +52,6 @@ export const useOnboardingContext = () => useContext( OnboardingContext );
 export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 	children,
 } ) => {
-	const location = useLocation();
 	const history = getHistory();
 
 	const { steps, isLoading } = useSelect(
@@ -55,21 +65,27 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 	);
 
 	// Make UI refresh when plugin is installed.
-	const { invalidateResolutionForStoreSelector } = useDispatch(
-		woopaymentsOnboardingStore
-	);
+	const { invalidateResolutionForStoreSelector, getOnboardingStepsSuccess } =
+		useDispatch( woopaymentsOnboardingStore );
 
-	// Extract step key from the path
-	const pathParts = location.pathname.split( '/' );
-	const stepFromPath = pathParts[ pathParts.length - 1 ];
+	const allSteps = useMemo(
+		() => [ ...steps, ...frontEndOnlySteps ],
+		[ steps ]
+	)
+		.map( ( step ) => ( {
+			...step,
+			content: getStepContent( step.id ),
+			order: getStepOrder( step.id ),
+		} ) )
+		.sort( ( a, b ) => a.order - b.order );
 
 	// Helper function to get step by key
 	// useCallback is used to avoid re-rendering the tree each time the component is rendered
 	const getStepByKey = useCallback(
 		( stepKey: string ) => {
-			return steps.find( ( step ) => step.key === stepKey );
+			return allSteps.find( ( step ) => step.id === stepKey );
 		},
-		[ steps ]
+		[ allSteps ]
 	);
 
 	// Navigation helper
@@ -88,23 +104,63 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 		[ getStepByKey, history ]
 	);
 
-	const currentStep =
-		getStepByKey( stepFromPath ) ||
-		steps
-			.sort( ( a, b ) => a.order - b.order )
-			.find( ( step ) => step.status === 'incomplete' );
+	// Helper function to check if all dependencies of a step are completed
+	const areStepDependenciesCompleted = useCallback(
+		( step: WooPaymentsProviderOnboardingStep ) => {
+			if ( ! step.dependencies || step.dependencies.length === 0 ) {
+				return true;
+			}
+
+			return step.dependencies.every( ( dependencyId ) => {
+				const dependencyStep = getStepByKey( dependencyId );
+				return dependencyStep?.status === 'completed';
+			} );
+		},
+		[ getStepByKey ]
+	);
+
+	// Find the first incomplete step with completed dependencies
+	const currentStep = allSteps.find(
+		( step ) =>
+			step.status === 'incomplete' && areStepDependenciesCompleted( step )
+	);
 
 	const navigateToNextStep = useCallback( () => {
-		const currentStepIndex = steps.findIndex(
-			( step ) => step.key === currentStep?.key
+		const currentStepIndex = allSteps.findIndex(
+			( step ) => step.id === currentStep?.id
 		);
 		if ( currentStepIndex !== -1 ) {
-			const nextStep = steps[ currentStepIndex + 1 ];
+			// Mark current step as completed
+			if ( currentStep?.status === 'incomplete' ) {
+				// Is this a BE step?
+				const isBackendStep = steps.find(
+					( s ) => s.id === currentStep.id
+				);
+
+				if ( isBackendStep ) {
+					const updatedSteps = steps.map( ( s ) =>
+						s.id === currentStep.id
+							? { ...s, status: 'completed' as const }
+							: s
+					);
+
+					// Update the steps in the store
+					getOnboardingStepsSuccess( updatedSteps );
+				}
+			}
+
+			const nextStep = allSteps[ currentStepIndex + 1 ];
 			if ( nextStep ) {
-				navigateToStep( nextStep.key );
+				navigateToStep( nextStep.id );
 			}
 		}
-	}, [ currentStep, steps, navigateToStep ] );
+	}, [
+		currentStep,
+		steps,
+		allSteps,
+		navigateToStep,
+		getOnboardingStepsSuccess,
+	] );
 
 	const refreshOnboardingSteps = useCallback( () => {
 		invalidateResolutionForStoreSelector( 'getOnboardingSteps' );
@@ -113,7 +169,7 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 	return (
 		<OnboardingContext.Provider
 			value={ {
-				steps,
+				steps: allSteps,
 				isLoading,
 				currentStep,
 				navigateToStep,
