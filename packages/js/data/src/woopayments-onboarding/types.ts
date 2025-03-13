@@ -3,7 +3,6 @@ export interface StepContent {
 	title: string;
 	path: string;
 	description: string;
-	completed: boolean;
 	order: number;
 	status: 'completed' | 'incomplete';
 }
