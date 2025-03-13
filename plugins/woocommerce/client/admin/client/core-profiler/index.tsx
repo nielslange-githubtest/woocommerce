@@ -40,6 +40,7 @@ import { initializeExPlat } from '@woocommerce/explat';
 import { CountryStateOption } from '@woocommerce/onboarding';
 import { getAdminLink } from '@woocommerce/settings';
 import { recordEvent } from '@woocommerce/tracks';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -405,9 +406,12 @@ const updateTrackingOption = fromPromise(
 			}
 		} );
 
-		const trackingValue = input.optInDataSharing ? 'yes' : 'no';
-		dispatch( optionsStore ).updateOptions( {
-			woocommerce_allow_tracking: trackingValue,
+		await apiFetch( {
+			path: '/wc-admin/onboarding/profile/update-store-settings',
+			method: 'POST',
+			data: {
+				tracking_enabled: input.optInDataSharing,
+			},
 		} );
 	}
 );
@@ -427,8 +431,12 @@ const updateOnboardingProfileOption = fromPromise(
 );
 
 const updateBusinessLocation = ( countryAndState: string ) => {
-	return dispatch( optionsStore ).updateOptions( {
-		woocommerce_default_country: countryAndState,
+	return apiFetch( {
+		path: '/wc-admin/onboarding/profile/update-store-settings',
+		method: 'POST',
+		data: {
+			store_location: countryAndState,
+		},
 	} );
 };
 
@@ -468,6 +476,7 @@ const updateBusinessInfo = fromPromise(
 	} ) => {
 		const { updateProfileItems, updateStoreCurrencyAndMeasurementUnits } =
 			dispatch( onboardingStore );
+
 		return Promise.all( [
 			updateStoreCurrencyAndMeasurementUnits(
 				getCountryCode( input.payload.storeLocation ) as string
@@ -483,9 +492,13 @@ const updateBusinessInfo = fromPromise(
 					store_email: input.payload.storeEmailAddress,
 				} ),
 			} ),
-			dispatch( optionsStore ).updateOptions( {
-				blogname: input.payload.storeName,
-				woocommerce_default_country: input.payload.storeLocation,
+			apiFetch( {
+				path: '/wc-admin/onboarding/profile/update-store-settings',
+				method: 'POST',
+				data: {
+					store_name: input.payload.storeName,
+					store_location: input.payload.storeLocation,
+				},
 			} ),
 		] );
 	}

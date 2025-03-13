@@ -142,6 +142,33 @@ class OnboardingProfile extends \WC_REST_Data_Controller {
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/update-store-settings',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'update_store_settings' ),
+					'permission_callback' => array( $this, 'update_items_permissions_check' ),
+					'args'                => array(
+						'store_name'       => array(
+							'description' => __( 'Store name.', 'woocommerce' ),
+							'type'        => 'string',
+						),
+						'store_location'   => array(
+							'description' => __( 'Store location (country:state).', 'woocommerce' ),
+							'type'        => 'string',
+						),
+						'tracking_enabled' => array(
+							'description' => __( 'Whether tracking is enabled.', 'woocommerce' ),
+							'type'        => 'boolean',
+						),
+					),
+				),
+				'schema' => array( $this, 'get_public_item_schema' ),
+			)
+		);
 	}
 
 	/**
@@ -369,6 +396,51 @@ class OnboardingProfile extends \WC_REST_Data_Controller {
 		}
 
 		return new WP_REST_Response( array(), 204 );
+	}
+
+	/**
+	 * Update store basic settings like name, location and tracking settings.
+	 *
+	 * @param WP_REST_Request $request Request data.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function update_store_settings( $request ) {
+		$store_name       = $request->get_param( 'store_name' );
+		$store_location   = $request->get_param( 'store_location' );
+		$tracking_enabled = $request->get_param( 'tracking_enabled' );
+
+		$settings_to_update = array();
+
+		if ( null !== $store_name ) {
+			$settings_to_update['blogname'] = sanitize_text_field( $store_name );
+		}
+
+		if ( null !== $store_location ) {
+			$settings_to_update['woocommerce_default_country'] = wc_clean( $store_location );
+		}
+
+		if ( null !== $tracking_enabled ) {
+			$settings_to_update['woocommerce_allow_tracking'] = wc_bool_to_string( $tracking_enabled );
+		}
+
+		if ( empty( $settings_to_update ) ) {
+			return new \WP_Error(
+				'woocommerce_rest_invalid_settings',
+				__( 'No valid settings provided.', 'woocommerce' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		foreach ( $settings_to_update as $key => $value ) {
+			update_option( $key, $value );
+		}
+
+		return rest_ensure_response(
+			array(
+				'status'  => 'success',
+				'message' => __( 'Store settings updated successfully.', 'woocommerce' ),
+			)
+		);
 	}
 
 	/**
