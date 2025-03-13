@@ -284,7 +284,12 @@ class WC_BIS_Admin {
 			<img class="info-icon" src="<?php echo esc_url( $info_img_url ); ?>" /><p>
 					<?php
 						/* translators: Settings page for Back in Stock Notifications */
-						echo wp_kses_post( sprintf( __( 'Sign-ups for stock notifications are disabled for all products in the store. To control sign-ups for this product, first enable the global <a href="%s">"Allow sign-ups"</a> option.', 'woocommerce' ), '/wp-admin/admin.php?page=wc-settings&tab=bis_settings' ) );
+						echo wp_kses_post( 
+							sprintf( 
+								__( 'Sign-ups for stock notifications are disabled for all products in the store. To control sign-ups for this product, first enable the global <a href="%s">"Allow sign-ups"</a> option.', 'woocommerce' ), 
+								esc_url( admin_url( 'admin.php?page=wc-settings&tab=products&section=bis_settings' ) )
+								)
+							);
 					?>
 				</p>
 			</div>
