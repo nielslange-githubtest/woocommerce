@@ -9,7 +9,7 @@ import clsx from 'clsx';
  */
 import {
 	SidebarItemProps,
-	StepperProps,
+	WooPaymentsProviderOnboardingStep,
 } from '~/settings-payments/onboarding/types';
 import { WC_ASSET_URL } from '~/utils/admin-settings';
 
@@ -62,8 +62,26 @@ const SidebarItem = ( {
 export default function Stepper( {
 	active,
 	steps,
-	title,
-}: StepperProps ): React.ReactNode {
+	includeSidebar = false,
+	sidebarTitle,
+}: {
+	/**
+	 * The active step key
+	 */
+	active: string;
+	/**
+	 * The steps to render
+	 */
+	steps: WooPaymentsProviderOnboardingStep[];
+	/**
+	 * The title of the sidebar
+	 */
+	sidebarTitle?: string;
+	/**
+	 * Whether to include the sidebar
+	 */
+	includeSidebar?: boolean;
+} ): React.ReactNode {
 	// Find the active step component
 	const activeStep = steps.find( ( step ) => step.key === active );
 
@@ -72,33 +90,36 @@ export default function Stepper( {
 	// Only render the active step
 	return (
 		<>
-			<div className="settings-payments-onboarding-modal__sidebar">
-				<div className="settings-payments-onboarding-modal__sidebar--header">
-					<h2 className="settings-payments-onboarding-modal__sidebar--header-title">
-						{ title }
-					</h2>
-					<div className="settings-payments-onboarding-modal__sidebar--header-steps">
-						{ /* translators: %1$s: current step number, %2$s: total number of steps */ }
-						{ sprintf(
-							/* translators: %1$s: current step number, %2$s: total number of steps */
-							__( 'Step %1$s of %2$s', 'woocommerce' ),
-							steps.findIndex( ( step ) => step.key === active ) +
-								1,
-							steps.length
-						) }
+			{ includeSidebar && (
+				<div className="settings-payments-onboarding-modal__sidebar">
+					<div className="settings-payments-onboarding-modal__sidebar--header">
+						<h2 className="settings-payments-onboarding-modal__sidebar--header-title">
+							{ sidebarTitle }
+						</h2>
+						<div className="settings-payments-onboarding-modal__sidebar--header-steps">
+							{ /* translators: %1$s: current step number, %2$s: total number of steps */ }
+							{ sprintf(
+								/* translators: %1$s: current step number, %2$s: total number of steps */
+								__( 'Step %1$s of %2$s', 'woocommerce' ),
+								steps.findIndex(
+									( step ) => step.key === active
+								) + 1,
+								steps.length
+							) }
+						</div>
+					</div>
+					<div className="settings-payments-onboarding-modal__sidebar--list">
+						{ steps.map( ( step ) => (
+							<SidebarItem
+								key={ step.key }
+								label={ step.title }
+								isCompleted={ step.status === 'completed' }
+								isActive={ step.key === active }
+							/>
+						) ) }
 					</div>
 				</div>
-				<div className="settings-payments-onboarding-modal__sidebar--list">
-					{ steps.map( ( step ) => (
-						<SidebarItem
-							key={ step.key }
-							label={ step.title }
-							isCompleted={ step.status === 'completed' }
-							isActive={ step.key === active }
-						/>
-					) ) }
-				</div>
-			</div>
+			) }
 			<div className="settings-payments-onboarding-modal__content">
 				<div
 					className="settings-payments-onboarding-modal__step"
