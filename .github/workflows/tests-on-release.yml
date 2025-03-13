@@ -1,4 +1,4 @@
-name: 'Release tests run'
+name: 'Release checks run'
 run-name: ${{ github.event_name == 'schedule' && 'scheduled' || github.event_name == 'workflow_dispatch' && 'on demand'  || github.event_name == 'release' && 'release' || '' }} checks for ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
 
 on:

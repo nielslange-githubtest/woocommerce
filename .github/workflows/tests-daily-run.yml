@@ -1,4 +1,4 @@
-name: 'Daily tests run'
+name: 'Daily checks run'
 on:
   workflow_dispatch:
 

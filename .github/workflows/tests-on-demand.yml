@@ -1,4 +1,4 @@
-name: 'On demand tests run'
+name: 'On demand checks run'
 run-name: On demand tests run - ${{ inputs.trigger }}
 
 on:
