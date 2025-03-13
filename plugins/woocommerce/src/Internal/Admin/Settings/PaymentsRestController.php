@@ -1047,19 +1047,19 @@ class PaymentsRestController extends RestApiControllerBase {
 				'steps' => array(
 					array(
 						'key' => 'welcome',
-						'title' => 'Welcome',
-						'description' => 'Welcome to WooCommerce',
+						'title' => 'Welcome to WooPayments',
+						'description' => 'Welcome to WooPayments, the easiest way to accept payments in your store.',
 						'order' => 1,
 						'path' => '/woopayments/onboarding/welcome',
 						'status' => 'completed',
 					),
 					array(
 						'key' => 'jetpack',
-						'title' => 'Jetpack',
+						'title' => 'Connect with Jetpack',
 						'description' => 'Jetpack is a WordPress plugin that allows you to connect your WordPress site to Jetpack.',
 						'order' => 2,
 						'path' => '/woopayments/onboarding/jetpack',
-						'status' => 'incomplete',
+						'status' => 'completed',
 					),
 					array(
 						'key' => 'final',
