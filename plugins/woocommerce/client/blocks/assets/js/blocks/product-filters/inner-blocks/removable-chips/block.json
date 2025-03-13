@@ -19,7 +19,8 @@
 			"allowInheriting": false,
 			"allowVerticalAlignment": false,
 			"default": {
-				"type": "flex"
+				"type": "flex",
+				"orientation": "horizontal"
 			}
 		},
 		"interactivity": true
