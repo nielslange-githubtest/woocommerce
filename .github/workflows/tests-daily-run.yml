@@ -1,7 +1,5 @@
 name: 'Daily tests run'
 on:
-  schedule:
-    - cron: '25 3 * * *'
   workflow_dispatch:
 
 jobs:
