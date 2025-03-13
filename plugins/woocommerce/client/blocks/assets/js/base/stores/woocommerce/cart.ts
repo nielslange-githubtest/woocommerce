@@ -10,10 +10,16 @@ import type { Store as StoreNotices } from '@woocommerce/stores/store-notices';
  */
 import { triggerAddedToCartEvent } from './legacy-events';
 
+type VariationAttribute = {
+	attribute: string;
+	value: string;
+};
+
 type OptimisticCartItem = {
 	key?: string;
 	id: number;
 	quantity: number;
+	variation?: VariationAttribute[];
 };
 
 export type Store = {
@@ -25,7 +31,7 @@ export type Store = {
 		};
 	};
 	actions: {
-		addCartItem: ( args: { id: number; quantity: number } ) => void;
+		addCartItem: ( args: Omit< OptimisticCartItem, 'key' > ) => void;
 		// Todo: Check why if I switch to an async function here the types of the store stop working.
 		refreshCartItems: () => void;
 		showNoticeError: ( error: Error | ApiErrorResponse ) => void;
@@ -74,7 +80,11 @@ const { state, actions } = store< Store >(
 	'woocommerce',
 	{
 		actions: {
-			*addCartItem( { id, quantity }: { id: number; quantity: number } ) {
+			*addCartItem( {
+				id,
+				quantity,
+				variation,
+			}: Omit< OptimisticCartItem, 'key' > ) {
 				let item = state.cart.items.find(
 					( { id: productId } ) => id === productId
 				);
@@ -88,7 +98,7 @@ const { state, actions } = store< Store >(
 					if ( item.key )
 						quantityChanges.cartItemsPendingQuantity = [ item.key ];
 				} else {
-					item = { id, quantity };
+					item = { id, quantity, variation } as OptimisticCartItem;
 					state.cart.items.push( item );
 					quantityChanges.productsPendingAdd = [ id ];
 				}
