@@ -125,7 +125,8 @@ export default function Stepper( {
 							<SidebarItem
 								key={ step.key }
 								label={ step.title }
-								isCompleted={ step.status === 'completed' }
+								// isCompleted={ step.status === 'completed' } // Making the server as the source of truth
+								isCompleted={ step.order < activeStep.order } // This is supposing that all steps before the current one are done
 								isActive={ step.key === active }
 							/>
 						) ) }
