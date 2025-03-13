@@ -125,13 +125,12 @@ if ( $additional_content ) {
 	echo $email_improvements_enabled ? '</td></tr></table>' : '';
 }
 
-$refund_page_id = get_option('woocommerce_refund_returns_page_id');
-$refund_page = $refund_page_id ? get_post($refund_page_id) : null;
-
-if ($refund_page && 'publish' === $refund_page->post_status) {
-    echo $email_improvements_enabled ? '<table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td class="email-additional-content">' : '';
-    $refund_page_url = get_permalink($refund_page_id);
-    echo '<p><a href="' . esc_url($refund_page_url) . '">' . esc_html__('Refund & returns policy', 'woocommerce') . '</a></p>';
+/**
+ * Show user-defined content about refund & returns policy - this is set in each email's settings.
+ */
+if ( $refund_returns_policy ) {
+	echo $email_improvements_enabled ? '<table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td class="email-additional-content">' : '';
+    echo wp_kses_post( wpautop( wptexturize( $refund_returns_policy ) ) );
     echo $email_improvements_enabled ? '</td></tr></table>' : '';
 }
 

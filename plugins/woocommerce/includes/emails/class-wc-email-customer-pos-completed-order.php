@@ -40,6 +40,16 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 				'{order_number}' => '',
 			);
 
+            $refund_page_id = get_option('woocommerce_refund_returns_page_id');
+            $refund_page = $refund_page_id ? get_post($refund_page_id) : null;
+            
+            if ($refund_page && 'publish' === $refund_page->post_status) {
+                $refund_page_url = get_permalink($refund_page_id);
+                if ($refund_page_url) {
+                    $this->placeholders['{refund_returns_policy_url}'] = $refund_page_url;
+                }
+            }
+
 			// Call parent constructor.
 			parent::__construct();
 
@@ -104,6 +114,21 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			return apply_filters( 'woocommerce_email_heading_customer_pos_completed_order', $this->format_string( $heading ), $this->object, $this );
 		}
 
+        /**
+		 * Placeholder of the refund & returns policy content.
+		 *
+		 * @since 1.0.0
+		 * @return string
+		 */
+        public function get_refund_returns_policy_placeholder() {
+			return __( 'Brief statement about the refund & returns policy', 'woocommerce' );
+		}
+
+        public function get_refund_returns_policy() {
+			$policy_text = $this->get_option('refund_returns_policy', '');
+			return $this->format_string($policy_text);
+		}
+
 		/**
 		 * Default content to show below main email content.
 		 *
@@ -155,6 +180,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'order'              => $this->object,
 					'email_heading'      => $this->get_heading(),
 					'additional_content' => $this->get_additional_content(),
+                    'refund_returns_policy' => $this->get_refund_returns_policy(),
 					'sent_to_admin'      => false,
 					'plain_text'         => false,
 					'email'              => $this,
@@ -227,6 +253,15 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'placeholder' => __( 'N/A', 'woocommerce' ),
 					'type'        => 'textarea',
 					'default'     => $this->get_default_additional_content(),
+					'desc_tip'    => true,
+				),
+                'refund_returns_policy' => array(
+					'title'       => __( 'Refund & returns policy', 'woocommerce' ),
+					'description' => __( 'Text to appear below the main email and additional content about the refund & returns policy.', 'woocommerce' ). ' ' . $placeholder_text,
+					'css'         => 'width:400px; height: 75px;',
+					'placeholder' => $this->get_refund_returns_policy_placeholder(),
+					'type'        => 'textarea',
+					'default'     => '',
 					'desc_tip'    => true,
 				),
 				'email_type'         => array(
