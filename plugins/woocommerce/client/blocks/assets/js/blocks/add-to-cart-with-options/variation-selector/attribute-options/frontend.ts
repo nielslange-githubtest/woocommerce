@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import type { KeyboardEvent } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
 type Option = {
@@ -11,6 +11,7 @@ type Option = {
 };
 
 type Context = {
+	name: string;
 	selectedValue: string | null;
 	option: Option;
 	options: Option[];
@@ -19,6 +20,28 @@ type Context = {
 type PillsContext = Context & {
 	focused?: string;
 };
+
+const { actions: wooAddToCartWithOptions } = store(
+	'woocommerce/add-to-cart-with-options',
+	{},
+	{
+		// Stores are locked to prevent 3PD usage until the API is stable.
+		lock: 'I acknowledge that using a private store means my plugin will inevitably break on the next store release.',
+	}
+);
+
+function setAttribute( name: string, value: string | null ) {
+	if ( value ) {
+		wooAddToCartWithOptions.setAttribute( name, value );
+	} else {
+		wooAddToCartWithOptions.removeAttribute( name );
+	}
+}
+
+function setDefaultSelectedAttribute() {
+	const context = getContext< PillsContext >();
+	setAttribute( context.name, context.selectedValue );
+}
 
 const { state, actions } = store(
 	'woocommerce/add-to-cart-with-options-variation-selector-attribute-options__pills',
@@ -47,6 +70,12 @@ const { state, actions } = store(
 
 				return -1;
 			},
+			get index() {
+				const context = getContext< PillsContext >();
+				return context.options.findIndex(
+					( option ) => option.value === context.option.value
+				);
+			},
 		},
 		actions: {
 			toggleSelected() {
@@ -57,6 +86,7 @@ const { state, actions } = store(
 					context.selectedValue = context.option.value;
 				}
 				context.focused = context.option.value;
+				setAttribute( context.name, context.selectedValue );
 			},
 			handleKeyDown( event: KeyboardEvent< HTMLElement > ) {
 				const context = getContext< PillsContext >();
@@ -73,15 +103,15 @@ const { state, actions } = store(
 					case 'ArrowUp':
 					case 'Left':
 					case 'ArrowLeft': {
-						const index = context.options.findIndex(
-							( option ) => option.value === context.option.value
-						);
+						const index = state.index;
 						if ( index === -1 ) return;
 						const at =
 							index > 0 ? index - 1 : context.options.length - 1;
 
 						context.selectedValue = context.options[ at ].value;
 						context.focused = context.selectedValue;
+
+						setAttribute( context.name, context.selectedValue );
 						keyWasProcessed = true;
 						break;
 					}
@@ -90,15 +120,15 @@ const { state, actions } = store(
 					case 'ArrowDown':
 					case 'Right':
 					case 'ArrowRight': {
-						const index = context.options.findIndex(
-							( option ) => option.value === context.option.value
-						);
+						const index = state.index;
 						if ( index === -1 ) return;
 						const at =
 							index < context.options.length - 1 ? index + 1 : 0;
 
 						context.selectedValue = context.options[ at ].value;
 						context.focused = context.selectedValue;
+
+						setAttribute( context.name, context.selectedValue );
 						keyWasProcessed = true;
 						break;
 					}
@@ -113,6 +143,7 @@ const { state, actions } = store(
 			},
 		},
 		callbacks: {
+			setDefaultSelectedAttribute,
 			watchSelected() {
 				const { focused } = getContext< PillsContext >();
 
@@ -130,10 +161,14 @@ store(
 	'woocommerce/add-to-cart-with-options-variation-selector-attribute-options__dropdown',
 	{
 		actions: {
-			handleChange() {
+			handleChange( event: ChangeEvent< HTMLSelectElement > ) {
 				const context = getContext< Context >();
-				context.selectedValue = context.option.value;
+				context.selectedValue = event.currentTarget.value;
+				setAttribute( context.name, context.selectedValue );
 			},
+		},
+		callbacks: {
+			setDefaultSelectedAttribute,
 		},
 	},
 	{ lock: true }
