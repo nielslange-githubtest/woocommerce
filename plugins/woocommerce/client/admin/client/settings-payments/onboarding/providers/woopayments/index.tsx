@@ -27,6 +27,9 @@ const JetpackStep = () => {
 const OtherStep = () => {
 	return <div>Other Step Content</div>;
 };
+const FrontendStep = () => {
+	return <div>Frontend Step Content</div>;
+};
 
 const getStepContentFromStepKey = ( stepKey: string ) => {
 	switch ( stepKey ) {
@@ -36,6 +39,8 @@ const getStepContentFromStepKey = ( stepKey: string ) => {
 			return <JetpackStep />;
 		case 'final':
 			return <OtherStep />;
+		case 'frontend':
+			return <FrontendStep />;
 		default:
 			return null;
 	}
@@ -55,7 +60,19 @@ const WooPaymentsProvider = () => {
 
 	// If we have steps, render the Stepper
 	if ( steps && steps.length > 0 ) {
-		const stepsMapped = steps.map( ( step ) => ( {
+		// Add front-end only steps
+		const frontEndOnlySteps = [
+			{
+				key: 'frontend',
+				title: 'Front-end step',
+				path: '/onboarding/frontend',
+				description: 'This step is only visible on the front-end.',
+				order: 10,
+				status: 'incomplete' as 'incomplete' | 'completed',
+			},
+		];
+		const completeSteps = [ ...steps, ...frontEndOnlySteps ];
+		const stepsMapped = completeSteps.map( ( step ) => ( {
 			...step,
 			content: getStepContentFromStepKey( step.key ),
 		} ) );
