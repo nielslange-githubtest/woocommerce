@@ -49,7 +49,7 @@ const getStepContentFromStepKey = ( stepKey: string ) => {
 };
 
 const WooPaymentsProvider = () => {
-	const { steps, isLoading } = useOnboardingContext();
+	const { steps, isLoading, currentStep } = useOnboardingContext();
 
 	// If still loading, show a loading indicator
 	if ( isLoading ) {
@@ -78,10 +78,6 @@ const WooPaymentsProvider = () => {
 			...step,
 			content: getStepContentFromStepKey( step.key ),
 		} ) );
-
-		const currentStep = stepsMapped
-			.sort( ( a, b ) => a.order - b.order )
-			.find( ( step ) => step.status === 'incomplete' );
 
 		return (
 			<div className="settings-payments-onboarding-modal__wrapper">
