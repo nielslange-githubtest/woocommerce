@@ -4,8 +4,8 @@ const { ADMIN_STATE_PATH } = require( '../../playwright.config' );
 // add any non-authenticated pages here (that don't require a login)
 const shopperPages = [
 	{ name: 'Shop page', url: 'shop/', expectedCount: 50 },
-	{ name: 'Cart', url: 'cart/', expectedCount: 54 },
-	{ name: 'Checkout', url: 'checkout/', expectedCount: 54 },
+	{ name: 'Cart', url: 'cart/', expectedCount: 67 },
+	{ name: 'Checkout', url: 'checkout/', expectedCount: 67 },
 ];
 
 // add any pages that require an admin login here
