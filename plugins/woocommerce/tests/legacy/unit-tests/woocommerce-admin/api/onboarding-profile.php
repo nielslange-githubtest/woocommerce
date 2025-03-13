@@ -240,4 +240,125 @@ class WC_Admin_Tests_API_Onboarding_Profiles extends WC_REST_Unit_Test_Case {
 		$this->assertFalse( get_option( MailchimpScheduler::SUBSCRIBED_OPTION_NAME, false ) );
 		$this->assertFalse( get_option( MailchimpScheduler::SUBSCRIBED_ERROR_COUNT_OPTION_NAME, false ) );
 	}
+
+	/**
+	 * Test update store settings API.
+	 */
+	public function test_update_store_settings() {
+		wp_set_current_user( $this->user );
+
+		$request = new WP_REST_Request( 'POST', $this->endpoint . '/update-store-settings' );
+		$request->set_headers( array( 'content-type' => 'application/json' ) );
+
+		// Test updating store settings.
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'store_name'       => 'My Test Store',
+					'store_location'   => 'GB:ENG',
+					'tracking_enabled' => true,
+				)
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['status'] );
+		$this->assertEquals( __( 'Store settings updated successfully.', 'woocommerce' ), $data['message'] );
+
+		// Verify settings were updated.
+		$this->assertEquals( 'My Test Store', get_option( 'blogname' ) );
+		$this->assertEquals( 'GB:ENG', get_option( 'woocommerce_default_country' ) );
+		$this->assertEquals( 'yes', get_option( 'woocommerce_allow_tracking' ) );
+
+		// Test updating single field.
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'store_name' => 'Updated Store Name',
+				)
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'success', $data['status'] );
+		$this->assertEquals( 'Updated Store Name', get_option( 'blogname' ) );
+	}
+
+	/**
+	 * Test update store settings API with invalid data.
+	 */
+	public function test_update_store_settings_invalid_data() {
+		wp_set_current_user( $this->user );
+
+		$request = new WP_REST_Request( 'POST', $this->endpoint . '/update-store-settings' );
+		$request->set_headers( array( 'content-type' => 'application/json' ) );
+
+		// Test with invalid store location format.
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'store_location' => -1,
+				)
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertArrayHasKey( 'code', $response->get_data() );
+		$this->assertEquals( 'rest_invalid_param', $response->get_data()['code'] );
+
+		// Test with empty request.
+		$request->set_body( wp_json_encode( array() ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertArrayHasKey( 'code', $response->get_data() );
+		$this->assertEquals( 'woocommerce_rest_invalid_settings', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Test update store settings API permissions.
+	 */
+	public function test_update_store_settings_permissions() {
+		// Test with non-admin user.
+		$non_admin = $this->factory->user->create(
+			array(
+				'role' => 'subscriber',
+			)
+		);
+		wp_set_current_user( $non_admin );
+
+		$request = new WP_REST_Request( 'POST', $this->endpoint . '/update-store-settings' );
+		$request->set_headers( array( 'content-type' => 'application/json' ) );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'store_name' => 'Test Store',
+				)
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertArrayHasKey( 'code', $response->get_data() );
+		$this->assertEquals( 'woocommerce_rest_cannot_view', $response->get_data()['code'] );
+
+		// Test with no user.
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertArrayHasKey( 'code', $response->get_data() );
+		$this->assertEquals( 'woocommerce_rest_cannot_view', $response->get_data()['code'] );
+	}
 }
