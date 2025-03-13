@@ -83,7 +83,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
 
       - name: Setup - pnpm
         uses: 'pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d'
@@ -135,7 +135,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
           # We tried to speed checkout up with shallow copies, but `git merge-base ...` used on different levels of tooling forces us to follow this approach.
           fetch-depth: ${{ ( ( matrix.projectName == '@woocommerce/plugin-woocommerce' && '0' ) || '1' ) }}
 
@@ -164,7 +164,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
 
       - uses: './.github/actions/setup-woocommerce-monorepo'
         name: 'Install Monorepo'
@@ -309,7 +309,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
           sparse-checkout: |
               .github/workflows/scripts
 
@@ -337,7 +337,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
           sparse-checkout: |
               package.json
               ./tools/monorepo-utils
@@ -433,7 +433,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName || '' }}
           sparse-checkout: |
               .github/actions/report-flaky-tests
 
