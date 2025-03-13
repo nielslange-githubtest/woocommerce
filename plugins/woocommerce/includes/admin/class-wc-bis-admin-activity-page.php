@@ -1,4 +1,6 @@
 <?php
+declare( strict_types=1 );
+
 /**
  * WC_BIS_Admin_Activity_Page class
  *
@@ -27,7 +29,12 @@ class WC_BIS_Admin_Activity_Page {
 	 */
 	public static function output() {
 
-		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
+		// Verify nonce if search is being performed.
+		if ( isset( $_REQUEST['s'] ) ) {
+			check_admin_referer( 'bulk-activities' );
+		}
+
+		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 		$table  = new WC_BIS_Activity_List_Table();
 		$table->prepare_items();
 
