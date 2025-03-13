@@ -18,35 +18,7 @@ import {
 	OnboardingProvider,
 	useOnboardingContext,
 } from '../../context/OnboardingContext';
-
-// Step components
-const WelcomeStep = () => {
-	return <div>Welcome Step Content</div>;
-};
-const JetpackStep = () => {
-	return <div>Jetpack Step Content</div>;
-};
-const OtherStep = () => {
-	return <div>Other Step Content</div>;
-};
-const FrontendStep = () => {
-	return <div>Frontend Step Content</div>;
-};
-
-const getStepContentFromStepKey = ( stepKey: string ) => {
-	switch ( stepKey ) {
-		case 'welcome':
-			return <WelcomeStep />;
-		case 'jetpack':
-			return <JetpackStep />;
-		case 'final':
-			return <OtherStep />;
-		case 'frontend':
-			return <FrontendStep />;
-		default:
-			return null;
-	}
-};
+import { getStepContent, frontEndOnlySteps } from './steps';
 
 const WooPaymentsProvider = () => {
 	const { steps, isLoading, currentStep } = useOnboardingContext();
@@ -62,21 +34,12 @@ const WooPaymentsProvider = () => {
 
 	// If we have steps, render the Stepper
 	if ( steps && steps.length > 0 ) {
-		// Add front-end only steps
-		const frontEndOnlySteps = [
-			{
-				key: 'frontend',
-				title: 'Front-end step',
-				path: '/onboarding/frontend',
-				description: 'This step is only visible on the front-end.',
-				order: 10,
-				status: 'incomplete' as 'incomplete' | 'completed',
-			},
-		];
-		const completeSteps = [ ...steps, ...frontEndOnlySteps ];
+		const completeSteps = [ ...steps, ...frontEndOnlySteps ].sort(
+			( a, b ) => a.order - b.order
+		);
 		const stepsMapped = completeSteps.map( ( step ) => ( {
 			...step,
-			content: getStepContentFromStepKey( step.key ),
+			content: getStepContent( step.key ),
 		} ) );
 
 		return (
