@@ -1,10 +1,10 @@
 export interface StepContent {
-	key: string;
-	title: string;
+	id: string;
+	label: string;
 	path: string;
-	description: string;
 	order: number;
 	status: 'completed' | 'incomplete';
+	dependencies: string[];
 }
 
 export interface OnboardingState {
