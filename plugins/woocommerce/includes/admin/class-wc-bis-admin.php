@@ -162,8 +162,8 @@ class WC_BIS_Admin {
 	 */
 	public static function admin_resources() {
 
-		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		$version   = Constants::get_constant( 'WC_VERSION' );
+		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$version = Constants::get_constant( 'WC_VERSION' );
 
 		wp_register_style( 'wc-bis-admin', WC()->plugin_url() . '/assets/css/bis-admin.css', array(), $version );
 		wp_style_add_data( 'wc-bis-admin', 'rtl', 'replace' );

@@ -1,4 +1,6 @@
 <?php
+declare( strict_types=1 );
+
 /**
  * WC_BIS_Admin_Exporters class
  *
@@ -43,12 +45,12 @@ class WC_BIS_Admin_Exporters {
 	 * Serve the generated file.
 	 */
 	public function download_export_file() {
-		if ( isset( $_GET['action'], $_GET['nonce'] ) && wp_verify_nonce( wc_clean( $_GET['nonce'] ), 'notification-csv' ) && 'download_notification_csv' === wc_clean( $_GET['action'] ) ) {
+		if ( isset( $_GET['action'], $_GET['nonce'] ) && wp_verify_nonce( wc_clean( wp_unslash( $_GET['nonce'] ) ), 'notification-csv' ) && 'download_notification_csv' === wc_clean( wp_unslash( $_GET['action'] ) ) ) {
 			include_once WC_ABSPATH . 'includes/admin/export/class-wc-bis-notification-csv-exporter.php';
 			$exporter = new WC_BIS_Notification_CSV_Exporter();
 
 			if ( ! empty( $_GET['filename'] ) ) {
-				$exporter->set_filename( wc_clean( $_GET['filename'] ) );
+				$exporter->set_filename( wc_clean( wp_unslash( $_GET['filename'] ) ) );
 			}
 
 			$exporter->export();
@@ -77,12 +79,19 @@ class WC_BIS_Admin_Exporters {
 		}
 
 		if ( ! empty( $_POST['filename'] ) ) {
-			$exporter->set_filename( wc_clean( $_POST['filename'] ) );
+			$exporter->set_filename( wc_clean( wp_unslash( $_POST['filename'] ) ) );
 		}
 
 		$exporter->set_page( $step );
 		$exporter->generate_file();
 
+		/**
+		 * Filter: woocommerce_bis_export_get_ajax_query_args.
+		 *
+		 * @since 9.9.0
+		 * @param array $query_args The query arguments for the export URL.
+		 * @return array
+		 */
 		$query_args = apply_filters(
 			'woocommerce_bis_export_get_ajax_query_args',
 			array(

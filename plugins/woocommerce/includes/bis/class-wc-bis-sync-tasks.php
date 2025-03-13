@@ -71,12 +71,12 @@ class WC_BIS_Sync_Tasks {
 		}
 
 		if ( wc_bis_debug_enabled() ) {
-			wc_get_logger()->info( 
-				sprintf( 'Sending %d notifications for products that are back in stock.', $notifications_count ), 
-				array( 
-					'source' => 'wc_bis_sync_logs',
+			wc_get_logger()->info(
+				sprintf( 'Sending %d notifications for products that are back in stock.', $notifications_count ),
+				array(
+					'source'      => 'wc_bis_sync_logs',
 					'product_ids' => $product_ids,
-				) 
+				)
 			);
 		}
 

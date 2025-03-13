@@ -6,7 +6,7 @@
  * @since    x.x.x
  */
 
- declare( strict_types=1 );
+declare( strict_types=1 );
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {

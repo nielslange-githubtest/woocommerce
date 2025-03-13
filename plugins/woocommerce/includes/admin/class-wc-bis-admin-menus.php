@@ -268,7 +268,7 @@ class WC_BIS_Admin_Menus {
 		self::hide_submenu_page( 'woocommerce', 'bis_notifications' );
 	}
 
-	/**	
+	/**
 	 * Add "Activity" tab to WooCommerce status page.
 	 *
 	 * @param array $tabs
@@ -338,9 +338,9 @@ class WC_BIS_Admin_Menus {
 	/**
 	 * Exclude menu items from WooCommerce menu migration.
 	 *
-	 * This feature has been deprecated in WooCommerce 9.5, so it can be removed in the future. 
+	 * This feature has been deprecated in WooCommerce 9.5, so it can be removed in the future.
 	 * Keeping this here for now.
-	 * 
+	 *
 	 * @since  1.0.9
 	 *
 	 * @param  array $excluded_items

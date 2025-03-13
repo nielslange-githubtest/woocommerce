@@ -254,7 +254,6 @@ class WC_BIS_Admin_Ajax {
 
 		wp_send_json( apply_filters( 'woocommerce_json_search_found_products', $products ) );
 	}
-
 }
 
 WC_BIS_Admin_Ajax::init();

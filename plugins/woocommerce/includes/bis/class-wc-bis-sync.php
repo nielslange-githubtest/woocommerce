@@ -60,12 +60,12 @@ class WC_BIS_Sync {
 		}
 
 		if ( wc_bis_debug_enabled() ) {
-			wc_get_logger()->info( 
-				'Sync stock queue activated for back in stock notifications.', 
-				array( 
-					'source' => 'wc_bis_sync_logs',
+			wc_get_logger()->info(
+				'Sync stock queue activated for back in stock notifications.',
+				array(
+					'source'      => 'wc_bis_sync_logs',
 					'product_ids' => $this->queue,
-				) 
+				)
 			);
 		}
 

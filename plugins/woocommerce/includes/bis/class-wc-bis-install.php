@@ -24,7 +24,7 @@ class WC_BIS_Install {
 	 */
 	public static function init() {
 		wc_deprecated_function( 'WC_BIS_Install::init', '9.9.0' );
-		//TODO: Haven't ported the db upgrade when updating to 1.1.0, so perhaps add some info to folks on older BIS?
+		// TODO: Haven't ported the db upgrade when updating to 1.1.0, so perhaps add some info to folks on older BIS?
 	}
 
 	/**

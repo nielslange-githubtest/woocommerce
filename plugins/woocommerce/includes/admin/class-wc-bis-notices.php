@@ -42,7 +42,6 @@ class WC_BIS_Notices {
 
 		// Save notice options.
 		add_action( 'shutdown', array( __CLASS__, 'save_notice_options' ), 100 );
-
 	}
 
 	/**
