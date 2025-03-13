@@ -309,7 +309,7 @@ jobs:
       - uses: 'actions/checkout@v4'
         name: 'Checkout'
         with:
-          ref: ${{ inputs.refName != '' && inputs.refName || github.ref_name }}
+          ref: ${{ inputs.refName != '' && inputs.refName }}
           sparse-checkout: |
               .github/workflows/scripts
 
