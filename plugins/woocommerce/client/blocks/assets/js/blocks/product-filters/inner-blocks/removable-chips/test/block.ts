@@ -13,26 +13,16 @@ import {
 	selectBlock,
 } from '../../../../../../../tests/integration/helpers/integration-test-editor';
 
-// Import block registrations
+/**
+ * Block dependencies
+ */
 import '../../active-filters';
 import '../';
 
-// Make sure blocks are registered before running tests
-import { registerBlockType } from '@wordpress/blocks';
-import metadata from '../block.json';
-import Edit from '../edit';
-import Save from '../save';
-
-registerBlockType( metadata, {
-	edit: Edit,
-	save: Save,
-} );
-
-async function setup( attributes: BlockAttributes = {} ) {
+async function setup( attributes: BlockAttributes ) {
 	return initializeEditor( [
 		{
 			name: 'woocommerce/product-filter-active',
-			attributes: {},
 			innerBlocks: [
 				createBlock(
 					'woocommerce/product-filter-removable-chips',
