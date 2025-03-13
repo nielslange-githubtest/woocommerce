@@ -527,7 +527,8 @@ export function* actionTask( id: string ) {
 }
 
 export function* installAndActivatePluginsAsync(
-	plugins: Partial< PluginNames >[]
+	plugins: Partial< PluginNames >[],
+	source?: string
 ) {
 	yield setIsRequesting( 'installAndActivatePluginsAsync', true );
 
@@ -536,7 +537,7 @@ export function* installAndActivatePluginsAsync(
 			{
 				path: `${ WC_ADMIN_NAMESPACE }/onboarding/plugins/install-and-activate-async`,
 				method: 'POST',
-				data: { plugins },
+				data: { plugins, source },
 			}
 		);
 
