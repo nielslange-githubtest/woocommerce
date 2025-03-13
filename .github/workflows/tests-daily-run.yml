@@ -8,5 +8,5 @@ jobs:
     if: github.repository == 'woocommerce/woocommerce'
     uses: ./.github/workflows/ci.yml
     with:
-      trigger: 'daily-checks'
+      trigger: 'nightly-checks'
     secrets: inherit
