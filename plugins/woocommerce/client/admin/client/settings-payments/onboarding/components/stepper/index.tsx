@@ -41,14 +41,14 @@ const SidebarItem = ( {
 							WC_ASSET_URL +
 							'images/onboarding/icons/complete.svg'
 						}
-						alt={ __( 'Completed', 'woocommerce' ) }
+						alt={ __( 'Step completed', 'woocommerce' ) }
 					/>
 				) : (
 					<img
 						src={
 							WC_ASSET_URL + 'images/onboarding/icons/pending.svg'
 						}
-						alt={ __( 'Pending', 'woocommerce' ) }
+						alt={ __( 'Step active', 'woocommerce' ) }
 					/>
 				) }
 			</span>
@@ -97,7 +97,7 @@ export default function Stepper( {
 		}
 	}, [ activeStep, navigateToStep, location.pathname ] );
 
-	if ( ! activeStep ) return <div>No active step</div>;
+	if ( ! activeStep ) return null;
 
 	// Only render the active step
 	return (
@@ -125,8 +125,7 @@ export default function Stepper( {
 							<SidebarItem
 								key={ step.id }
 								label={ step.label }
-								// isCompleted={ step.status === 'completed' } // Making the server as the source of truth
-								isCompleted={ step.order < activeStep.order } // This is supposing that all steps before the current one are done
+								isCompleted={ step.status === 'completed' }
 								isActive={ step.id === active }
 							/>
 						) ) }
