@@ -93,41 +93,81 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 		WooPaymentsProviderOnboardingStep[]
 	>( [] );
 
-	useEffect( () => {
-		setAllSteps(
-			woopaymentsSteps.map( ( step ) => {
-				// If step type is backend, add the status, path and dependencies from the store
-				if ( step.type === 'backend' ) {
-					const backendStep = stateStoreSteps.find(
-						( s ) => s.id === step.id
-					);
-					return Object.assign( {}, step, {
-						status: backendStep?.status || 'incomplete',
-						dependencies: backendStep?.dependencies || [],
-						path: backendStep?.path,
-						// Maybe actions too
-					} );
-				}
-				// If the step is a frontend step, we add a status of incomplete in runtime
-				return Object.assign( {}, step, {
-					status: 'incomplete',
-				} );
-			} )
-		);
-	}, [ stateStoreSteps ] );
-
-	// Make UI refresh when plugin is installed.
-	const { invalidateResolutionForStoreSelector } = useDispatch(
-		woopaymentsOnboardingStore
-	);
-
 	// Helper function to get step by key
-	// useCallback is used to avoid re-rendering the tree each time the component is rendered
 	const getStepByKey = useCallback(
 		( stepKey: string ) => {
 			return allSteps.find( ( step ) => step.id === stepKey );
 		},
 		[ allSteps ]
+	);
+
+	// Helper function to check if all dependencies of a step are completed
+	const areStepDependenciesCompleted = useCallback(
+		(
+			step: WooPaymentsProviderOnboardingStep,
+			steps: WooPaymentsProviderOnboardingStep[]
+		) => {
+			if ( ! step.dependencies || step.dependencies.length === 0 ) {
+				return true;
+			}
+
+			return step.dependencies.every( ( dependencyId ) => {
+				const dependencyStep = steps.find(
+					( s ) => s.id === dependencyId
+				);
+				return dependencyStep?.status === 'completed';
+			} );
+		},
+		[]
+	);
+
+	// Update all steps when stateStoreSteps changes
+	useEffect( () => {
+		const mapWooPaymentsSteps = woopaymentsSteps.map( ( step ) => {
+			// If step type is backend, add the status, path and dependencies from the store
+			if ( step.type === 'backend' ) {
+				const backendStep = stateStoreSteps.find(
+					( s ) => s.id === step.id
+				);
+
+				return Object.assign( {}, step, {
+					status: backendStep?.status || 'incomplete',
+					dependencies: backendStep?.dependencies || [],
+					path: backendStep?.path,
+					// Maybe actions too
+				} );
+			}
+
+			// For frontend steps, create a base step object first
+			return Object.assign( {}, step );
+		} );
+
+		// Now determine dependencies status in a second pass to avoid stale data
+		const stepsWithDependenciesResolved = mapWooPaymentsSteps.map(
+			( step ) => {
+				if ( step.type === 'frontend' ) {
+					return {
+						...step,
+						status: areStepDependenciesCompleted(
+							step,
+							mapWooPaymentsSteps
+						)
+							? ( 'completed' as const )
+							: ( 'incomplete' as const ),
+					};
+				}
+				return step;
+			}
+		);
+
+		setAllSteps(
+			stepsWithDependenciesResolved as WooPaymentsProviderOnboardingStep[]
+		);
+	}, [ stateStoreSteps, areStepDependenciesCompleted ] );
+
+	// Make UI refresh when plugin is installed.
+	const { invalidateResolutionForStoreSelector } = useDispatch(
+		woopaymentsOnboardingStore
 	);
 
 	// Navigation helper
@@ -146,25 +186,11 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 		[ getStepByKey, history ]
 	);
 
-	// Helper function to check if all dependencies of a step are completed
-	const areStepDependenciesCompleted = useCallback(
-		( step: WooPaymentsProviderOnboardingStep ) => {
-			if ( ! step.dependencies || step.dependencies.length === 0 ) {
-				return true;
-			}
-
-			return step.dependencies.every( ( dependencyId ) => {
-				const dependencyStep = getStepByKey( dependencyId );
-				return dependencyStep?.status === 'completed';
-			} );
-		},
-		[ getStepByKey ]
-	);
-
 	// Find the first incomplete step with completed dependencies
 	const currentStep = allSteps.find(
 		( step ) =>
-			step.status === 'incomplete' && areStepDependenciesCompleted( step )
+			step.status === 'incomplete' &&
+			areStepDependenciesCompleted( step, allSteps )
 	);
 
 	const navigateToNextStep = useCallback( () => {
