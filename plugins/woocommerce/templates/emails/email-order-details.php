@@ -97,7 +97,8 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 		</tbody>
 		<tfoot>
 			<?php
-			$item_totals       = $order->get_order_item_totals();
+			$includes_payment_auth_code = isset( $includes_payment_auth_code ) ? $includes_payment_auth_code : false;
+			$item_totals       = $order->get_order_item_totals('', $includes_payment_auth_code);
 			$item_totals_count = count( $item_totals );
 
 			if ( $item_totals ) {

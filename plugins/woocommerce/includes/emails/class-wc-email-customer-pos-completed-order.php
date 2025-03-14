@@ -72,7 +72,41 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			return $args;
 		}
 
-		/**
+        /**
+         * Show the order details table
+         *
+         * @param WC_Order $order         Order instance.
+         * @param bool     $sent_to_admin If should sent to admin.
+         * @param bool     $plain_text    If is plain text email.
+         * @param string   $email         Email address.
+         */
+        public function order_details( $order, $sent_to_admin = false, $plain_text = false, $email = '' ) {
+            if ( $plain_text ) {
+                wc_get_template(
+                    'emails/plain/email-order-details.php',
+                    array(
+                        'order'         => $order,
+                        'sent_to_admin' => $sent_to_admin,
+                        'plain_text'    => $plain_text,
+                        'email'         => $email,
+                        'includes_payment_auth_code' => true,
+                    )
+                );
+            } else {
+                wc_get_template(
+                    'emails/email-order-details.php',
+                    array(
+                        'order'         => $order,
+                        'sent_to_admin' => $sent_to_admin,
+                        'plain_text'    => $plain_text,
+                        'email'         => $email,
+                        'includes_payment_auth_code' => true,
+                    )
+                );
+            }
+        }
+
+        /**
 		 * Get email subject.
 		 *
 		 * @param bool $paid Whether the order has been paid or not.
@@ -188,6 +222,8 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
             // TODO: do the same for plain text email.
             // Add filter to include unit price in the quantity column for order items table.
 			add_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10, 1 );
+            // Override default action handling in wc-emails.php to show the order details table with payment auth code.
+            add_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10, 4 );
 			$content = wc_get_template_html(
 				$this->template_html,
 				array(
@@ -201,7 +237,8 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 				)
 			);
 
-            // Remove the filter after generating content to avoid affecting other emails.
+            // Remove action and filter after generating content to avoid affecting other emails.
+            remove_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10 );
             remove_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10 );
             
             return $content;
