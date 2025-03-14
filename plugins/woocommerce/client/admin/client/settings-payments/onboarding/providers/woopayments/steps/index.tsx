@@ -19,7 +19,7 @@ export const WelcomeStep = () => {
 	return (
 		<>
 			<WooPaymentsStepHeader onClose={ () => {} } />
-			<div className="settings-payments-onboarding-modal__step-content">
+			<div className="settings-payments-onboarding-modal__step--content">
 				Welcome Step Content
 				<button onClick={ () => navigateToNextStep() }>
 					Next (Front-end only)
@@ -38,7 +38,7 @@ export const JetpackStep = () => {
 	return (
 		<>
 			<WooPaymentsStepHeader onClose={ () => {} } />
-			<div className="settings-payments-onboarding-modal__step-content">
+			<div className="settings-payments-onboarding-modal__step--content">
 				<div>
 					Jetpack Step Content{ ' ' }
 					<button onClick={ () => navigateToNextStep() }>
@@ -60,7 +60,7 @@ export const OtherStep = () => {
 	return (
 		<>
 			<WooPaymentsStepHeader onClose={ () => {} } />
-			<div className="settings-payments-onboarding-modal__step-content">
+			<div className="settings-payments-onboarding-modal__step--content">
 				Other Step Content
 				<button onClick={ () => navigateToNextStep() }>
 					Next (Front-end only)
@@ -79,7 +79,7 @@ export const FrontendStep = () => {
 	return (
 		<>
 			<WooPaymentsStepHeader onClose={ () => {} } />
-			<div className="settings-payments-onboarding-modal__step-content">
+			<div className="settings-payments-onboarding-modal__step--content">
 				Frontend Step Content
 				<button onClick={ () => navigateToNextStep() }>
 					Next (Front-end only)

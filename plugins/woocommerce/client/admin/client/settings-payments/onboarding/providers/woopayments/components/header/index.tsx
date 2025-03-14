@@ -26,10 +26,10 @@ export default function WooPaymentsStepHeader(
 			<img
 				src={ `${ WC_ASSET_URL }images/woo-logo.svg` }
 				alt="Woo Logo"
-				className="settings-payments-onboarding-modal__header-logo"
+				className="settings-payments-onboarding-modal__header--logo"
 			/>
 			<Button
-				className="settings-payments-onboarding-modal__header-close"
+				className="settings-payments-onboarding-modal__header--close"
 				onClick={ onClose }
 			>
 				<Icon icon={ close } />
