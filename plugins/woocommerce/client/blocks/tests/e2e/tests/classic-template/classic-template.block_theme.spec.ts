@@ -259,7 +259,9 @@ test.describe( `${ blockData.name } Block `, () => {
 		// Wait until there's only one search result.
 		await expect.poll( async () => await searchResults.count() ).toBe( 1 );
 
-		const actionsButton = editor.page.getByRole('button', { name: 'Actions' });
+		const actionsButton = editor.page.getByRole( 'button', {
+			name: 'Actions',
+		} );
 		await actionsButton.click();
 
 		await editor.page.getByRole( 'menuitem', { name: 'Reset' } ).click();
