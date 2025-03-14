@@ -37,10 +37,10 @@ class WC_Brands {
 	public function register_hooks() {
 		add_action( 'woocommerce_register_taxonomy', array( __CLASS__, 'init_taxonomy' ) );
 		add_action( 'widgets_init', array( $this, 'init_widgets' ) );
-
-		if ( ! wc_current_theme_is_fse_theme() ) {
-			add_filter( 'template_include', array( $this, 'template_loader' ) );
-		}
+		add_action(
+			'init',
+			array( $this, 'add_template_loader_for_non_fse_theme' )
+		);
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'styles' ) );
 		add_action( 'wp', array( $this, 'body_class' ) );
@@ -1169,6 +1169,16 @@ class WC_Brands {
 		}
 
 		return $parsed_hooked_block;
+	}
+
+	/**
+	 * Adds template loader filter for non-FSE themes.
+	 * This ensures proper template handling for brand-related pages in traditional themes.
+	 */
+	public function add_template_loader_for_non_fse_theme() {
+		if ( ! wc_current_theme_is_fse_theme() ) {
+			add_filter( 'template_include', array( $this, 'template_loader' ) );
+		}
 	}
 }
 
