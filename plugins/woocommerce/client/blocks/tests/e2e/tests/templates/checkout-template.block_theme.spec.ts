@@ -62,8 +62,6 @@ test.describe( 'Test the checkout template', () => {
 		await admin.page.goto( permalink );
 		await admin.page.locator( '#wp-admin-bar-site-editor a' ).click();
 
-		// TMP COMMENT: This is an actual error. The checkout template is not
-		// opened. Main page is opened instead.
 		await expect(
 			editor.canvas.getByRole( 'button', {
 				name: 'Place Order',

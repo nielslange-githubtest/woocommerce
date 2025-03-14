@@ -97,8 +97,6 @@ test.describe( `${ blockData.name }`, () => {
 
 		await editor.openDocumentSettingsSidebar();
 
-		// TMP COMMENT: This is an actual error. There's no Space between items
-		// option.
 		await editor.page.getByLabel( 'Space between items' ).click();
 		await expect( chipsBlock ).toHaveClass(
 			/is-content-justification-space-between/
