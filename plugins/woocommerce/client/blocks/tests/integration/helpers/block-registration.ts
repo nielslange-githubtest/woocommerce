@@ -5,6 +5,7 @@ import { getBlockType, registerBlockType } from '@wordpress/blocks';
 
 /**
  * Registers a test block for testing purposes.
+ *
  * @param relativePath - The relative path of the block (e.g., 'active-filters' or 'removable-chips')
  * @param blockName    - Custom block name.
  * @throws Error if block metadata or edit function cannot be imported

@@ -3,12 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import { fireEvent, screen, act } from '@testing-library/react';
-import {
-	BlockAttributes,
-	createBlock,
-	getBlockType,
-	registerBlockType,
-} from '@wordpress/blocks';
+import { BlockAttributes, createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
