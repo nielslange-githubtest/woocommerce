@@ -5,7 +5,6 @@ import {
 	createContext,
 	useContext,
 	useCallback,
-	useMemo,
 	useState,
 	useEffect,
 } from '@wordpress/element';
@@ -16,11 +15,7 @@ import { getHistory, getNewPath } from '@woocommerce/navigation';
 /**
  * Internal dependencies
  */
-import {
-	frontEndOnlySteps,
-	getStepContent,
-	getStepOrder,
-} from '../providers/woopayments/steps';
+import { steps as woopaymentsSteps } from '../providers/woopayments/steps';
 import { WooPaymentsProviderOnboardingStep } from '../types';
 
 /**
@@ -94,20 +89,37 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 		}
 	}, [ storeSteps, isStoreLoading ] );
 
-	// Make UI refresh when plugin is installed.
-	const { getOnboardingStepsSuccess, invalidateResolutionForStoreSelector } =
-		useDispatch( woopaymentsOnboardingStore );
+	const [ allSteps, setAllSteps ] = useState<
+		WooPaymentsProviderOnboardingStep[]
+	>( [] );
 
-	const allSteps = useMemo(
-		() => [ ...stateStoreSteps, ...frontEndOnlySteps ],
-		[ stateStoreSteps ]
-	)
-		.map( ( step ) => ( {
-			...step,
-			content: getStepContent( step.id ),
-			order: getStepOrder( step.id ),
-		} ) )
-		.sort( ( a, b ) => a.order - b.order );
+	useEffect( () => {
+		setAllSteps(
+			woopaymentsSteps.map( ( step ) => {
+				// If step type is backend, add the status, path and dependencies from the store
+				if ( step.type === 'backend' ) {
+					const backendStep = stateStoreSteps.find(
+						( s ) => s.id === step.id
+					);
+					return Object.assign( {}, step, {
+						status: backendStep?.status || 'incomplete',
+						dependencies: backendStep?.dependencies || [],
+						path: backendStep?.path,
+						// Maybe actions too
+					} );
+				}
+				// If the step is a frontend step, we add a status of incomplete in runtime
+				return Object.assign( {}, step, {
+					status: 'incomplete',
+				} );
+			} )
+		);
+	}, [ stateStoreSteps ] );
+
+	// Make UI refresh when plugin is installed.
+	const { invalidateResolutionForStoreSelector } = useDispatch(
+		woopaymentsOnboardingStore
+	);
 
 	// Helper function to get step by key
 	// useCallback is used to avoid re-rendering the tree each time the component is rendered
@@ -162,22 +174,14 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 		if ( currentStepIndex !== -1 ) {
 			// Mark current step as completed
 			if ( currentStep?.status === 'incomplete' ) {
-				// Is this a BE step?
-				const isBackendStep = stateStoreSteps.find(
-					( s ) => s.id === currentStep.id
+				// Change step completion status in allSteps
+				setAllSteps(
+					allSteps.map( ( step ) =>
+						step.id === currentStep.id
+							? { ...step, status: 'completed' as const }
+							: step
+					)
 				);
-
-				if ( isBackendStep ) {
-					const updatedSteps = stateStoreSteps.map( ( s ) =>
-						s.id === currentStep.id
-							? { ...s, status: 'completed' as const }
-							: s
-					);
-
-					// Update both local state and the store
-					setStateStoreSteps( updatedSteps );
-					getOnboardingStepsSuccess( updatedSteps );
-				}
 			}
 
 			const nextStep = allSteps[ currentStepIndex + 1 ];
@@ -185,13 +189,7 @@ export const OnboardingProvider: React.FC< { children: React.ReactNode } > = ( {
 				navigateToStep( nextStep.id );
 			}
 		}
-	}, [
-		currentStep,
-		stateStoreSteps,
-		allSteps,
-		navigateToStep,
-		getOnboardingStepsSuccess,
-	] );
+	}, [ currentStep, allSteps, navigateToStep ] );
 
 	const refreshOnboardingSteps = useCallback( () => {
 		invalidateResolutionForStoreSelector( 'getOnboardingSteps' );
