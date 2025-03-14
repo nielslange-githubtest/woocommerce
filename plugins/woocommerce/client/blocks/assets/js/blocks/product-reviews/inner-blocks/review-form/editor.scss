@@ -1,7 +1,8 @@
-.wp-block-post-comments-form * {
-	pointer-events: none;
-
-	&.block-editor-warning * {
-		pointer-events: auto;
+.wp-block-woocommerce-product-review-form {
+	.comment-form-rating {
+		.wp-block-woocommerce-product-reviews__editor__stars {
+			display: block;
+			margin: 0 0 10px;
+		}
 	}
 }

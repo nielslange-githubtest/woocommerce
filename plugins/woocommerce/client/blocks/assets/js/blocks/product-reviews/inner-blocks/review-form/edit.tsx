@@ -7,7 +7,7 @@ import {
 	BlockControls,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { VisuallyHidden, Disabled } from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import type { BlockEditProps } from '@wordpress/blocks';
@@ -51,11 +51,9 @@ export default function PostCommentsFormEdit( {
 				/>
 			</BlockControls>
 			<div { ...blockProps }>
-				<Disabled>
-					<CommentsForm postId={ postId } postType={ postType } />
-				</Disabled>
+				<CommentsForm postId={ postId } postType={ postType } />
 				<VisuallyHidden id={ instanceIdDesc }>
-					{ __( 'Comments form disabled in editor.', 'woocommerce' ) }
+					{ __( 'Reviews form disabled in editor.', 'woocommerce' ) }
 				</VisuallyHidden>
 			</div>
 		</>
