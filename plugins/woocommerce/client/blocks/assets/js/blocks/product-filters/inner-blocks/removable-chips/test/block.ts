@@ -3,7 +3,12 @@
  */
 import '@testing-library/jest-dom';
 import { fireEvent, screen, act } from '@testing-library/react';
-import { BlockAttributes, createBlock } from '@wordpress/blocks';
+import {
+	BlockAttributes,
+	createBlock,
+	getBlockType,
+	registerBlockType,
+} from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -12,14 +17,20 @@ import {
 	initializeEditor,
 	selectBlock,
 } from '../../../../../../../tests/integration/helpers/integration-test-editor';
-
-/**
- * Block dependencies
- */
-import '../../active-filters';
-import '../';
+import activeFilterEdit from '../../active-filters/edit';
+import activeFilterMetadata from '../../active-filters/block.json';
+import chipsBlockEdit from '../edit';
+import chipsBlockMetadata from '../block.json';
 
 async function setup( attributes: BlockAttributes ) {
+	if ( ! getBlockType( 'woocommerce/product-filter-active' ) ) {
+		const { category, ...rest } = activeFilterMetadata;
+		registerBlockType( rest, { edit: activeFilterEdit } );
+	}
+	if ( ! getBlockType( 'woocommerce/product-filter-removable-chips' ) ) {
+		const { category, ...rest } = chipsBlockMetadata;
+		registerBlockType( rest, { edit: chipsBlockEdit } );
+	}
 	return initializeEditor( [
 		{
 			name: 'woocommerce/product-filter-active',
@@ -65,25 +76,42 @@ describe( 'Removable Chips block', () => {
 			await selectBlock( /Block: Chips/i );
 
 			// Test space between justification
-			fireEvent.click( screen.getByLabelText( /Space between items/i ) );
+			await act( async () => {
+				fireEvent.click(
+					screen.getByLabelText( /Space between items/i )
+				);
+			} );
+
 			expect( chipsBlock ).toHaveClass(
 				'is-content-justification-space-between'
 			);
 
 			// Test right justification
-			fireEvent.click( screen.getByLabelText( /Justify items right/i ) );
+			await act( async () => {
+				fireEvent.click(
+					screen.getByLabelText( /Justify items right/i )
+				);
+			} );
 			expect( chipsBlock ).toHaveClass(
 				'is-content-justification-right'
 			);
 
 			// Test center justification
-			fireEvent.click( screen.getByLabelText( /Justify items center/i ) );
+			await act( async () => {
+				fireEvent.click(
+					screen.getByLabelText( /Justify items center/i )
+				);
+			} );
 			expect( chipsBlock ).toHaveClass(
 				'is-content-justification-center'
 			);
 
 			// Test left justification
-			fireEvent.click( screen.getByLabelText( /Justify items left/i ) );
+			await act( async () => {
+				fireEvent.click(
+					screen.getByLabelText( /Justify items left/i )
+				);
+			} );
 			expect( chipsBlock ).toHaveClass( 'is-content-justification-left' );
 		} );
 	} );
