@@ -55,12 +55,7 @@ const WooPaymentsProvider = () => {
 		);
 	}
 
-	// If no steps are available after loading
-	return (
-		<div className="settings-payments-onboarding-modal__error">
-			No onboarding steps available
-		</div>
-	);
+	return null;
 };
 
 /**
@@ -72,11 +67,12 @@ export default function WooPaymentsModal( {
 }: WooPaymentsModalProps ): React.ReactNode {
 	const location = useLocation();
 	const history = getHistory();
+	const wooPaymentsOnboardingPath = '/woopayments/onboarding';
 
 	// Open modal when on an onboarding route
 	React.useEffect( () => {
 		if (
-			location.pathname.startsWith( '/woopayments/onboarding' ) &&
+			location.pathname.startsWith( wooPaymentsOnboardingPath ) &&
 			! isOpen
 		) {
 			setIsOpen( true );
@@ -87,11 +83,11 @@ export default function WooPaymentsModal( {
 	React.useEffect( () => {
 		if (
 			isOpen &&
-			! location.pathname.startsWith( '/woopayments/onboarding' )
+			! location.pathname.startsWith( wooPaymentsOnboardingPath )
 		) {
 			const newPath = getNewPath(
-				{ path: '/woopayments/onboarding' },
-				'/woopayments/onboarding',
+				{ path: wooPaymentsOnboardingPath },
+				wooPaymentsOnboardingPath,
 				{
 					page: 'wc-settings',
 					tab: 'checkout',
