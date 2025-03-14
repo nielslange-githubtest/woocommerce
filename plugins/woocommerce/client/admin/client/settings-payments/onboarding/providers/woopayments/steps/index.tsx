@@ -97,7 +97,6 @@ export const steps: WooPaymentsProviderOnboardingStep[] = [
 		type: 'frontend',
 		label: 'Congratulations',
 		path: '/woopayments/onboarding/congratulations',
-		status: 'incomplete' as 'incomplete' | 'completed',
 		dependencies: [ 'jetpack', 'welcome' ],
 		content: <FrontendStep />,
 	},
