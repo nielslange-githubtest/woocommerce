@@ -7,9 +7,6 @@ import { WPDataSelector, WPDataSelectors } from '../types';
 export const getOnboardingSteps = ( state: OnboardingState ): StepContent[] =>
 	state.steps;
 
-export const getCurrentStep = ( state: OnboardingState ): string | null =>
-	state.currentStep;
-
 export const isOnboardingStepsRequestPending = (
 	state: OnboardingState
 ): boolean => state.isFetching;
@@ -19,7 +16,6 @@ export const getOnboardingStepsError = ( state: OnboardingState ): unknown =>
 
 export type WooPaymentsOnboardingSelectors = {
 	getOnboardingSteps: WPDataSelector< typeof getOnboardingSteps >;
-	getCurrentStep: WPDataSelector< typeof getCurrentStep >;
 	isOnboardingStepsRequestPending: WPDataSelector<
 		typeof isOnboardingStepsRequestPending
 	>;
