@@ -17,20 +17,19 @@ import {
 	initializeEditor,
 	selectBlock,
 } from '../../../../../../../tests/integration/helpers/integration-test-editor';
-import activeFilterEdit from '../../active-filters/edit';
-import activeFilterMetadata from '../../active-filters/block.json';
-import chipsBlockEdit from '../edit';
-import chipsBlockMetadata from '../block.json';
+import { registerTestBlock } from '../../../../../../../tests/integration/helpers/block-registration';
 
 async function setup( attributes: BlockAttributes ) {
-	if ( ! getBlockType( 'woocommerce/product-filter-active' ) ) {
-		const { category, ...rest } = activeFilterMetadata;
-		registerBlockType( rest, { edit: activeFilterEdit } );
-	}
-	if ( ! getBlockType( 'woocommerce/product-filter-removable-chips' ) ) {
-		const { category, ...rest } = chipsBlockMetadata;
-		registerBlockType( rest, { edit: chipsBlockEdit } );
-	}
+	// Register required blocks
+	await registerTestBlock(
+		'product-filters/inner-blocks/active-filters',
+		'woocommerce/product-filter-active'
+	);
+	await registerTestBlock(
+		'product-filters/inner-blocks/removable-chips',
+		'woocommerce/product-filter-removable-chips'
+	);
+
 	return initializeEditor( [
 		{
 			name: 'woocommerce/product-filter-active',
