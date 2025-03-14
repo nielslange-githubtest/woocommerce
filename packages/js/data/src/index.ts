@@ -49,11 +49,6 @@ export {
 export { ShippingMethod } from './shipping-methods/types';
 export { EXPERIMENTAL_PRODUCT_FORM_STORE_NAME } from './product-form';
 export { WOOPAYMENTS_ONBOARDING_STORE_NAME } from './woopayments-onboarding';
-export type {
-	StepContent as WooPaymentsOnboardingStepContent,
-	OnboardingState as WooPaymentsOnboardingState,
-	OnboardingStepsResponse as WooPaymentsOnboardingStepsResponse,
-} from './woopayments-onboarding/types';
 
 // Export stores
 export { store as onboardingStore } from './onboarding';

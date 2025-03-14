@@ -23,15 +23,7 @@ export function getOnboardingStepsError( error: unknown ) {
 	};
 }
 
-export function setCurrentStep( step: string | null ) {
-	return {
-		type: 'SET_WOOPAYMENTS_CURRENT_STEP' as const,
-		step,
-	};
-}
-
 export type Action =
 	| ReturnType< typeof getOnboardingStepsRequest >
 	| ReturnType< typeof getOnboardingStepsSuccess >
-	| ReturnType< typeof getOnboardingStepsError >
-	| ReturnType< typeof setCurrentStep >;
+	| ReturnType< typeof getOnboardingStepsError >;

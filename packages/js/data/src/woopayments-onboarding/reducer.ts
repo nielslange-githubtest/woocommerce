@@ -6,7 +6,6 @@ import { OnboardingState } from './types';
 
 const initialState: OnboardingState = {
 	steps: [],
-	currentStep: null,
 	isFetching: false,
 	errors: {},
 };
@@ -32,11 +31,6 @@ const reducer = ( state = initialState, action: Action ): OnboardingState => {
 					getOnboardingSteps: action.error,
 				},
 				isFetching: false,
-			};
-		case 'SET_WOOPAYMENTS_CURRENT_STEP':
-			return {
-				...state,
-				currentStep: action.step,
 			};
 		default:
 			return state;

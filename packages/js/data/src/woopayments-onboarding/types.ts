@@ -9,7 +9,6 @@ export interface StepContent {
 
 export interface OnboardingState {
 	steps: StepContent[];
-	currentStep: string | null;
 	isFetching: boolean;
 	errors: Record< string, unknown >;
 }
