@@ -7,6 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { useOnboardingContext } from '~/settings-payments/onboarding/context/OnboardingContext';
+import { WooPaymentsProviderOnboardingStep } from '~/settings-payments/onboarding/types';
 
 /**
  * Step Components
@@ -74,48 +75,37 @@ export const FrontendStep = () => {
 		</div>
 	);
 };
-/**
- * Frontend-only steps that are not part of the backend steps data
- */
-export const frontEndOnlySteps = [
+
+export const steps: WooPaymentsProviderOnboardingStep[] = [
+	{
+		id: 'welcome',
+		order: 1,
+		type: 'backend',
+		label: 'Welcome to WooPayments',
+		content: <WelcomeStep />,
+	},
+	{
+		id: 'jetpack',
+		order: 2,
+		type: 'backend',
+		label: 'Connect with Jetpack',
+		content: <JetpackStep />,
+	},
 	{
 		id: 'congratulations',
+		order: 3,
+		type: 'frontend',
 		label: 'Congratulations',
 		path: '/woopayments/onboarding/congratulations',
 		status: 'incomplete' as 'incomplete' | 'completed',
-		dependencies: [ 'final' ],
+		dependencies: [ 'jetpack', 'welcome' ],
+		content: <FrontendStep />,
+	},
+	{
+		id: 'final',
+		order: 4,
+		type: 'backend',
+		label: 'Payment methods',
+		content: <OtherStep />,
 	},
 ];
-
-/**
- * Map step keys to their components
- */
-export const getStepContent = ( stepId: string ): React.ReactNode => {
-	switch ( stepId ) {
-		case 'welcome':
-			return <WelcomeStep />;
-		case 'jetpack':
-			return <JetpackStep />;
-		case 'final':
-			return <OtherStep />;
-		case 'frontend':
-			return <FrontendStep />;
-		default:
-			return null;
-	}
-};
-
-export const getStepOrder = ( stepId: string ): number => {
-	switch ( stepId ) {
-		case 'welcome':
-			return 1;
-		case 'jetpack':
-			return 2;
-		case 'final':
-			return 3;
-		case 'frontend':
-			return 4;
-		default:
-			return 99;
-	}
-};
