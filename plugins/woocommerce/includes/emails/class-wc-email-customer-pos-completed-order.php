@@ -34,21 +34,21 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			$this->customer_email = true;
 			$this->title          = __( 'POS Order completed', 'woocommerce' );
 			$this->template_html  = 'emails/customer-pos-completed-order.php';
-            $this->template_plain = 'emails/plain/customer-pos-completed-order.php';
+			$this->template_plain = 'emails/plain/customer-pos-completed-order.php';
 			$this->placeholders   = array(
 				'{order_date}'   => '',
 				'{order_number}' => '',
 			);
 
-            $refund_page_id = get_option('woocommerce_refund_returns_page_id');
-            $refund_page = $refund_page_id ? get_post($refund_page_id) : null;
-            
-            if ($refund_page && 'publish' === $refund_page->post_status) {
-                $refund_page_url = get_permalink($refund_page_id);
-                if ($refund_page_url) {
-                    $this->placeholders['{refund_returns_policy_url}'] = $refund_page_url;
-                }
-            }
+			$refund_page_id = get_option( 'woocommerce_refund_returns_page_id' );
+			$refund_page    = $refund_page_id ? get_post( $refund_page_id ) : null;
+
+			if ( $refund_page && 'publish' === $refund_page->post_status ) {
+				$refund_page_url = get_permalink( $refund_page_id );
+				if ( $refund_page_url ) {
+					$this->placeholders['{refund_returns_policy_url}'] = $refund_page_url;
+				}
+			}
 
 			// Call parent constructor.
 			parent::__construct();
@@ -58,7 +58,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 				? __( 'Send an email to customers when their POS order is completed.', 'woocommerce' )
 				: __( 'POS order completed emails are sent to customers when their in-store orders are marked as completed.', 'woocommerce' );
 
-            $this->manual = true;
+			$this->manual = true;
 		}
 
 		/**
@@ -72,41 +72,41 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			return $args;
 		}
 
-        /**
-         * Show the order details table
-         *
-         * @param WC_Order $order         Order instance.
-         * @param bool     $sent_to_admin If should sent to admin.
-         * @param bool     $plain_text    If is plain text email.
-         * @param string   $email         Email address.
-         */
-        public function order_details( $order, $sent_to_admin = false, $plain_text = false, $email = '' ) {
-            if ( $plain_text ) {
-                wc_get_template(
-                    'emails/plain/email-order-details.php',
-                    array(
-                        'order'         => $order,
-                        'sent_to_admin' => $sent_to_admin,
-                        'plain_text'    => $plain_text,
-                        'email'         => $email,
-                        'includes_payment_auth_code' => true,
-                    )
-                );
-            } else {
-                wc_get_template(
-                    'emails/email-order-details.php',
-                    array(
-                        'order'         => $order,
-                        'sent_to_admin' => $sent_to_admin,
-                        'plain_text'    => $plain_text,
-                        'email'         => $email,
-                        'includes_payment_auth_code' => true,
-                    )
-                );
-            }
-        }
+		/**
+		 * Show the order details table
+		 *
+		 * @param WC_Order $order         Order instance.
+		 * @param bool     $sent_to_admin If should sent to admin.
+		 * @param bool     $plain_text    If is plain text email.
+		 * @param string   $email         Email address.
+		 */
+		public function order_details( $order, $sent_to_admin = false, $plain_text = false, $email = '' ) {
+			if ( $plain_text ) {
+				wc_get_template(
+					'emails/plain/email-order-details.php',
+					array(
+						'order'                      => $order,
+						'sent_to_admin'              => $sent_to_admin,
+						'plain_text'                 => $plain_text,
+						'email'                      => $email,
+						'includes_payment_auth_code' => true,
+					)
+				);
+			} else {
+				wc_get_template(
+					'emails/email-order-details.php',
+					array(
+						'order'                      => $order,
+						'sent_to_admin'              => $sent_to_admin,
+						'plain_text'                 => $plain_text,
+						'email'                      => $email,
+						'includes_payment_auth_code' => true,
+					)
+				);
+			}
+		}
 
-        /**
+		/**
 		 * Get email subject.
 		 *
 		 * @param bool $paid Whether the order has been paid or not.
@@ -159,19 +159,19 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			return apply_filters( 'woocommerce_email_heading_customer_pos_completed_order', $this->format_string( $heading ), $this->object, $this );
 		}
 
-        /**
+		/**
 		 * Placeholder of the refund & returns policy content.
 		 *
 		 * @since 1.0.0
 		 * @return string
 		 */
-        public function get_refund_returns_policy_placeholder() {
+		public function get_refund_returns_policy_placeholder() {
 			return __( 'Brief statement about the refund & returns policy', 'woocommerce' );
 		}
 
-        public function get_refund_returns_policy() {
-			$policy_text = $this->get_option('refund_returns_policy', '');
-			return $this->format_string($policy_text);
+		public function get_refund_returns_policy() {
+			$policy_text = $this->get_option( 'refund_returns_policy', '' );
+			return $this->format_string( $policy_text );
 		}
 
 		/**
@@ -219,29 +219,29 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 		 * @return string
 		 */
 		public function get_content_html() {
-            // TODO: do the same for plain text email.
-            // Add filter to include unit price in the quantity column for order items table.
+			// TODO: do the same for plain text email.
+			// Add filter to include unit price in the quantity column for order items table.
 			add_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10, 1 );
-            // Override default action handling in wc-emails.php to show the order details table with payment auth code.
-            add_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10, 4 );
+			// Override default action handling in wc-emails.php to show the order details table with payment auth code.
+			add_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10, 4 );
 			$content = wc_get_template_html(
 				$this->template_html,
 				array(
-					'order'              => $this->object,
-					'email_heading'      => $this->get_heading(),
-					'additional_content' => $this->get_additional_content(),
-                    'refund_returns_policy' => $this->get_refund_returns_policy(),
-					'sent_to_admin'      => false,
-					'plain_text'         => false,
-					'email'              => $this,
+					'order'                 => $this->object,
+					'email_heading'         => $this->get_heading(),
+					'additional_content'    => $this->get_additional_content(),
+					'refund_returns_policy' => $this->get_refund_returns_policy(),
+					'sent_to_admin'         => false,
+					'plain_text'            => false,
+					'email'                 => $this,
 				)
 			);
 
-            // Remove action and filter after generating content to avoid affecting other emails.
-            remove_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10 );
-            remove_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10 );
-            
-            return $content;
+			// Remove action and filter after generating content to avoid affecting other emails.
+			remove_action( 'woocommerce_email_order_details', array( $this, 'order_details' ), 10 );
+			remove_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10 );
+
+			return $content;
 		}
 
 		/**
@@ -270,7 +270,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 			/* translators: %s: list of placeholders */
 			$placeholder_text  = sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>' . esc_html( implode( '</code>, <code>', array_keys( $this->placeholders ) ) ) . '</code>' );
 			$this->form_fields = array(
-				'subject'            => array(
+				'subject'               => array(
 					'title'       => __( 'Subject', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -278,7 +278,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'placeholder' => $this->get_default_subject(),
 					'default'     => '',
 				),
-				'heading'            => array(
+				'heading'               => array(
 					'title'       => __( 'Email heading', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -286,7 +286,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'placeholder' => $this->get_default_heading(),
 					'default'     => '',
 				),
-				'subject_paid'       => array(
+				'subject_paid'          => array(
 					'title'       => __( 'Subject (paid)', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -294,7 +294,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'placeholder' => $this->get_default_subject( true ),
 					'default'     => '',
 				),
-				'heading_paid'       => array(
+				'heading_paid'          => array(
 					'title'       => __( 'Email heading (paid)', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -302,7 +302,7 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'placeholder' => $this->get_default_heading( true ),
 					'default'     => '',
 				),
-				'additional_content' => array(
+				'additional_content'    => array(
 					'title'       => __( 'Additional content', 'woocommerce' ),
 					'description' => __( 'Text to appear below the main email content.', 'woocommerce' ) . ' ' . $placeholder_text,
 					'css'         => 'width:400px; height: 75px;',
@@ -311,16 +311,16 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					'default'     => $this->get_default_additional_content(),
 					'desc_tip'    => true,
 				),
-                'refund_returns_policy' => array(
+				'refund_returns_policy' => array(
 					'title'       => __( 'Refund & returns policy', 'woocommerce' ),
-					'description' => __( 'Text to appear below the main email and additional content about the refund & returns policy.', 'woocommerce' ). ' ' . $placeholder_text,
+					'description' => __( 'Text to appear below the main email and additional content about the refund & returns policy.', 'woocommerce' ) . ' ' . $placeholder_text,
 					'css'         => 'width:400px; height: 75px;',
 					'placeholder' => $this->get_refund_returns_policy_placeholder(),
 					'type'        => 'textarea',
 					'default'     => '',
 					'desc_tip'    => true,
 				),
-				'email_type'         => array(
+				'email_type'            => array(
 					'title'       => __( 'Email type', 'woocommerce' ),
 					'type'        => 'select',
 					'description' => __( 'Choose which format of email to send.', 'woocommerce' ),
@@ -339,4 +339,4 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 
 endif;
 
-return new WC_Email_Customer_POS_Completed_Order(); 
+return new WC_Email_Customer_POS_Completed_Order();
