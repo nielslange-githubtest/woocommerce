@@ -1,0 +1,67 @@
+/**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { Spinner } from '@wordpress/components';
+import { useEffect } from 'react';
+
+/**
+ * Internal dependencies
+ */
+import Stepper from '~/settings-payments/onboarding/components/stepper';
+import {
+	useOnboardingContext,
+} from '~/settings-payments/onboarding/context/OnboardingContext';
+
+/**
+ * RecommendedMethods component for WooPayments onboarding
+ */
+export default function WooPaymentsOnboarding(): React.ReactNode {
+	const { steps, isLoading, currentStep } = useOnboardingContext();
+
+	const { navigateToStep } = useOnboardingContext();
+	const location = useLocation();
+
+	// Forces navigation to the current step only if the URL does not already match.
+	useEffect( () => {
+		if ( currentStep && location.pathname !== ( currentStep?.path ?? '' ) ) {
+			navigateToStep( currentStep.id );
+		}
+	}, [ currentStep, navigateToStep, location.pathname ] );
+
+	// Displays a loading indicator if the content is still loading.
+	if ( isLoading ) {
+		return (
+			<div className="settings-payments-onboarding-modal__loading">
+				<Spinner />
+			</div>
+		);
+	}
+
+	// Renders the Stepper if there are steps available.
+	if ( steps && steps.length > 0 ) {
+		return (
+			<Routes>
+				<Route
+					path="/woopayments/onboarding/*"
+					element={
+						<div className="settings-payments-onboarding-modal__wrapper">
+							<Stepper
+								steps={ steps }
+								active={ currentStep?.id ?? '' }
+								includeSidebar
+								sidebarTitle={ __(
+									'Set up WooPayments',
+									'woocommerce'
+								) }
+							/>
+						</div>
+					}
+				/>
+			</Routes>
+		);
+	}
+
+	return null;
+}

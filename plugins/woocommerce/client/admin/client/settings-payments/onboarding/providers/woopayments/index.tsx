@@ -2,61 +2,19 @@
  * External dependencies
  */
 import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
 import { __ } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/components';
-
 /**
  * Internal dependencies
  */
 import '../../style.scss';
-import Modal from '../../components/modal';
+import Modal from '~/settings-payments/onboarding/components/modal';
+import WooPaymentsOnboarding from './components/onboarding';
 import { WooPaymentsModalProps } from '~/settings-payments/onboarding/types';
-import Stepper from '../../components/stepper';
 import {
 	OnboardingProvider,
-	useOnboardingContext,
 } from '../../context/OnboardingContext';
-
-const WooPaymentsProvider = () => {
-	const { steps, isLoading, currentStep } = useOnboardingContext();
-
-	// If still loading, show a loading indicator
-	if ( isLoading ) {
-		return (
-			<div className="settings-payments-onboarding-modal__loading">
-				<Spinner />
-			</div>
-		);
-	}
-
-	// If we have steps, render the Stepper
-	if ( steps && steps.length > 0 ) {
-		return (
-			<Routes>
-				<Route
-					path="/woopayments/onboarding/*"
-					element={
-						<div className="settings-payments-onboarding-modal__wrapper">
-							<Stepper
-								steps={ steps }
-								active={ currentStep?.id ?? '' }
-								includeSidebar
-								sidebarTitle={ __(
-									'Set up WooPayments',
-									'woocommerce'
-								) }
-							/>
-						</div>
-					}
-				/>
-			</Routes>
-		);
-	}
-
-	return null;
-};
 
 /**
  * Modal component for WooPayments onboarding
@@ -112,7 +70,7 @@ export default function WooPaymentsModal( {
 	return (
 		<Modal setIsOpen={ handleClose }>
 			<OnboardingProvider>
-				<WooPaymentsProvider />
+				<WooPaymentsOnboarding />
 			</OnboardingProvider>
 		</Modal>
 	);
