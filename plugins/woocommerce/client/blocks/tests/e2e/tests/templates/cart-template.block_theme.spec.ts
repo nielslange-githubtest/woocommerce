@@ -46,13 +46,17 @@ test.describe( 'Test the cart template', () => {
 		).toBeVisible();
 	} );
 
-	test( 'Admin bar edit site link opens site editor', async ( { admin } ) => {
-		await admin.page.goto( permalink );
-		await admin.page.locator( '#wp-admin-bar-site-editor a' ).click();
-		await expect(
-			admin.editor.canvas.getByLabel( 'Block: Title' )
-		).toBeVisible();
-	} );
+	// See https://github.com/woocommerce/woocommerce/pull/55989
+	test.fixme(
+		'Admin bar edit site link opens site editor',
+		async ( { admin } ) => {
+			await admin.page.goto( permalink );
+			await admin.page.locator( '#wp-admin-bar-site-editor a' ).click();
+			await expect(
+				admin.editor.canvas.getByLabel( 'Block: Title' )
+			).toBeVisible();
+		}
+	);
 } );
 
 test.describe( 'Test editing the cart template', () => {
