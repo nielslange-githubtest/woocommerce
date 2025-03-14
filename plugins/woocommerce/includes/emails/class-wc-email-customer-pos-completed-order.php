@@ -30,9 +30,10 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 		 * Constructor.
 		 */
 		public function __construct() {
-			$this->id             = 'customer_pos_completed_order';
+			$this->id             = 'pos_customer_completed_order';
 			$this->customer_email = true;
-			$this->title          = __( 'POS Order completed', 'woocommerce' );
+			$this->title          = __( 'POS Completed order', 'woocommerce' );
+			$this->description    = __( 'Order complete emails are sent to customers when their orders are marked completed in POS.', 'woocommerce' );
 			$this->template_html  = 'emails/customer-pos-completed-order.php';
 			$this->template_plain = 'emails/plain/customer-pos-completed-order.php';
 			$this->placeholders   = array(
@@ -49,6 +50,12 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 					$this->placeholders['{refund_returns_policy_url}'] = $refund_page_url;
 				}
 			}
+
+			// Hook into the REST API action to send this email when requested.
+			add_action( 'woocommerce_rest_order_actions_email_send', array( $this, 'maybe_trigger_from_api' ), 10, 2 );
+
+			// Add this email template to the list of valid templates for orders
+			add_filter( 'woocommerce_rest_order_actions_email_valid_template_classes', array( $this, 'add_to_valid_template_classes' ), 10, 2 );
 
 			// Call parent constructor.
 			parent::__construct();
@@ -187,10 +194,25 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 		}
 
 		/**
+		 * Trigger the sending of this email when requested via the REST API.
+		 *
+		 * @param int    $order_id    The order ID.
+		 * @param string $template_id The email template ID.
+		 */
+		public function maybe_trigger_from_api( $order_id, $template_id ) {
+			if ( $this->id === $template_id ) {
+				$order = wc_get_order( $order_id );
+				if ( $order ) {
+					$this->trigger( $order_id, $order );
+				}
+			}
+		}
+
+		/**
 		 * Trigger the sending of this email.
 		 *
-		 * @param int      $order_id The order ID.
-		 * @param WC_Order $order Order object.
+		 * @param int            $order_id The order ID.
+		 * @param WC_Order|false $order Order object.
 		 */
 		public function trigger( $order_id, $order = false ) {
 			$this->setup_locale();
@@ -334,6 +356,19 @@ if ( ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
 				$this->form_fields['cc']  = $this->get_cc_field();
 				$this->form_fields['bcc'] = $this->get_bcc_field();
 			}
+		}
+
+		/**
+		 * Add this email template to the list of valid templates for orders.
+		 *
+		 * @param array    $valid_template_classes Array of valid template class names.
+		 * @param WC_Order $order                  The order.
+		 * @return array Modified array of valid template class names.
+		 */
+		public function add_to_valid_template_classes( $valid_template_classes, $order ) {
+			// Can add conditions here if needed, e.g., only for certain order statuses.
+			$valid_template_classes[] = get_class( $this );
+			return $valid_template_classes;
 		}
 	}
 
