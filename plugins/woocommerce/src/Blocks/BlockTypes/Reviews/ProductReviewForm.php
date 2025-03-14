@@ -110,7 +110,9 @@ class ProductReviewForm extends AbstractBlock {
 				add_filter( 'comment_form_defaults', 'post_comments_form_block_form_defaults' );
 
 				ob_start();
+				echo '<div id="review_form_wrapper"><div id="review_form">';
 				comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $comment_form ), $block->context['postId'] );
+				echo '</div></div>';
 				$form = ob_get_clean();
 
 				remove_filter( 'comment_form_defaults', 'post_comments_form_block_form_defaults' );
