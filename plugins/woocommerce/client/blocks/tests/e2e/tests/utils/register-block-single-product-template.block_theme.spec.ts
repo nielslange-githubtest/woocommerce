@@ -7,7 +7,7 @@ const insertSingleProductBlock = async (
 	blockName: string,
 	editor: Editor
 ) => {
-	await editor.insertBlockUsingGlobalInserter( 'Single Product' );
+	await editor.insertBlock( { name: 'woocommerce/single-product' } );
 	await editor.canvas.getByText( 'Album' ).click();
 	await editor.canvas.getByText( 'Done' ).click();
 	const singleProductBlock = await editor.getBlockByName(
@@ -137,18 +137,18 @@ test.describe( 'registerProductBlockType registers', () => {
 
 		await test.step( 'Unavailable in post, also within Single Product block', async () => {
 			await admin.createNewPost();
-			const singleProductClientId = await insertSingleProductBlock(
-				blockName,
-				editor
-			);
-			await editor.insertBlock(
-				{ name: blockName },
-				{ clientId: singleProductClientId }
-			);
+			await insertSingleProductBlock( blockName, editor );
+
+			await editor.canvas
+				.getByRole( 'button', { name: 'Add block' } )
+				.click();
+
+			await editor.page
+				.getByRole( 'searchbox', { name: 'Search' } )
+				.fill( blockName );
+
 			await expect(
-				editor.canvas.getByText(
-					`Your site doesn’t include support for the "${ blockName }" block`
-				)
+				editor.page.getByText( 'No results found' )
 			).toBeVisible();
 		} );
 
