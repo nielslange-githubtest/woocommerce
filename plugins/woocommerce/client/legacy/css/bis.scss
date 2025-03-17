@@ -58,11 +58,11 @@ body.theme-storefront .woocommerce-MyAccount-navigation-link.woocommerce-MyAccou
 }
 
 // Single product fix.
-div.product .wc_bis_product_form {
+.woocommerce-uses-block-theme div.product .wc_bis_product_form {
   margin-bottom: var(--wp--style--block-gap);
 }
 
 // Product catalog.
-ul.products .wc_bis_loop_signup_prompt_container {
+.woocommerce-uses-block-theme ul.products .wc_bis_loop_signup_prompt_container {
   margin-top: 1rem;
 }
