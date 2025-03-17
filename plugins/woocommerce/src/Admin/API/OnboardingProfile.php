@@ -153,16 +153,19 @@ class OnboardingProfile extends \WC_REST_Data_Controller {
 					'permission_callback' => array( $this, 'update_items_permissions_check' ),
 					'args'                => array(
 						'store_name'       => array(
-							'description' => __( 'Store name.', 'woocommerce' ),
-							'type'        => 'string',
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'store_location'   => array(
-							'description' => __( 'Store location (country:state).', 'woocommerce' ),
-							'type'        => 'string',
+							'type'              => 'string',
+							'sanitize_callback' => 'wc_clean',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'tracking_enabled' => array(
-							'description' => __( 'Whether tracking is enabled.', 'woocommerce' ),
-							'type'        => 'boolean',
+							'type'              => 'boolean',
+							'sanitize_callback' => 'rest_sanitize_boolean',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),
@@ -405,22 +408,18 @@ class OnboardingProfile extends \WC_REST_Data_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function update_store_settings( $request ) {
-		$store_name       = $request->get_param( 'store_name' );
-		$store_location   = $request->get_param( 'store_location' );
-		$tracking_enabled = $request->get_param( 'tracking_enabled' );
-
 		$settings_to_update = array();
 
-		if ( null !== $store_name ) {
-			$settings_to_update['blogname'] = sanitize_text_field( $store_name );
+		if ( $request->has_param( 'store_name' ) ) {
+			$settings_to_update['blogname'] = $request->get_param( 'store_name' );
 		}
 
-		if ( null !== $store_location ) {
-			$settings_to_update['woocommerce_default_country'] = wc_clean( $store_location );
+		if ( $request->has_param( 'store_location' ) ) {
+			$settings_to_update['woocommerce_default_country'] = $request->get_param( 'store_location' );
 		}
 
-		if ( null !== $tracking_enabled ) {
-			$settings_to_update['woocommerce_allow_tracking'] = wc_bool_to_string( $tracking_enabled );
+		if ( $request->has_param( 'tracking_enabled' ) ) {
+			$settings_to_update['woocommerce_allow_tracking'] = wc_bool_to_string( $request->get_param( 'tracking_enabled' ) );
 		}
 
 		if ( empty( $settings_to_update ) ) {
