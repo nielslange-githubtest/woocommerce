@@ -282,7 +282,7 @@ class BackInStockNotifications {
 
 		// Check for regular activation requests.
 		if ( isset( $_REQUEST['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			// Single plugin activation
+			// Single plugin activation.
 			if ( 'activate' === $_REQUEST['action'] && isset( $_REQUEST['plugin'] ) && $bis_plugin_name === $_REQUEST['plugin'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				self::$is_activation_request = true;
 				return;

@@ -31,8 +31,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @param string $email_heading The email heading.
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_header', $email_heading, $email );
 
@@ -45,18 +43,16 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
  *
  * @param string $notification The notification.
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_verify_notification_html', $notification, $email );
 
 /**
  * Hook: woocommerce_email_footer.
  *
+ * @since 9.9.0
+ *
  * @hooked WC_Emails::email_footer() Output the email footer
  *
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_footer', $email );

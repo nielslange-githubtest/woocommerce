@@ -38,7 +38,6 @@ class WC_BIS_Activity_DB {
 	 * Query activiry data from the DB.
 	 *
 	 * @since 9.9.0
-	 * @param array $args Array of arguments.
 	 *
 	 * Example arguments array:
 	 * {
@@ -48,6 +47,8 @@ class WC_BIS_Activity_DB {
 	 *         - 'ids': ids only,
 	 *         - 'objects': WC_BIS_Activity_Data objects.
 	 * }
+	 *
+	 * @param array $args Array of arguments.
 	 *
 	 * @return array|int
 	 */

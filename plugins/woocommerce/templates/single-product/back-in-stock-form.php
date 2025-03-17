@@ -42,7 +42,8 @@ do_action( 'woocommerce_bis_before_form', $product );
 	 *
 	 * @param WC_Product $product The product object.
 	 */
-	do_action( 'woocommerce_bis_before_form_fields', $product ); ?>
+	do_action( 'woocommerce_bis_before_form_fields', $product );
+	?>
 
 	<?php if ( ! is_user_logged_in() && ! wc_bis_is_account_required() ) : ?>
 		<input type="text" id="wc_bis_email" name="wc_bis_email" class="input-text" placeholder="<?php echo esc_attr__( 'Enter your e-mail', 'woocommerce' ); ?>" />
@@ -75,7 +76,8 @@ do_action( 'woocommerce_bis_before_form', $product );
 	 *
 	 * @param WC_Product $product The product object.
 	 */
-	do_action( 'woocommerce_bis_after_form_fields', $product ); ?>
+	do_action( 'woocommerce_bis_after_form_fields', $product );
+	?>
 </div>
 <?php
 

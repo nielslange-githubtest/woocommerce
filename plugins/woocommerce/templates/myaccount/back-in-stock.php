@@ -39,7 +39,8 @@ do_action( 'woocommerce_bis_before_account_backinstock', $has_notifications ); ?
  *
  * @param string $heading The heading text.
  */
-if ( $has_pending_notifications && (bool) apply_filters( 'woocommerce_bis_account_show_pending_notifications', true ) ) : ?>
+if ( $has_pending_notifications && (bool) apply_filters( 'woocommerce_bis_account_show_pending_notifications', true ) ) :
+	?>
 	<h2><?php esc_html_e( 'Pending', 'woocommerce' ); ?></h2>
 	<table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table wc-bis-pending-notifications-table">
 		<thead>
@@ -248,7 +249,8 @@ if ( $has_pending_notifications && (bool) apply_filters( 'woocommerce_bis_accoun
  *
  * @param bool $show_activities Whether to show activities.
  */
-if ( (bool) apply_filters( 'woocommerce_bis_account_show_activities', true ) ) : ?>
+if ( (bool) apply_filters( 'woocommerce_bis_account_show_activities', true ) ) :
+	?>
 
 	<h2><?php esc_html_e( 'Your Activity', 'woocommerce' ); ?></h2>
 

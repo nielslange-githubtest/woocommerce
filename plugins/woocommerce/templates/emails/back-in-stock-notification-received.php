@@ -25,34 +25,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Hook: woocommerce_email_header.
  *
+ * @since 9.9.0
+ *
  * @hooked WC_Emails::email_header() Output the email header
  *
  * @param string $email_heading The email heading.
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_header', $email_heading, $email );
 
 /**
  * Hook: woocommerce_email_notification_html.
  *
+ * @since 9.9.0
+ *
  * @hooked WC_BIS_Emails::notification_email_html() Output the notification content
  *
  * @param string $notification The notification.
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_notification_html', $notification, $email );
 
 /**
  * Hook: woocommerce_email_footer.
  *
+ * @since 9.9.0
+ *
  * @hooked WC_Emails::email_footer() Output the email footer
  *
  * @param WC_Email $email The email object.
- *
- * @since 9.9.0
  */
 do_action( 'woocommerce_email_footer', $email );

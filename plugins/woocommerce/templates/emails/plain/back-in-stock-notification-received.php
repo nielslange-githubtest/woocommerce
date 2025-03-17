@@ -25,6 +25,14 @@ echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
 echo esc_html( wp_strip_all_tags( $email_heading ) );
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 
+/**
+ * Hook: woocommerce_email_intro_content.
+ *
+ * @since 9.9.0
+ *
+ * @param string $intro_content The intro content.
+ * @param WC_BIS_Notification_Data $notification The notification data.
+ */
 echo esc_html( wp_strip_all_tags( wptexturize( apply_filters( 'woocommerce_email_intro_content', $intro_content, $notification ) ) ) );
 
 echo "\n\n----------------------------------------\n\n";
@@ -37,4 +45,9 @@ if ( $additional_content ) {
 	echo "\n\n----------------------------------------\n\n";
 }
 
+/**
+ * Hook: woocommerce_email_footer_text.
+ *
+ * @since 9.9.0
+ */
 echo wp_kses_post( apply_filters( 'woocommerce_email_footer_text', get_option( 'woocommerce_email_footer_text' ) ) );
