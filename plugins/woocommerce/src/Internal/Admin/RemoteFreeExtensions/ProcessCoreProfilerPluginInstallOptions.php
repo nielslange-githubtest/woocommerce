@@ -57,7 +57,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @param string $plugin_slug Plugin slug.
 	 * @return array|null Install options or null if not found.
 	 */
-	protected function get_install_options( string $plugin_slug ): ?array {
+	public function get_install_options( string $plugin_slug ): ?array {
 		foreach ( $this->plugins as $plugin ) {
 			if ( $this->matches_plugin_slug( $plugin, $plugin_slug ) ) {
 				return $plugin->install_options ?? null;
@@ -88,7 +88,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 *
 	 * @param object $install_option Install option object.
 	 */
-	private function update_install_option( object $install_option ) {
+	protected function update_install_option( object $install_option ) {
 		$default_options = array(
 			'force_array' => false,
 			'autoload'    => false,
@@ -109,7 +109,20 @@ class ProcessCoreProfilerPluginInstallOptions {
 			}
 		}
 
-		update_option( $install_option->name, $install_option->value, $options->autoload ? 'yes' : 'no' );
+		$this->update_option( $install_option->name, $install_option->value, $options->autoload ? 'yes' : 'no' );
+	}
+
+	/**
+	 * Updates an option in the WordPress database.
+	 *
+	 * @param string $name Name of the option.
+	 * @param $value mixed Value of the option.
+	 * @param $autoload string Autoload option.
+	 *
+	 * @return void
+	 */
+	protected function update_option( string $name, $value, $autoload = 'no' ) {
+		update_option( $name, $value, $autoload );
 	}
 
 	/**
@@ -119,8 +132,12 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @return bool True if the option is not "after" priority.
 	 */
 	private function is_before_priority( object $install_option ): bool {
-		return empty( $install_option->options->install_priority ) || 'after' !== $install_option->options->install_priority;
+		if (!isset($install_option->options) || !is_object($install_option->options)) {
+			return true; // Default to 'before' if options are missing
+		}
+		return empty($install_option->options->install_priority) || 'after' !== $install_option->options->install_priority;
 	}
+
 
 	/**
 	 * Determines if an install option should be processed after installation.
@@ -129,7 +146,10 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @return bool True if the option has "after" priority.
 	 */
 	private function is_after_priority( object $install_option ): bool {
-		return ! empty( $install_option->options->install_priority ) && 'after' === $install_option->options->install_priority;
+		if (!isset($install_option->options) || !is_object($install_option->options)) {
+			return false; // Default to 'not after' if options are missing
+		}
+		return !empty($install_option->options->install_priority) && 'after' === $install_option->options->install_priority;
 	}
 
 	/**
