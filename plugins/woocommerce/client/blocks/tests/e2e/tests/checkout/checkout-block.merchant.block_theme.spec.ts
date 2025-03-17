@@ -148,71 +148,72 @@ test.describe( 'Merchant → Checkout', () => {
 		} );
 	} );
 
-	// This test is flaky. Skipping for now.
-	test.fixme(
-		'Merchant can see T&S and Privacy Policy links with checkbox',
-		async ( { frontendUtils, checkoutPageObject, admin, editor } ) => {
-			await admin.visitSiteEditor( {
-				postId: 'woocommerce/woocommerce//page-checkout',
-				postType: 'wp_template',
-				canvas: 'edit',
-			} );
-			await editor.openDocumentSettingsSidebar();
-			await editor.selectBlocks(
-				blockSelectorInEditor +
-					'  [data-type="woocommerce/checkout-terms-block"]'
-			);
-			let requireTermsCheckbox = editor.page.getByRole( 'checkbox', {
-				name: 'Require checkbox',
-				exact: true,
-			} );
-			await requireTermsCheckbox.check();
-			await editor.saveSiteEditorEntities();
-			await frontendUtils.goToShop();
-			await frontendUtils.addToCart( REGULAR_PRICED_PRODUCT_NAME );
-			await frontendUtils.goToCheckout();
-			await checkoutPageObject.fillInCheckoutWithTestData();
-			await checkoutPageObject.placeOrder( false );
+	test( 'Merchant can see T&S and Privacy Policy links with checkbox', async ( {
+		frontendUtils,
+		checkoutPageObject,
+		admin,
+		editor,
+	} ) => {
+		await admin.visitSiteEditor( {
+			postId: 'woocommerce/woocommerce//page-checkout',
+			postType: 'wp_template',
+			canvas: 'edit',
+		} );
+		await editor.openDocumentSettingsSidebar();
+		await editor.selectBlocks(
+			blockSelectorInEditor +
+				'  [data-type="woocommerce/checkout-terms-block"]'
+		);
+		let requireTermsCheckbox = editor.page.getByRole( 'checkbox', {
+			name: 'Require checkbox',
+			exact: true,
+		} );
+		await requireTermsCheckbox.check();
+		await editor.saveSiteEditorEntities();
+		await frontendUtils.goToShop();
+		await frontendUtils.addToCart( REGULAR_PRICED_PRODUCT_NAME );
+		await frontendUtils.goToCheckout();
+		await checkoutPageObject.fillInCheckoutWithTestData();
+		await checkoutPageObject.placeOrder( false );
 
-			const checkboxWithError = frontendUtils.page.getByLabel(
+		const checkboxWithError = frontendUtils.page.getByLabel(
+			'You must accept our Terms and Conditions and Privacy Policy to continue with your purchase.'
+		);
+		await expect( checkboxWithError ).toHaveAttribute(
+			'aria-invalid',
+			'true'
+		);
+
+		await frontendUtils.page
+			.getByLabel(
 				'You must accept our Terms and Conditions and Privacy Policy to continue with your purchase.'
-			);
-			await expect( checkboxWithError ).toHaveAttribute(
-				'aria-invalid',
-				'true'
-			);
+			)
+			.check();
 
-			await frontendUtils.page
-				.getByLabel(
-					'You must accept our Terms and Conditions and Privacy Policy to continue with your purchase.'
-				)
-				.check();
+		await checkoutPageObject.placeOrder();
+		await expect(
+			frontendUtils.page.getByText(
+				'Thank you. Your order has been received'
+			)
+		).toBeVisible();
 
-			await checkoutPageObject.placeOrder();
-			await expect(
-				frontendUtils.page.getByText(
-					'Thank you. Your order has been received'
-				)
-			).toBeVisible();
-
-			await admin.visitSiteEditor( {
-				postId: 'woocommerce/woocommerce//page-checkout',
-				postType: 'wp_template',
-				canvas: 'edit',
-			} );
-			await editor.openDocumentSettingsSidebar();
-			await editor.selectBlocks(
-				blockSelectorInEditor +
-					'  [data-type="woocommerce/checkout-terms-block"]'
-			);
-			requireTermsCheckbox = editor.page.getByRole( 'checkbox', {
-				name: 'Require checkbox',
-				exact: true,
-			} );
-			await requireTermsCheckbox.uncheck();
-			await editor.saveSiteEditorEntities();
-		}
-	);
+		await admin.visitSiteEditor( {
+			postId: 'woocommerce/woocommerce//page-checkout',
+			postType: 'wp_template',
+			canvas: 'edit',
+		} );
+		await editor.openDocumentSettingsSidebar();
+		await editor.selectBlocks(
+			blockSelectorInEditor +
+				'  [data-type="woocommerce/checkout-terms-block"]'
+		);
+		requireTermsCheckbox = editor.page.getByRole( 'checkbox', {
+			name: 'Require checkbox',
+			exact: true,
+		} );
+		await requireTermsCheckbox.uncheck();
+		await editor.saveSiteEditorEntities();
+	} );
 
 	test( 'inner blocks can be added/removed by filters', async ( {
 		page,
