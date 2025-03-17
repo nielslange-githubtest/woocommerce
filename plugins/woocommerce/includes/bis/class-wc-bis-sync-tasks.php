@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -15,12 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Sync stock Queue Controller Class.
  *
  * @class    WC_BIS_Sync_Tasks
- * @version  x.x.x
+ * @version  9.9.0
  */
 class WC_BIS_Sync_Tasks {
 
 	/**
 	 * Setup.
+	 *
+	 * @return void
 	 */
 	public static function init() {
 
@@ -38,7 +42,7 @@ class WC_BIS_Sync_Tasks {
 		// Force queue notifications.
 		add_action( 'admin_init', array( __CLASS__, 'force_queue_notifications' ) );
 
-		// Add hook to auto-remove notices after display
+		// Add hook to auto-remove notices after display.
 		add_action( 'admin_notices', array( __CLASS__, 'auto_remove_notices' ), 99 );
 	}
 
@@ -49,8 +53,8 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Prepare notifications, mark queue status.
 	 *
-	 * @param  array $product_ids
-	 * @param  bool  $force (Optional)
+	 * @param  array $product_ids Array of product IDs to process.
+	 * @param  bool  $force       Whether to force the queue regardless of throttle.
 	 * @return void
 	 */
 	public static function handle_instock_products( $product_ids, $force = false ) {
@@ -93,15 +97,14 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Handle spam notices.
 	 *
-	 * @since x.x.x
-	 *
-	 * @param  array $product_ids Array of product ids.
+	 * @since 9.9.0
+	 * @param  array $product_ids Array of product IDs.
 	 * @param  int   $spam_count  Number of spam notifications.
 	 * @return void
 	 */
 	private static function handle_spam_notices( array $product_ids, int $spam_count ) {
-		/* translators: $d number of notifications */
 		$notice_text = sprintf(
+			/* translators: %d: number of notifications */
 			_n(
 				'%d identical back-in-stock notification was sent to the same customer recently. This time, we skipped it to prevent spamming.',
 				'%d identical back-in-stock notifications were sent to the same customers recently. This time, we skipped them to prevent spamming.',
@@ -111,7 +114,7 @@ class WC_BIS_Sync_Tasks {
 			$spam_count
 		);
 
-		// Get current product id based on product or variation save
+		// Get current product id based on product or variation save.
 		// phpcs:disable WordPress.Security.NonceVerification
 		if ( isset( $_REQUEST['ID'] ) ) {
 			$post_id = absint( $_REQUEST['ID'] );
@@ -123,13 +126,16 @@ class WC_BIS_Sync_Tasks {
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( isset( $post_id ) && 0 < $post_id ) {
-			$notice_text .= sprintf( 
-				' <a href="%s">%s</a>', 
-				esc_url( 
-					add_query_arg( 
-						array( 'wc_bis_force_queue' => implode( ',', $product_ids ) ), 
-						admin_url( sprintf( 'post.php?post=%d&action=edit', $post_id ) ) 
-					) 
+			$notice_text .= sprintf(
+				' <a href="%s">%s</a>',
+				esc_url(
+					add_query_arg(
+						array(
+							'wc_bis_force_queue' => implode( ',', $product_ids ),
+							'_wpnonce'           => wp_create_nonce( 'wc_bis_force_queue' ),
+						),
+						admin_url( sprintf( 'post.php?post=%d&action=edit', $post_id ) )
+					)
 				),
 				esc_html__( 'Send anyway', 'woocommerce' )
 			);
@@ -139,7 +145,7 @@ class WC_BIS_Sync_Tasks {
 		WC_Admin_Notices::add_notice( $notice_id, true );
 		update_option(
 			'woocommerce_admin_notice_' . $notice_id,
-			wp_kses_post($notice_text)
+			wp_kses_post( $notice_text )
 		);
 	}
 
@@ -153,13 +159,27 @@ class WC_BIS_Sync_Tasks {
 			return;
 		}
 
-		if ( isset( $_GET['wc_bis_force_queue'] ) ) {
-			$product_ids = explode( ',', urldecode( wc_clean( $_GET['wc_bis_force_queue'] ) ) );
-			self::handle_instock_products( $product_ids, true );
-			$url = remove_query_arg( 'wc_bis_force_queue' );
-			wp_safe_redirect( $url );
-			exit;
+		if ( ! isset( $_GET['wc_bis_force_queue'] ) ) {
+			return;
 		}
+
+		// Check nonce.
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), 'wc_bis_force_queue' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			wp_die(
+				esc_html__( 'Invalid nonce verification', 'woocommerce' ),
+				esc_html__( 'Error', 'woocommerce' ),
+				array(
+					'response'  => 403,
+					'back_link' => true,
+				)
+			);
+		}
+
+		$product_ids = explode( ',', urldecode( wc_clean( wp_unslash( $_GET['wc_bis_force_queue'] ) ) ) );
+		self::handle_instock_products( $product_ids, true );
+		$url = remove_query_arg( 'wc_bis_force_queue' );
+		wp_safe_redirect( $url );
+		exit;
 	}
 
 	/*****************************************
@@ -169,8 +189,8 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Trigger the notification queue.
 	 *
-	 * @param  array $product_ids
-	 * @param  int   $last_known_count
+	 * @param  array $product_ids       Array of product IDs.
+	 * @param  int   $last_known_count Number of notifications to process.
 	 * @return void
 	 */
 	public static function start_notifications_queue( $product_ids, $last_known_count ) {
@@ -186,24 +206,24 @@ class WC_BIS_Sync_Tasks {
 
 		if ( class_exists( 'WC_Admin_Notices' ) ) {
 			$queue_url = admin_url( 'admin.php?page=bis_notifications&status=queued_bis_notifications' );
-			
-			/* translators: %1$s: URL, %2$d: notifications count */
-			$notice_text = sprintf( 
-				_n( 
-					'%2$d back-in-stock notification is now <a href="%1$s">queued for delivery</a> in the next few minutes.', 
-					'%2$d back-in-stock notifications are now <a href="%1$s">queued for delivery</a> in the next few minutes.', 
-					$last_known_count, 
-					'woocommerce' 
+
+			$notice_text = sprintf(
+				/* translators: %1$s: URL, %2$d: notifications count */
+				_n(
+					'%2$d back-in-stock notification is now <a href="%1$s">queued for delivery</a> in the next few minutes.',
+					'%2$d back-in-stock notifications are now <a href="%1$s">queued for delivery</a> in the next few minutes.',
+					$last_known_count,
+					'woocommerce'
 				),
 				esc_url( $queue_url ),
 				$last_known_count
 			);
 
 			$notice_id = 'bis_queue_notice_' . uniqid();
-			WC_Admin_Notices::add_notice($notice_id, true);
+			WC_Admin_Notices::add_notice( $notice_id, true );
 			update_option(
 				'woocommerce_admin_notice_' . $notice_id,
-				wp_kses_post($notice_text)
+				wp_kses_post( $notice_text )
 			);
 		}
 
@@ -213,6 +233,8 @@ class WC_BIS_Sync_Tasks {
 			 * Filter: woocommerce_bis_first_batch_delay
 			 *
 			 * Schedule the first batch with a 60 sec delay.
+			 *
+			 * @since 9.9.0
 			 *
 			 * @param int   $throttle Throttle time in seconds between each batch.
 			 * @param array $product_ids
@@ -225,7 +247,7 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Process single batch of notifications for given product.
 	 *
-	 * @param  array $args Array of arguments.
+	 * @param  array $args Array of arguments containing product_id, batch, and batches.
 	 * @return void
 	 */
 	public static function async_process_notifications_batch( $args ) {
@@ -249,10 +271,9 @@ class WC_BIS_Sync_Tasks {
 				 *
 				 * Prevent or manage sending a specific notification.
 				 *
-				 * @since x.x.x
-				 *
-				 * @param bool $pre_send
-				 * @param int  $notification_id
+				 * @since 9.9.0
+				 * @param bool $pre_send       Whether to prevent sending.
+				 * @param int  $notification_id The notification ID.
 				 * @return bool
 				 */
 				$pre_send = apply_filters( 'woocommerce_bis_pre_send_notification', null, $notification->get_id() );
@@ -289,7 +310,7 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Hande outofstock product notifications.
 	 *
-	 * @param  array $product_ids
+	 * @param  array $product_ids Array of product IDs.
 	 * @return void
 	 */
 	public static function handle_outofstock_products( $product_ids ) {
@@ -317,18 +338,18 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Deletes all notifications associated with the deleted product.
 	 *
-	 * @since 1.1.2
-	 *
-	 * @param  int    $post_id
-	 * @param  object $post
+	 * @since 9.9.0
+	 * @param  int    $post_id The post ID being deleted.
+	 * @param  object $post    The post object being deleted.
+	 * @return void
 	 */
-	public static function handle_product_delete( $post_id ) {
+	public static function handle_product_delete( $post_id, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		if ( ! current_user_can( 'delete_posts' ) || ! $post_id ) {
 			return;
 		}
 
 		$post_type = get_post_type( $post_id );
-		if ( ! in_array( $post_type, array( 'product', 'product_variation' ) ) ) {
+		if ( ! in_array( $post_type, array( 'product', 'product_variation' ), true ) ) {
 			return;
 		}
 
@@ -348,8 +369,7 @@ class WC_BIS_Sync_Tasks {
 	/**
 	 * Run daily for maintenance.
 	 *
-	 * @since 1.2.0
-	 *
+	 * @since 9.9.0
 	 * @return void
 	 */
 	public static function do_wc_bis_daily() {
@@ -366,7 +386,7 @@ class WC_BIS_Sync_Tasks {
 		$overdue_query_args = array(
 			'is_active'   => 'off',
 			'is_verified' => 'no',
-			'meta_query'  => array(
+			'meta_query'  => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				'relation' => 'AND',
 				array(
 					'key'     => 'awaiting_verification',
@@ -402,11 +422,14 @@ class WC_BIS_Sync_Tasks {
 
 	/**
 	 * Auto-remove our notices after they are displayed.
+	 *
+	 * @since 9.9.0
+	 * @return void
 	 */
 	public static function auto_remove_notices() {
 		$notices = WC_Admin_Notices::get_notices();
-		
-		foreach ($notices as $notice) {
+
+		foreach ( $notices as $notice_id => $notice ) {
 			if ( 0 === strpos( $notice, 'bis_spam_notice_' ) || 0 === strpos( $notice, 'bis_queue_notice_' ) ) {
 				WC_Admin_Notices::remove_notice( $notice, true );
 			}

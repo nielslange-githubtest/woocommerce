@@ -3,7 +3,7 @@
  * WC_BIS_Email_Preview class.
  *
  * @package  WooCommerce Back In Stock Notifications
- * @since    x.x.x
+ * @since    9.9.0
  */
 
 declare( strict_types=1 );
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * BIS email preview class
  *
  * @interface WC_BIS_Email_Previewable
- * @version  x.x.x
+ * @version  9.9.0
  */
 class WC_BIS_Email_Preview {
 	/**
@@ -47,7 +47,7 @@ class WC_BIS_Email_Preview {
 		/**
 		 * Filter the dummy back in stock notification product object used in email previews.
 		 *
-		 * @since x.x.x
+		 * @since 9.9.0
 		 * @param WC_Product $product The dummy product object.
 		 * @param string     $email_type The email type being previewed.
 		 */
@@ -80,7 +80,7 @@ class WC_BIS_Email_Preview {
 		/**
 		 * Filter the dummy back in stock notification object used in email previews.
 		 *
-		 * @since x.x.x
+		 * @since 9.9.0
 		 * @param WC_BIS_Notification_Data $notification The dummy product object.
 		 * @param string     $email_type The email type being previewed.
 		 */

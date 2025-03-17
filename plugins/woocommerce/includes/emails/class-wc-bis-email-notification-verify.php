@@ -3,8 +3,10 @@
  * WC_BIS_Email_Notification_Verify class
  *
  * @package  WooCommerce Back In Stock Notifications
- * @since    1.2.0
+ * @since    9.9.0
  */
+
+declare( strict_types=1 );
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +20,7 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 	 * Notification verify double opt-in email controller.
 	 *
 	 * @class    WC_BIS_Email_Notification_Verify
-	 * @version  x.x.x
+	 * @version  9.9.0
 	 */
 	class WC_BIS_Email_Notification_Verify extends WC_Email implements WC_BIS_Email_Previewable {
 
@@ -41,16 +43,16 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 			parent::__construct();
 		}
 
-		/*
-		---------------------------------------------------*/
-		/*
-			Triggers.                                        */
-		/*---------------------------------------------------*/
+		/**
+		 * ------------------------------------------------------------
+		 * Triggers.
+		 * ------------------------------------------------------------
+		 */
 
 		/**
 		 * Prepares the email based on the notification data.
 		 *
-		 * @since x.x.x
+		 * @since 9.9.0
 		 * @param WC_BIS_Notification_Data $notification Notification.
 		 *
 		 * @return void
@@ -64,7 +66,9 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 		/**
 		 * Trigger the sending of this email.
 		 *
-		 * @param WC_BIS_Notification_Data|int $notification
+		 * @param WC_BIS_Notification_Data|int $notification Notification.
+		 *
+		 * @return void
 		 */
 		public function trigger( $notification ) {
 			$this->setup_locale();
@@ -93,11 +97,11 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 			$this->restore_locale();
 		}
 
-		/*
-		---------------------------------------------------*/
-		/*
-			Defaults.                                        */
-		/*---------------------------------------------------*/
+		/**
+		 * ------------------------------------------------------------
+		 * Defaults.
+		 * ------------------------------------------------------------
+		 */
 
 		/**
 		 * Get email subject.
@@ -135,11 +139,11 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 			return __( 'Thanks for shopping with us.', 'woocommerce' );
 		}
 
-		/*
-		---------------------------------------------------*/
-		/*
-			Getters.                                         */
-		/*---------------------------------------------------*/
+		/**
+		 * ------------------------------------------------------------
+		 * Getters.
+		 * ------------------------------------------------------------
+		 */
 
 		/**
 		 * Get email content.
@@ -156,6 +160,13 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 		 * @return string
 		 */
 		public function get_intro_content() {
+			/**
+			 * Filter: `woocommerce_bis_email_intro_content`.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param string $value The intro content.
+			 */
 			return apply_filters( 'woocommerce_bis_email_intro_content', $this->format_string( $this->get_option( 'intro_content', $this->get_default_intro_content() ) ), $this->object, $this );
 		}
 
@@ -209,6 +220,13 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 		 */
 		protected function setup_placeholders() {
 
+			/**
+			 * Filter: `woocommerce_bis_verification_email_placeholders`.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param string[] $placeholders The placeholders.
+			 */
 			$placeholder_keys = (array) apply_filters(
 				'woocommerce_bis_verification_email_placeholders',
 				array(
@@ -237,15 +255,22 @@ if ( ! class_exists( 'WC_BIS_Email_Notification_Verify', false ) ) :
 			$this->placeholders['{product_name}'] = preg_replace( $this->plain_search, $this->plain_replace, $product->get_name() );
 
 			foreach ( $this->placeholders as $key => $value ) {
+				/**
+				 * Filter: `woocommerce_bis_verification_email_placeholder_value`.
+				 *
+				 * @since 9.9.0
+				 *
+				 * @param string $value The placeholder value.
+				 */
 				$this->placeholders[ $key ] = apply_filters( 'woocommerce_bis_verification_email_placeholder_' . sanitize_title( $key ) . '_value', $value, $this->object );
 			}
 		}
 
-		/*
-		---------------------------------------------------*/
-		/*
-			Init.                                            */
-		/*---------------------------------------------------*/
+		/**
+		 * ------------------------------------------------------------
+		 * Init.
+		 * ------------------------------------------------------------
+		 */
 
 		/**
 		 * Initialize Settings Form Fields.

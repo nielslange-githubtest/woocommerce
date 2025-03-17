@@ -1191,7 +1191,7 @@ final class WooCommerce {
 	}
 
 	/**
-	 *
+	 * Get Back In Stock notifications class instance.
 	 *
 	 * @return WC_Back_In_Stock|WC_BIS_Noop
 	 */

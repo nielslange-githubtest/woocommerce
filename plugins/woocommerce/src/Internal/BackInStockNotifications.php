@@ -1,6 +1,8 @@
 <?php
 /**
  * Back In Stock Notifications class file.
+ * 
+ * @since 9.9.0
  */
 
 declare( strict_types = 1);
@@ -21,42 +23,42 @@ class BackInStockNotifications {
 
 	/**
 	 * Database utility instance.
-	 * 
+	 *
 	 * @var DatabaseUtil
 	 */
 	private static $db_utils;
 
 	/**
 	 * Whether this is an activation request for BIS.
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $is_activation_request = false;
 
 	/**
 	 * Whether the standalone BIS plugin is active.
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $bis_plugin_is_active = false;
 
 	/**
 	 * Option name for the feature flag.
-	 * 
+	 *
 	 * @var string
 	 */
 	public static $enable_option_name = 'wc_feature_woocommerce_back_in_stock_notifications_enabled';
 
 	/**
 	 * Package name.
-	 * 
+	 *
 	 * @var string
 	 */
-	public static $PACKAGE_NAME = 'woocommerce-back-in-stock-notifications';
+	public static $package_name = 'woocommerce-back-in-stock-notifications';
 
 	/**
 	 * Prepare method that runs code irrespective of whether the feature is enabled or not.
-	 * 
+	 *
 	 * These hooks need to be always registered to be able to react to changes in the feature flag
 	 * changes via Settings UI.
 	 *
@@ -72,18 +74,18 @@ class BackInStockNotifications {
 		add_action( 'woocommerce_register_feature_definitions', array( __CLASS__, 'add_feature_definition' ), 10, 1 );
 	}
 
-	/**	
+	/**
 	 * Add feature definition to settings page.
-	 * 
+	 *
 	 * Note: By default, WC core adds options for all settings in WC_Install::create_options.
 	 * This doesn't work for merged BIS, because the setting option is acting as an _override_
 	 * for the rollout period flag. Thus, the feature definition won't be added during activation
 	 * to skip creating the option.
-	 * 
+	 *
 	 * This method copies the check in WC_Install::check_version, because the WC_INSTALLING
 	 * constant is defined too late (init@5) while the feature definition is added in init@0
 	 * during an update of WooCommerce core.
-	 * 
+	 *
 	 * @param FeaturesController $features_controller The instance of FeaturesController to use.
 	 * @internal
 	 */
@@ -101,14 +103,15 @@ class BackInStockNotifications {
 		if ( ! Constants::is_defined( 'IFRAME_REQUEST' ) && $requires_update ) {
 			return;
 		}
-	
+
 		$definition = array(
 			'name'               => __( 'Back in stock notifications', 'woocommerce' ),
-			'description'        => self::is_enabled() ? 
+			'description'        => self::is_enabled() ?
 				sprintf(
+					/* translators: %s: URL to the back in stock notifications settings page. */
 					__( 'Enable back in stock notifications for customers. Configure the options in <a href="%s">WooCommerce > Settings > Products > Customer stock notifications</a>.', 'woocommerce' ),
 					esc_url( admin_url( 'admin.php?page=wc-settings&tab=products&section=bis_settings' ) )
-				) 
+				)
 				: __(
 					'Enable back in stock notifications for customers.',
 					'woocommerce'
@@ -125,7 +128,6 @@ class BackInStockNotifications {
 			__( 'Back in stock notifications', 'woocommerce' ),
 			$definition
 		);
-	
 	}
 
 	/**
@@ -136,7 +138,7 @@ class BackInStockNotifications {
 	final public static function init() {
 
 		// If this is an activation request for BIS, included code can't be loaded, as it will end up with a fatal error.
-		if ( self::$is_activation_request || self::$bis_plugin_is_active ) { 
+		if ( self::$is_activation_request || self::$bis_plugin_is_active ) {
 			return;
 		}
 
@@ -152,13 +154,13 @@ class BackInStockNotifications {
 
 	/**
 	 * Deactivate signups for BIS to prevent changing the single product screen.
-	 * 
+	 *
 	 * This should be called from the WooCommerce update hook.
-	 * 
+	 *
 	 * If standalone BIS plugin was active, it won't change the signups option.
-	 * If standalone BIS plugin was not active, it will deactivate signups to prevent 
+	 * If standalone BIS plugin was not active, it will deactivate signups to prevent
 	 * changing the single product screen.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function maybe_deactivate_signups() {
@@ -170,8 +172,8 @@ class BackInStockNotifications {
 		// Check if we've already done the initial setup.
 		if ( 'yes' === get_option( 'wc_bis_core_initialized' ) ) {
 			return;
-		}	
-	
+		}
+
 		$option_value = get_option( 'wc_bis_allow_signups' );
 
 		// BIS wasn't active at the time of the core update, => disable signups.
@@ -184,7 +186,7 @@ class BackInStockNotifications {
 			$option_value = 'yes';
 		}
 
-		if ( $option_value !== get_option( 'wc_bis_allow_signups' ) ) {
+		if ( get_option( 'wc_bis_allow_signups' ) !== $option_value ) {
 			update_option( 'wc_bis_allow_signups', $option_value );
 		}
 
@@ -220,7 +222,7 @@ class BackInStockNotifications {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return Packages::is_package_enabled( self::$PACKAGE_NAME );
+		return Packages::is_package_enabled( self::$package_name );
 	}
 
 	/**
@@ -229,11 +231,14 @@ class BackInStockNotifications {
 	 * early on in the 'plugins_loaded' timeline.
 	 *
 	 * This is called from \Automattic\WooCommerce\Packages::prepare_packages.
+	 *
+	 * @return void
 	 */
-	public static function prepare() {
+	public static function prepare(): void {
 
 		// Set flag for activation request to prevent fatal errors when BIS is activated while WC+BIS is already active.
 		$bis_plugin_name = 'woocommerce-back-in-stock-notifications/woocommerce-back-in-stock-notifications.php';
+		$short_name      = 'woocommerce-back-in-stock-notifications';
 
 		// This needs to run after the standalone plugin is deactivated to restore the daily task.
 		add_action( 'deactivate_' . $bis_plugin_name, array( __CLASS__, 'maybe_setup_events' ), 20 );
@@ -245,46 +250,46 @@ class BackInStockNotifications {
 		add_action( 'woocommerce_installed', array( __CLASS__, 'maybe_update_bis_infrastructure' ), 10, 1 );
 
 		if ( function_exists( 'WC_BIS' ) ) {
-			// This skips the initialization of BIS plugin to avoid duplicate code & fatal errors 
+			// This skips the initialization of BIS plugin to avoid duplicate code & fatal errors
 			// when standalone BIS plugin is active and WC core with BIS merged is loaded.
 			// BIS plugin is then deactivated during plugins_loaded@10 priority from \Automattic\WooCommerce\Packages::on_init().
 			remove_action( 'plugins_loaded', array( WC_BIS(), 'initialize_plugin' ), 9 );
 
-			// When WC_BIS() is present before loading BIS from core, it will fatal during init(), 
-			// so init() needs to be skipped. This should only be triggered once after 
+			// When WC_BIS() is present before loading BIS from core, it will fatal during init(),
+			// so init() needs to be skipped. This should only be triggered once after
 			// a plugin update during the request when BIS plugin is deactivated.
 			self::$bis_plugin_is_active = true;
 		}		
 
-		// Check for CLI activation via WP-CLI
-		if ( defined('WP_CLI') && WP_CLI ) {
+		// Check for CLI activation via WP-CLI.
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			global $argv;
-			if ( is_array( $argv ) && in_array( 'plugin', $argv ) && in_array( 'activate', $argv ) && in_array( $bis_plugin_name, $argv ) ) {
+			if ( is_array( $argv ) && in_array( 'plugin', $argv, true ) && in_array( 'activate', $argv, true ) && in_array( $short_name, $argv, true ) ) {
 				self::$is_activation_request = true;
 				return;
 			}
 		}
 
-		// Check for AJAX activation (network admin)
+		// Check for AJAX activation (network admin).
 		if ( wp_doing_ajax() ) {
-			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] === 'activate-plugin' ) {
-				if ( isset( $_REQUEST['plugin'] ) && $_REQUEST['plugin'] === $bis_plugin_name ) {
+			if ( isset( $_REQUEST['action'] ) && 'activate-plugin' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( isset( $_REQUEST['plugin'] ) && $bis_plugin_name === $_REQUEST['plugin'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					self::$is_activation_request = true;
 					return;
 				}
 			}
 		}
 
-		// Check for regular activation requests
-		if ( isset( $_REQUEST['action'] ) ) {
+		// Check for regular activation requests.
+		if ( isset( $_REQUEST['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// Single plugin activation
-			if ( $_REQUEST['action'] === 'activate' && isset( $_REQUEST['plugin'] ) && $_REQUEST['plugin'] === $bis_plugin_name ) {
+			if ( 'activate' === $_REQUEST['action'] && isset( $_REQUEST['plugin'] ) && $bis_plugin_name === $_REQUEST['plugin'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				self::$is_activation_request = true;
 				return;
 			}
 
-			// Bulk plugin activation
-			if ( $_REQUEST['action'] === 'activate-selected' && isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) && in_array( $bis_plugin_name, $_REQUEST['checked'] ) ) {
+			// Bulk plugin activation.
+			if ( 'activate-selected' === $_REQUEST['action'] && isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) && in_array( $bis_plugin_name, $_REQUEST['checked'], true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				self::$is_activation_request = true;
 				return;
 			}
@@ -293,17 +298,17 @@ class BackInStockNotifications {
 
 	/**
 	 * Get BIS db schema.
-	 * 
+	 *
 	 * @return string
 	 */
-	public static function get_bis_db_schema() : string {
+	public static function get_bis_db_schema(): string {
 		global $wpdb;
 		$collate = '';
 		if ( $wpdb->has_cap( 'collation' ) ) {
 			$collate = $wpdb->get_charset_collate();
 		}
 		$max_index_length = 191;
-		$tables = "CREATE TABLE {$wpdb->prefix}woocommerce_bis_notifications (
+		$tables           = "CREATE TABLE {$wpdb->prefix}woocommerce_bis_notifications (
   `id` BIGINT UNSIGNED NOT NULL auto_increment,
   `type` VARCHAR(128) default 'one-time' NOT NULL,
   `product_id` BIGINT UNSIGNED NOT NULL,
@@ -350,19 +355,18 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 ) $collate;";
 		return $tables;
 	}
+
 	/**
 	 * Get BIS db schema if the feature is enabled. Otherwise, return an empty string.
-	 * 
+	 *
 	 * @return string
 	 */
-	public static function maybe_get_bis_db_schema() : string {
+	public static function maybe_get_bis_db_schema(): string {
 		if ( ! self::is_enabled() ) {
 			return '';
 		}
 
 		return self::get_bis_db_schema();
-
-
 	}
 
 	/**
@@ -373,7 +377,6 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 * @return bool
 	 */
 	public static function bis_tables_exist(): bool {
-
 
 		self::$db_utils = wc_get_container()->get( DatabaseUtil::class );
 
@@ -395,7 +398,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 */
 	public static function create_database_tables() {
 
-		if ( ! isset( self::$db_utils ) ) {	
+		if ( ! isset( self::$db_utils ) ) {
 			self::$db_utils = wc_get_container()->get( DatabaseUtil::class );
 		}
 
@@ -405,7 +408,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 		if ( ! $success ) {
 			$missing_tables = self::$db_utils->get_missing_tables( $db_schema );
 			$missing_tables = implode( ', ', $missing_tables );
-			$logger = wc_get_container()->get( LegacyProxy::class )->call_function( 'wc_get_logger' );
+			$logger         = wc_get_container()->get( LegacyProxy::class )->call_function( 'wc_get_logger' );
 			$logger->error( "Back In Stock Notifications tables are missing in the database and couldn't be created. The missing tables are: $missing_tables" );
 		}
 		return $success;
@@ -413,8 +416,10 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 
 	/**
 	 * Create BIS db tables when feature is enabled after WC installation has run.
-	 * 
+	 *
 	 * This should be called from the feature flag change hook.
+	 * 
+	 * @return mixed|void
 	 */
 	public static function maybe_create_database_tables() {
 		if ( ! self::is_enabled() ) {
@@ -430,13 +435,16 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 
 	/**
 	 * Handle the addition of the feature flag option.
-	 * 
+	 *
 	 * This should be called from the feature flag change hook.
-	 * 
+	 *
 	 * @param string $option The option name.
+	 * @param string $new_value The new value of the option.
+	 * 
+	 * @return void
 	 */
-	public static function handle_add_option( $option, $new_value ) {
-		if ( $option !== 'wc_feature_woocommerce_back_in_stock_notifications_enabled' ) {
+	public static function handle_add_option( $option, $new_value ): void {
+		if ( 'wc_feature_woocommerce_back_in_stock_notifications_enabled' !== $option ) {
 			return;
 		}
 
@@ -445,13 +453,15 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 
 	/**
 	 * Handle the deletion of the feature flag option.
-	 * 
+	 *
 	 * This should be called from the feature flag change hook.
-	 * 
+	 *
 	 * @param string $option The option name.
+	 * 
+	 * @return void
 	 */
-	public static function handle_delete_option( $option ) {
-		if ( $option !== 'wc_feature_woocommerce_back_in_stock_notifications_enabled' ) {
+	public static function handle_delete_option( $option ): void {
+		if ( 'wc_feature_woocommerce_back_in_stock_notifications_enabled' !== $option ) {
 			return;
 		}
 
@@ -461,10 +471,12 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 
 	/**
 	 * Setup BIS events when the feature flag is enabled.
-	 * 
+	 *
 	 * This should be called from the feature flag change hook.
+	 * 
+	 * @return void
 	 */
-	public static function maybe_setup_events() {
+	public static function maybe_setup_events(): void {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
@@ -476,22 +488,24 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 		if ( ! class_exists( 'WC_BIS_Install' ) ) {
 			include_once WC_ABSPATH . '/includes/bis/class-wc-bis-install.php';
 		}
-		
+
 		wc_get_container()->get( LegacyProxy::class )->call_static( 'WC_BIS_Install', 'create_events' );
 	}
 
 	/**
 	 * Update BIS infrastructure when the feature flag is changed.
-	 * 
+	 *
 	 * This should be called from the feature flag change hook.
-	 * 
+	 *
 	 * @param string|null $old_value The old value of the option.
 	 * @param string|null $new_value The new value of the option.
 	 * @param string|null $option The option name.
+	 * 
+	 * @return void
 	 */
-	public static function maybe_update_bis_infrastructure( $old_value = null, $new_value = null, $option = null ) {
-		// For option change, check if being disabled
-		if ( isset( $old_value ) && isset( $new_value ) && $new_value === 'no' ) {
+	public static function maybe_update_bis_infrastructure( $old_value = null, $new_value = null, $option = null ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		// For option change, check if being disabled.
+		if ( isset( $old_value ) && isset( $new_value ) && 'no' === $new_value ) {
 			self::cleanup_events();
 			// Not cleaning up database tables to retain the data.
 			return;
@@ -503,11 +517,13 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 
 	/**
 	 * Clean up scheduled BIS events when WooCommerce is deactivated.
-	 * 
-	 * This should be called from WooCommerce's deactivation hook or 
+	 *
+	 * This should be called from WooCommerce's deactivation hook or
 	 * when the BIS feature is disabled via the feature flag.
+	 * 
+	 * @return void
 	 */
-	public static function cleanup_events() {
+	public static function cleanup_events(): void {
 		$timestamp = wp_next_scheduled( 'wc_bis_daily' );
 		if ( $timestamp ) {
 			wp_unschedule_event( $timestamp, 'wc_bis_daily' );

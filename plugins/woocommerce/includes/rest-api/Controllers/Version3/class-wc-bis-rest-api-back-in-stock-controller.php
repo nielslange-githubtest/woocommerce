@@ -3,8 +3,10 @@
  * WC_BIS_REST_API_Back_In_Stock_Controller class
  *
  * @package  WooCommerce Back In Stock Notifications
- * @since    1.7.0
+ * @since    9.9.0
  */
+
+declare( strict_types=1 );
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @class   WC_BIS_REST_API_Back_In_Stock_Controller
  * @extends WC_REST_Controller
- * @version 1.7.0
+ * @version  9.9.0
  */
 class WC_BIS_REST_API_Back_In_Stock_Controller extends WC_REST_Controller {
 
@@ -72,6 +74,9 @@ class WC_BIS_REST_API_Back_In_Stock_Controller extends WC_REST_Controller {
 	 * Deactivate notifications.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
+	 * 
+	 * @throws Exception If no notifications are found to deactivate.
+	 * 
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function deactivate_notifications( $request ) {
@@ -125,6 +130,8 @@ class WC_BIS_REST_API_Back_In_Stock_Controller extends WC_REST_Controller {
 	 * Force-Send notifications.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
+	 * 
+	 * @throws Exception If no product IDs are found to force-send notifications.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function force_send_notifications( $request ) {

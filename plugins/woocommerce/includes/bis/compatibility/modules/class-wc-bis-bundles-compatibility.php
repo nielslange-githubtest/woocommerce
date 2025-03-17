@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -55,6 +57,7 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Reactivate notification.
 	 *
+	 * @param  object $notification Notification.
 	 * @return void
 	 */
 	public static function notification_reactivate( $notification ) {
@@ -67,8 +70,8 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Handle reactivation args.
 	 *
-	 * @param  array                     g $args
-	 * @param  WC_BIS_Notification_Data    $notification
+	 * @param  array                    $args Array of arguments.
+	 * @param  WC_BIS_Notification_Data $notification Notification data.
 	 * @return array
 	 */
 	public static function handle_reactivation_args( $args, $notification ) {
@@ -83,7 +86,7 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Include Bundles in supported product types.
 	 *
-	 * @param  array $types
+	 * @param  array $types Supported product types.
 	 * @return array
 	 */
 	public static function add_bundle_product_type( $types ) {
@@ -94,8 +97,8 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Bypass native BIS sync action for bundle types.
 	 *
-	 * @param  bool       $valid
-	 * @param  WC_Product $product
+	 * @param  bool       $valid  Whether the product should be synced.
+	 * @param  WC_Product $product Product.
 	 * @return bool
 	 */
 	public static function bypass_native_sync( $valid, $product ) {
@@ -110,8 +113,8 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Sync Product Bundle's stock change.
 	 *
-	 * @param  WC_Product $product
-	 * @param  array      $updated_props
+	 * @param  WC_Product $product Product.
+	 * @param  array      $updated_props Updated props.
 	 * @return void
 	 */
 	public static function bundle_stock_changed( $product, $updated_props = array() ) {
@@ -132,13 +135,13 @@ class WC_BIS_Bundles_Compatibility {
 			return;
 		}
 
-		if ( in_array( 'bundled_items_stock_status', $updated_props ) ) {
+		if ( in_array( 'bundled_items_stock_status', $updated_props, true ) ) {
 
 			$stock_status = $product->get_bundled_items_stock_status( 'edit' );
 			self::add_bundle( $product, $stock_status );
 		}
 
-		if ( in_array( 'bundle_stock_quantity', $updated_props ) ) {
+		if ( in_array( 'bundle_stock_quantity', $updated_props, true ) ) {
 
 			$min_stock_threshold = wc_bis_get_stock_threshold();
 			if ( 0 === $min_stock_threshold ) {
@@ -177,8 +180,8 @@ class WC_BIS_Bundles_Compatibility {
 	/**
 	 * Add a Bundle to the sync queue.
 	 *
-	 * @param  mixed  $product
-	 * @param  string $stock_status
+	 * @param  mixed  $product Product.
+	 * @param  string $stock_status Stock status.
 	 * @return bool
 	 */
 	public static function add_bundle( $product, $stock_status ) {
@@ -190,12 +193,8 @@ class WC_BIS_Bundles_Compatibility {
 
 			$added = WC_BIS()->sync->add_to_queue( $product->get_id(), 'outofstock' );
 
-		} else {
-
-			// Sanity check for newcomers without a previous meta.
-			if ( $product->get_bundle_stock_quantity() >= $min_stock_threshold ) {
-				$added = WC_BIS()->sync->add_to_queue( $product->get_id(), 'instock' );
-			}
+		} elseif ( $product->get_bundle_stock_quantity() >= $min_stock_threshold ) { // Sanity check for newcomers without a previous meta.
+			$added = WC_BIS()->sync->add_to_queue( $product->get_id(), 'instock' );
 		}
 
 		return $added;

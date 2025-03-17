@@ -129,7 +129,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the checkbox column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_cb( $notification ) {
@@ -146,7 +146,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the title column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_id( $notification ) {
@@ -170,7 +170,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the status column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_status( $notification ) {
@@ -202,7 +202,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the redeemed user column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_user( $notification ) {
@@ -220,7 +220,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the product column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_product( $notification ) {
@@ -241,7 +241,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the product SKU output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_sku( $notification ) {
@@ -262,7 +262,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the notification date column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_date_subscribed( $notification ) {
@@ -280,7 +280,7 @@ class WC_BIS_Notifications_List_Table extends WP_List_Table {
 	/**
 	 * Handles the waiting since column output.
 	 *
-	 * @param WC_BIS_Notification $notification The notification object.
+	 * @param WC_BIS_Notification_Data$notification The notification object.
 	 * @return void
 	 */
 	public function column_waiting_since( $notification ) {

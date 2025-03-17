@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,16 +35,13 @@ class WC_BIS_Activity_DB {
 	}
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		// ...
-	}
-
-	/**
 	 * Query activiry data from the DB.
 	 *
-	 * @param  array $args  {
+	 * @since 9.9.0
+	 * @param array $args Array of arguments.
+	 *
+	 * Example arguments array:
+	 * {
 	 *     @type  string     $return           Return array format:
 	 *
 	 *         - 'all': entire row casted to array,
@@ -58,7 +57,7 @@ class WC_BIS_Activity_DB {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'return'                    => 'all', // 'ids' | 'objects'
+				'return'                    => 'all', // Other options: 'ids' | 'objects'.
 				'count'                     => false,
 				'search'                    => '',
 				'type'                      => '',
@@ -84,7 +83,7 @@ class WC_BIS_Activity_DB {
 
 			$select = "COUNT( {$table}.id )";
 
-		} elseif ( in_array( $args['return'], array( 'ids' ) ) ) {
+		} elseif ( in_array( (string) $args['return'], array( 'ids' ), true ) ) {
 
 				$select = $table . '.id';
 		} else {
@@ -239,7 +238,7 @@ class WC_BIS_Activity_DB {
 	/**
 	 * Get a record from the DB.
 	 *
-	 * @param  mixed $activity
+	 * @param  mixed $activity Activity.
 	 * @return false|WC_BIS_Activity_Data
 	 */
 	public function get( $activity ) {
@@ -265,10 +264,10 @@ class WC_BIS_Activity_DB {
 	/**
 	 * Create a record in the DB.
 	 *
-	 * @param  array $args
+	 * @param  array $args Array of arguments.
 	 * @return false|int
 	 *
-	 * @throws Exception
+	 * @throws Exception If invalid activity or arguments.
 	 */
 	public function add( $args ) {
 
@@ -288,7 +287,7 @@ class WC_BIS_Activity_DB {
 
 		// Empty attributes.
 		if ( empty( $args['type'] ) || empty( $args['notification_id'] ) || empty( $args['product_id'] ) ) {
-			throw new Exception( __( 'Missing activity attributes.', 'woocommerce' ) );
+			throw new Exception( esc_html__( 'Missing activity attributes.', 'woocommerce' ) );
 		}
 
 		$this->validate( $args );
@@ -312,11 +311,11 @@ class WC_BIS_Activity_DB {
 	/**
 	 * Update a record in the DB.
 	 *
-	 * @param  mixed $activity
-	 * @param  array $args
+	 * @param  mixed $activity Activity.
+	 * @param  array $args Array of arguments.
 	 * @return bool
 	 *
-	 * @throws Exception
+	 * @throws Exception If invalid activity or arguments.
 	 */
 	public function update( $activity, $args ) {
 
@@ -340,23 +339,23 @@ class WC_BIS_Activity_DB {
 	/**
 	 * Validate data.
 	 *
-	 * @param  array                &$args
-	 * @param  WC_BIS_Activity_Data $activity
+	 * @param  array                &$args Array of arguments.
+	 * @param  WC_BIS_Activity_Data $activity Activity.
 	 * @return void
 	 *
-	 * @throws Exception
+	 * @throws Exception If invalid activity type or e-mail.
 	 */
 	public function validate( &$args, $activity = false ) {
 
 		if ( ! empty( $args['type'] ) ) {
-			if ( ! in_array( $args['type'], array_keys( wc_bis_get_activity_types() ) ) ) {
-				throw new Exception( __( 'Invalid activity type.', 'woocommerce' ) );
+			if ( ! in_array( (string) $args['type'], array_keys( wc_bis_get_activity_types() ), true ) ) {
+				throw new Exception( esc_html__( 'Invalid activity type.', 'woocommerce' ) );
 			}
 		}
 
 		if ( ! empty( $args['user_email'] ) && ! filter_var( $args['user_email'], FILTER_VALIDATE_EMAIL ) ) {
 			/* translators: %s email string */
-			throw new Exception( __( sprintf( 'Invalid e-mail: %s.', $args['user_email'] ), 'woocommerce' ) );
+			throw new Exception( esc_html( sprintf( __( 'Invalid e-mail: %s.', 'woocommerce' ), esc_html( $args['user_email'] ) ) ) );
 		}
 
 		// New Νotification.
@@ -369,7 +368,7 @@ class WC_BIS_Activity_DB {
 	/**
 	 * Delete a record from the DB.
 	 *
-	 * @param  mixed $activity
+	 * @param  mixed $activity Activity.
 	 * @return void
 	 */
 	public function delete( $activity ) {
@@ -402,9 +401,9 @@ class WC_BIS_Activity_DB {
 	 *
 	 * @since  1.0.10
 	 *
-	 * @param  int $user_id
-	 * @param  int $limit (Optional)
-	 * @param  int $offset (Optional)
+	 * @param  int $user_id User ID.
+	 * @param  int $limit (Optional).
+	 * @param  int $offset (Optional).
 	 * @return array
 	 */
 	public function get_activity_by_user( $user_id, $limit = 10, $offset = 0 ) {
@@ -443,7 +442,7 @@ class WC_BIS_Activity_DB {
 	 *
 	 * @since  1.0.10
 	 *
-	 * @param  int $user_id
+	 * @param  int $user_id User ID.
 	 * @return int
 	 */
 	public function get_total_activity_records_by_user( $user_id ) {

@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +18,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
 if ( ! function_exists( 'wc_bis_email_notification_product_image' ) ) {
-	function wc_bis_email_notification_product_image( $product, $notification ) {
+	/**
+	 * Display product image.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  object $product     The product.
+	 * @param  object $notification The notification.
+	 */
+	function wc_bis_email_notification_product_image( $product, $notification ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 		$image     = wp_get_attachment_image_src( $product->get_image_id(), 'woocommerce_thumbnail' );
 		$image_src = is_array( $image ) && isset( $image[0] ) ? $image[0] : '';
@@ -34,7 +44,15 @@ if ( ! function_exists( 'wc_bis_email_notification_product_image' ) ) {
 }
 
 if ( ! function_exists( 'wc_bis_email_notification_product_title' ) ) {
-	function wc_bis_email_notification_product_title( $product, $notification ) {
+	/**
+	 * Display product title.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  object $product     The product.
+	 * @param  object $notification The notification.
+	 */
+	function wc_bis_email_notification_product_title( $product, $notification ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		ob_start();
 		?>
 		<div id="notification__product__title"><?php echo esc_html( $product->get_name() ); ?></div>
@@ -45,7 +63,15 @@ if ( ! function_exists( 'wc_bis_email_notification_product_title' ) ) {
 }
 
 if ( ! function_exists( 'wc_bis_email_notification_product_attributes' ) ) {
-	function wc_bis_email_notification_product_attributes( $product, $notification ) {
+	/**
+	 * Display product attributes.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  object $product     The product.
+	 * @param  object $notification The notification.
+	 */
+	function wc_bis_email_notification_product_attributes( $product, $notification ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		ob_start();
 		?>
 		<div id="notification__product__attributes"><?php echo wp_kses_post( $notification->get_product_formatted_variation_list( false, 'email' ) ); ?></div>
@@ -56,7 +82,15 @@ if ( ! function_exists( 'wc_bis_email_notification_product_attributes' ) ) {
 }
 
 if ( ! function_exists( 'wc_bis_email_notification_product_price' ) ) {
-	function wc_bis_email_notification_product_price( $product, $notification ) {
+	/**
+	 * Display product price.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  object $product     The product.
+	 * @param  object $notification The notification.
+	 */
+	function wc_bis_email_notification_product_price( $product, $notification ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		ob_start();
 		?>
 		<div id="notification__product__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
@@ -66,11 +100,16 @@ if ( ! function_exists( 'wc_bis_email_notification_product_price' ) ) {
 	}
 }
 
-/**
- * Display attributes.
- */
 if ( ! function_exists( 'wc_bis_get_activity_description' ) ) {
 
+	/**
+	 * Get activity description.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param  object $activity_data The activity data.
+	 * @return string
+	 */
 	function wc_bis_get_activity_description( $activity_data ) {
 		$notification = wc_bis_get_notification( $activity_data->get_notification_id() );
 		if ( ! is_a( $notification, 'WC_BIS_Notification_Data' ) ) {
@@ -124,65 +163,85 @@ if ( ! function_exists( 'wc_bis_get_activity_description' ) ) {
 	}
 }
 
-/**
- * Default form header text.
- */
 if ( ! function_exists( 'wc_bis_get_form_header_default_text' ) ) {
 
+	/**
+	 * Default form header text.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_header_default_text() {
 		return __( 'Want to be notified when this product is back in stock?', 'woocommerce' );
 	}
 }
 
-/**
- * Default form header text when user already subscribed to the waitlist.
- *
- * @since 1.2.0
- */
 if ( ! function_exists( 'wc_bis_get_form_header_signed_up_default_text' ) ) {
 
+	/**
+	 * Default form header text when user already subscribed to the waitlist.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_header_signed_up_default_text() {
 		return __( 'You have already joined the waitlist! Click {manage_account_link} to manage your notifications.', 'woocommerce' );
 	}
 }
 
-/**
- * Default form button text.
- */
 if ( ! function_exists( 'wc_bis_get_form_button_default_text' ) ) {
 
+	/**
+	 * Default form button text.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_button_default_text() {
 		return __( 'Notify me', 'woocommerce' );
 	}
 }
 
-/**
- * Default form header link text when user already signed up to the waitlist.
- *
- * @since 1.2.0
- */
 if ( ! function_exists( 'wc_bis_get_form_header_signed_up_link_default_text' ) ) {
 
+	/**
+	 * Default form header link text when user already signed up to the waitlist.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_header_signed_up_link_default_text() {
 		return __( 'here', 'woocommerce' );
 	}
 }
 
-/**
- * Default form privacy text.
- */
 if ( ! function_exists( 'wc_bis_get_form_privacy_default_text' ) ) {
 
+	/**
+	 * Default form privacy text.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_privacy_default_text() {
 		return __( 'Use this e-mail address to send me availability alerts and updates.', 'woocommerce' );
 	}
 }
 
-/**
- * Default form count sign-ups text.
- */
 if ( ! function_exists( 'wc_bis_get_form_signups_count_plural_default_text' ) ) {
 
+	/**
+	 * Default form count sign-ups text for plural customers.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_signups_count_plural_default_text() {
 		return __( '{customers_count} customers have joined the waitlist.', 'woocommerce' );
 	}
@@ -190,6 +249,13 @@ if ( ! function_exists( 'wc_bis_get_form_signups_count_plural_default_text' ) ) 
 
 if ( ! function_exists( 'wc_bis_get_form_signups_count_default_text' ) ) {
 
+	/**
+	 * Default form count sign-ups text for single customer.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string
+	 */
 	function wc_bis_get_form_signups_count_default_text() {
 		return __( '1 customer has joined the waitlist.', 'woocommerce' );
 	}
@@ -260,9 +326,9 @@ if ( ! function_exists( 'wc_bis_fetch_and_build_string' ) ) {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param  string $key
-	 * @param  string $placeholder (Optional)
-	 * @param  mixed  $placeholder_data (Optional)
+	 * @param  string $key The key.
+	 * @param  string $placeholder (Optional) The placeholder.
+	 * @param  mixed  $placeholder_data (Optional) The placeholder data.
 	 * @return string
 	 */
 	function wc_bis_build_shop_text( $key, $placeholder = '', $placeholder_data = false ) {
@@ -320,6 +386,13 @@ if ( ! function_exists( 'wc_bis_fetch_and_build_string' ) ) {
 			);
 
 			$link_attributes = wp_parse_args( $placeholder_data, $defaults );
+
+			/**
+			 * Filter: woocommerce_bis_link_attributes
+			 *
+			 * @since 9.9.0
+			 * @param array $link_attributes The link attributes.
+			 */
 			$link_attributes = (array) apply_filters( sprintf( 'woocommerce_bis_%s_link_attributes', $key ), $link_attributes, $key );
 
 			$link_attributes_string = implode(
@@ -358,7 +431,7 @@ if ( ! function_exists( 'wc_bis_wp_theme_get_element_class_name' ) ) {
 	 *
 	 * @since 1.6.0
 	 *
-	 * @param  string $element
+	 * @param  string $element The element.
 	 * @return string
 	 */
 	function wc_bis_wp_theme_get_element_class_name( $element ) {

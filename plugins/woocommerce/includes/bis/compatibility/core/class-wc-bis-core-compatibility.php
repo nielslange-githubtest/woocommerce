@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -81,7 +83,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WooCommerce is greater than or equal to $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wc_version_gte( $version ) {
@@ -96,7 +98,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WooCommerce is greater than $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wc_version_gt( $version ) {
@@ -111,7 +113,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WooCommerce is lower than or equal $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wc_version_lte( $version ) {
@@ -126,7 +128,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WooCommerce is lower than $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wc_version_lt( $version ) {
@@ -147,7 +149,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WordPress is greater than or equal to $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wp_version_gt( $version ) {
@@ -163,7 +165,7 @@ class WC_BIS_Core_Compatibility {
 	/**
 	 * Returns true if the installed version of WordPress is greater than or equal to $version.
 	 *
-	 * @param  string $version
+	 * @param  string $version Version to compare.
 	 * @return boolean
 	 */
 	public static function is_wp_version_gte( $version ) {

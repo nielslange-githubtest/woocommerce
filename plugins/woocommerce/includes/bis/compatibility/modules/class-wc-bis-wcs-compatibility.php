@@ -6,6 +6,8 @@
  * @since    1.2.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,8 +34,8 @@ class WC_BIS_WCS_Compatibility {
 	/**
 	 * Handle the BIS form for simple subscriptions.
 	 *
-	 * @param  string $availability_html
-	 * @return void
+	 * @param  string $availability_html Availability HTML.
+	 * @return string
 	 */
 	public static function handle_display_form( $availability_html ) {
 		global $product;
@@ -52,7 +54,7 @@ class WC_BIS_WCS_Compatibility {
 	/**
 	 * Include Subscription in supported product types.
 	 *
-	 * @param  array $types
+	 * @param  array $types Supported product types.
 	 * @return array
 	 */
 	public static function add_subscriptions_product_type( $types ) {

@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -63,7 +65,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Constructor.
 	 *
-	 * @param  int|object|array $item  ID to load from the DB (optional) or already queried data.
+	 * @param  int|object|array $notification ID to load from the DB (optional) or already queried data.
 	 */
 	public function __construct( $notification = 0 ) {
 		if ( $notification instanceof WC_BIS_Notification_Data ) {
@@ -81,14 +83,14 @@ class WC_BIS_Notification_Data {
 	 * @return string
 	 */
 	public function __toString() {
-		return json_encode( $this->get_data() );
+		return wp_json_encode( $this->get_data() );
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Getters.                                         */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Getters.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Returns all data for this object.
@@ -186,8 +188,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Get product formatted variation list.
 	 *
-	 * @param  bool   $flat
-	 * @param  string $context
+	 * @param  bool   $flat    Whether to flatten the list.
+	 * @param  string $context The context.
 	 * @return string
 	 */
 	public function get_product_formatted_variation_list( $flat = false, $context = 'view' ) {
@@ -364,7 +366,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Get All Meta Data.
 	 *
-	 * @return array
+	 * @return array The meta data.
 	 */
 	public function get_meta_data() {
 		return array_filter( $this->meta_data, array( $this, 'has_meta_value' ) );
@@ -373,23 +375,24 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Cleans null value meta when getting.
 	 *
-	 * @param  mixed $value
+	 * @param  mixed $value The meta value.
 	 * @return boolean
 	 */
 	private function has_meta_value( $value ) {
 		return ! is_null( $value );
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Setters.                                         */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Setters.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Set all data based on input array.
 	 *
-	 * @param  array $data
+	 * @param  array $data The data.
+	 * @return void
 	 */
 	public function set_all( $data ) {
 		foreach ( $data as $key => $value ) {
@@ -412,7 +415,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set Notification ID.
 	 *
-	 * @param  int
+	 * @param  int $value The notification ID.
+	 * @return void
 	 */
 	public function set_id( $value ) {
 		$this->data['id'] = absint( $value );
@@ -421,7 +425,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set active status.
 	 *
-	 * @param  string
+	 * @param  string $value The active status.
 	 * @return void
 	 */
 	public function set_active( $value ) {
@@ -431,7 +435,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set active status.
 	 *
-	 * @param  string
+	 * @param  string $value The queued status.
 	 * @return void
 	 */
 	public function set_queued_status( $value ) {
@@ -455,7 +459,7 @@ class WC_BIS_Notification_Data {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param  string
+	 * @param  string $value The verified status.
 	 * @return void
 	 */
 	public function set_verified_status( $value ) {
@@ -465,7 +469,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set type.
 	 *
-	 * @param  strings
+	 * @param  string $value The type.
 	 * @return void
 	 */
 	public function set_type( $value ) {
@@ -475,7 +479,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set product ID.
 	 *
-	 * @param  int
+	 * @param  int $value The product ID.
 	 * @return void
 	 */
 	public function set_product_id( $value ) {
@@ -485,7 +489,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set user ID.
 	 *
-	 * @param  string
+	 * @param  string $value The user ID.
 	 * @return void
 	 */
 	public function set_user_id( $value ) {
@@ -495,7 +499,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set user email.
 	 *
-	 * @param  string
+	 * @param  string $value The user email.
 	 * @return void
 	 */
 	public function set_user_email( $value ) {
@@ -505,7 +509,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set create date.
 	 *
-	 * @param  string
+	 * @param  string $value The create date.
 	 * @return void
 	 */
 	public function set_create_date( $value ) {
@@ -515,7 +519,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set subscribe again date.
 	 *
-	 * @param  string
+	 * @param  string $value The subscribe again date.
 	 * @return void
 	 */
 	public function set_subscribe_date( $value ) {
@@ -525,7 +529,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set last notified date.
 	 *
-	 * @param  string
+	 * @param  string $value The last notified date.
 	 * @return void
 	 */
 	public function set_last_notified_date( $value ) {
@@ -535,7 +539,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Set all meta data from array.
 	 *
-	 * @param  array $data
+	 * @param  array $data The meta data.
 	 */
 	public function set_meta_data( $data ) {
 		if ( ! empty( $data ) && is_array( $data ) ) {
@@ -559,11 +563,11 @@ class WC_BIS_Notification_Data {
 		$this->set_product_id( $product->get_id() );
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		CRUD.                                            */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * CRUD.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Insert data into the database.
@@ -632,6 +636,13 @@ class WC_BIS_Notification_Data {
 
 		$updated = $wpdb->update( $wpdb->prefix . 'woocommerce_bis_notifications', $data, array( 'id' => $this->get_id() ), array( '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s' ) );
 
+		/**
+		 * Trigger action when a notification is updated.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param WC_BIS_Notification_Data $notification The notification data.
+		 */
 		do_action( 'woocommerce_bis_update_notification', $this );
 
 		return $updated;
@@ -645,12 +656,26 @@ class WC_BIS_Notification_Data {
 		if ( $this->get_id() ) {
 			global $wpdb;
 
+			/**
+			 * Trigger action before deleting a notification.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param WC_BIS_Notification_Data $notification The notification data.
+			 */
 			do_action( 'woocommerce_bis_before_delete_notification', $this );
 
 			// Delete and clean up.
 			$wpdb->delete( $wpdb->prefix . 'woocommerce_bis_notifications', array( 'id' => $this->get_id() ) );
 			$wpdb->delete( $wpdb->prefix . 'woocommerce_bis_notificationsmeta', array( 'bis_notifications_id' => $this->get_id() ) );
 
+			/**
+			 * Trigger action when a notification is deleted.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param WC_BIS_Notification_Data $notification The notification data.
+			 */
 			do_action( 'woocommerce_bis_delete_notification', $this );
 		}
 	}
@@ -694,7 +719,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Read from DB object using ID.
 	 *
-	 * @param  int $notification
+	 * @param  int|WC_BIS_Notification_Data $notification The notification ID.
 	 * @return void
 	 */
 	public function read( $notification ) {
@@ -726,7 +751,7 @@ class WC_BIS_Notification_Data {
 
 		// Sanity check the type.
 		$types = wc_bis_get_notification_types();
-		if ( ! in_array( $this->get_type(), array_keys( $types ) ) ) {
+		if ( ! in_array( $this->get_type(), array_keys( $types ), true ) ) {
 			$default_type = array_pop( array_keys( $types ) );
 			$this->set_type( $default_type );
 		}
@@ -737,11 +762,11 @@ class WC_BIS_Notification_Data {
 		}
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Utilities and actions.                           */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Utilities and actions.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Validates before saving for sanity.
@@ -762,8 +787,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Add an event.
 	 *
-	 * @param  string $type
-	 * @param  mixed  $user (Optional)
+	 * @param  string $type The type of event.
+	 * @param  mixed  $user (Optional) User object or ID or email.
 	 * @return bool
 	 */
 	public function add_event( $type, $user = false ) {
@@ -829,7 +854,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Handle reactivation.
 	 *
-	 * @return bool
+	 * @return void
 	 */
 	public function reactivate() {
 
@@ -844,7 +869,9 @@ class WC_BIS_Notification_Data {
 		/**
 		 * Filter: `woocommerce_bis_notification_reactivate`.
 		 *
-		 * @param  WC_BIS_Notification_Data
+		 * @since 9.9.0
+		 *
+		 * @param  WC_BIS_Notification_Data $notification_data The notification data.
 		 */
 		do_action( 'woocommerce_bis_notification_reactivate', $this );
 	}
@@ -852,7 +879,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Handle deactivation.
 	 *
-	 * @return bool
+	 * @param  mixed $user (Optional) User object or ID or email.
+	 * @return void
 	 */
 	public function deactivate( $user = false ) {
 		if ( false === $user ) {
@@ -866,7 +894,9 @@ class WC_BIS_Notification_Data {
 		/**
 		 * Filter: `woocommerce_bis_notification_deactivate`.
 		 *
-		 * @param  WC_BIS_Notification_Data
+		 * @since 9.9.0
+		 *
+		 * @param  WC_BIS_Notification_Data $notification_data The notification data.
 		 */
 		do_action( 'woocommerce_bis_notification_deactivate', $this );
 	}
@@ -894,7 +924,7 @@ class WC_BIS_Notification_Data {
 	 */
 	private function setup_verification_data() {
 
-		$code = sprintf( '%06d', mt_rand( 100000, 999999 ) );
+		$code = sprintf( '%06d', wp_rand( 100000, 999999 ) );
 
 		/**
 		 * This filter handles the way plugin is generating verification codes.
@@ -922,6 +952,7 @@ class WC_BIS_Notification_Data {
 	 *
 	 * @since 1.2.0
 	 *
+	 * @param  string $hash_to_check The hash to check.
 	 * @return bool
 	 */
 	public function validate_hash( $hash_to_check ) {
@@ -970,11 +1001,11 @@ class WC_BIS_Notification_Data {
 		$this->delete_meta( 'awaiting_verification' );
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Conditionals.                                    */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Conditionals.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Is queued.
@@ -1060,16 +1091,16 @@ class WC_BIS_Notification_Data {
 	}
 
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Meta methods.                                    */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Meta methods.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Get Meta by Key.
 	 *
-	 * @param  string $key
+	 * @param  string $key The meta key.
 	 * @return mixed
 	 */
 	public function get_meta( $key ) {
@@ -1086,8 +1117,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Add meta data.
 	 *
-	 * @param  string $key
-	 * @param  string $value
+	 * @param  string $key   The meta key.
+	 * @param  string $value The meta value.
 	 */
 	public function add_meta( $key, $value ) {
 		$this->update_meta( $key, $value );
@@ -1096,8 +1127,8 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Add meta data.
 	 *
-	 * @param  string $key
-	 * @param  string $value
+	 * @param  string $key   The meta key.
+	 * @param  string $value The meta value.
 	 */
 	public function update_meta( $key, $value ) {
 		if ( is_null( $value ) ) {
@@ -1110,7 +1141,7 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Delete meta data.
 	 *
-	 * @param  array $key
+	 * @param  array $key The meta key to delete.
 	 */
 	public function delete_meta( $key ) {
 		$this->meta_data[ $key ] = null;
@@ -1186,13 +1217,13 @@ class WC_BIS_Notification_Data {
 
 				// Skip existing meta that hasn't changed.
 				if ( isset( $this->meta_data[ $meta->meta_key ] ) && $this->sanitize_meta_value( $meta->meta_value, $meta->meta_key ) === $this->meta_data[ $meta->meta_key ] ) {
-					$updated_meta_keys[] = $meta->meta_key;
+					$updated_meta_keys[] = (string) $meta->meta_key;
 					continue;
 				}
 
-				if ( isset( $this->meta_data[ $meta->meta_key ] ) && null !== $this->meta_data[ $meta->meta_key ] && ! in_array( $meta->meta_key, $updated_meta_keys ) ) {
+				if ( isset( $this->meta_data[ $meta->meta_key ] ) && null !== $this->meta_data[ $meta->meta_key ] && ! in_array( (string) $meta->meta_key, $updated_meta_keys, true ) ) {
 					update_metadata_by_mid( 'bis_notifications', $meta->meta_id, $this->meta_data[ $meta->meta_key ], $meta->meta_key );
-					$updated_meta_keys[] = $meta->meta_key;
+					$updated_meta_keys[] = (string) $meta->meta_key;
 				} else {
 					delete_metadata_by_mid( 'bis_notifications', $meta->meta_id );
 				}
@@ -1218,8 +1249,9 @@ class WC_BIS_Notification_Data {
 	/**
 	 * Meta value type sanitization on the way in.
 	 *
-	 * @param  mixed  $meta_value
-	 * @param  string $meta_key
+	 * @param  mixed  $meta_value The meta value.
+	 * @param  string $meta_key   The meta key.
+	 * @return mixed
 	 */
 	private function sanitize_meta_value( $meta_value, $meta_key ) {
 

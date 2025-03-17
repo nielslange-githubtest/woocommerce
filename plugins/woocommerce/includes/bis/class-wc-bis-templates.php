@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 use Automattic\Jetpack\Constants;
 
@@ -45,11 +47,11 @@ class WC_BIS_Templates {
 		$this->should_dequeue_scripts = true;
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Setters.                                         */
-	/*---------------------------------------------------*/
+	/**
+	 * ---------------------------------------------------
+	 * Setters.
+	 * ---------------------------------------------------
+	 */
 
 	/**
 	 * Force enqueuing scripts or not.
@@ -60,11 +62,11 @@ class WC_BIS_Templates {
 		$this->should_dequeue_scripts = false;
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Callbacks.                                       */
-	/*---------------------------------------------------*/
+	/**
+	 * ---------------------------------------------------
+	 * Callbacks.
+	 * ---------------------------------------------------
+	 */
 
 	/**
 	 * Front-end styles and scripts.
@@ -76,7 +78,7 @@ class WC_BIS_Templates {
 		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		$version = Constants::get_constant( 'WC_VERSION' );
 
-		// Styles
+		// Styles.
 		wp_register_style( 'wc-bis-css', WC()->plugin_url() . '/assets/css/bis.css', false, $version, 'all' );
 		wp_style_add_data( 'wc-bis-css', 'rtl', 'replace' );
 		wp_enqueue_style( 'wc-bis-css' );
@@ -86,6 +88,7 @@ class WC_BIS_Templates {
 		/**
 		 * Filter to allow adding custom script dependencies here.
 		 *
+		 * @since 9.9.0
 		 * @param  array  $dependencies
 		 */
 		$dependencies = apply_filters( 'woocommerce_bis_script_dependencies', $dependencies );
@@ -96,6 +99,7 @@ class WC_BIS_Templates {
 		/**
 		 * Filter front-end params.
 		 *
+		 * @since 9.9.0
 		 * @param  array  $params
 		 */
 		$params = apply_filters(
@@ -110,7 +114,12 @@ class WC_BIS_Templates {
 		wp_localize_script( 'wc-bis-main', 'wc_bis_params', $params );
 		wp_enqueue_script( 'wc-bis-main' );
 
-		// Load JS only when needed.
+		/**
+		 * Filter to determine if the Back In Stock notifications script should be enqueued.
+		 *
+		 * @since 9.9.0
+		 * @param bool $enqueue Whether to enqueue the script.
+		 */
 		if ( (bool) apply_filters( 'woocommerce_bis_should_enqueue_scripts', is_account_page() || is_product() ) ) {
 			$this->enqueue_scripts();
 		}

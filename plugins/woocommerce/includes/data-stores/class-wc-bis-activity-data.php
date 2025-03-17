@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,7 +42,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Constructor.
 	 *
-	 * @param  int|object|array $item  ID to load from the DB (optional) or already queried data.
+	 * @param  int|object|array $activity ID to load from the DB (optional) or already queried data.
 	 */
 	public function __construct( $activity = 0 ) {
 		if ( $activity instanceof WC_BIS_Activity_Data ) {
@@ -52,11 +54,11 @@ class WC_BIS_Activity_Data {
 		}
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Getters.                                         */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Getters.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Returns all data for this object.
@@ -149,16 +151,17 @@ class WC_BIS_Activity_Data {
 	}
 
 
-	/*
-	---------------------------------------------------*/
-	/*
-		Setters.                                         */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * Setters.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Set all data based on input array.
 	 *
-	 * @param  array $data
+	 * @param  array $data The data.
+	 * @return void
 	 */
 	public function set_all( $data ) {
 		foreach ( $data as $key => $value ) {
@@ -173,7 +176,8 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set Activity ID.
 	 *
-	 * @param  int
+	 * @param  int $value The activity ID.
+	 * @return void
 	 */
 	public function set_id( $value ) {
 		$this->data['id'] = absint( $value );
@@ -182,7 +186,8 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set product ID.
 	 *
-	 * @param  int
+	 * @param  int $value The product ID.
+	 * @return void
 	 */
 	public function set_product_id( $value ) {
 		$this->data['product_id'] = absint( $value );
@@ -191,7 +196,8 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set notification ID.
 	 *
-	 * @param  int
+	 * @param  int $value The notification ID.
+	 * @return void
 	 */
 	public function set_notification_id( $value ) {
 		$this->data['notification_id'] = absint( $value );
@@ -200,7 +206,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set code.
 	 *
-	 * @param  string
+	 * @param  string $value The type.
 	 * @return void
 	 */
 	public function set_type( $value ) {
@@ -210,7 +216,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set user ID.
 	 *
-	 * @param  int
+	 * @param  int $value The user ID.
 	 * @return void
 	 */
 	public function set_user_id( $value ) {
@@ -220,7 +226,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set user email.
 	 *
-	 * @param  string
+	 * @param  string $value The user email.
 	 * @return void
 	 */
 	public function set_user_email( $value ) {
@@ -230,7 +236,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set object ID.
 	 *
-	 * @param  int
+	 * @param  int $value The object ID.
 	 * @return void
 	 */
 	public function set_object_id( $value ) {
@@ -240,7 +246,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set date.
 	 *
-	 * @param  int
+	 * @param  int $value The date.
 	 * @return void
 	 */
 	public function set_date( $value ) {
@@ -250,18 +256,18 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Set note.
 	 *
-	 * @param  string
+	 * @param  string $value The note.
 	 * @return void
 	 */
 	public function set_note( $value ) {
 		$this->data['note'] = $value;
 	}
 
-	/*
-	---------------------------------------------------*/
-	/*
-		CRUD.                                            */
-	/*---------------------------------------------------*/
+	/**
+	 * ------------------------------------------------------------
+	 * CRUD.
+	 * ------------------------------------------------------------
+	 */
 
 	/**
 	 * Insert data into the database.
@@ -304,6 +310,13 @@ class WC_BIS_Activity_Data {
 
 		$updated = $wpdb->update( $wpdb->prefix . 'woocommerce_bis_activity', $data, array( 'id' => $this->get_id() ), array( '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s' ) );
 
+		/**
+		 * Action hook triggered after updating activity.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param  object $activity The activity.
+		 */
 		do_action( 'woocommerce_bis_update_activity', $this );
 
 		return $updated;
@@ -317,11 +330,25 @@ class WC_BIS_Activity_Data {
 		if ( $this->get_id() ) {
 			global $wpdb;
 
+			/**
+			 * Action hook triggered before deleting activity.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param  object $activity The activity.
+			 */
 			do_action( 'woocommerce_bis_before_delete_activity', $this );
 
 			// Delete and clean up.
 			$wpdb->delete( $wpdb->prefix . 'woocommerce_bis_activity', array( 'id' => $this->get_id() ) );
 
+			/**
+			 * Action hook triggered after deleting activity.
+			 *
+			 * @since 9.9.0
+			 *
+			 * @param  object $activity The activity.
+			 */
 			do_action( 'woocommerce_bis_delete_activity', $this );
 		}
 	}
@@ -347,7 +374,7 @@ class WC_BIS_Activity_Data {
 	/**
 	 * Read from DB object using ID.
 	 *
-	 * @param  int $activity
+	 * @param  int $activity The activity.
 	 * @return void
 	 */
 	public function read( $activity ) {

@@ -6,16 +6,18 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
----------------------------------------------------*/
-/*
-	Data functions.                                  */
-/*---------------------------------------------------*/
+/**
+ * ------------------------------------------------------------
+ * Data functions.
+ * ------------------------------------------------------------
+ */
 
 /**
  * Get notification types.
@@ -50,11 +52,17 @@ function wc_bis_get_activity_types() {
 }
 
 /**
- * Get activity events.
+ * Get supported product types.
  *
  * @return array
  */
 function wc_bis_get_supported_types() {
+	/**
+	 * Filter: woocommerce_bis_supported_product_types
+	 *
+	 * @since 9.9.0
+	 * @param array $types Supported product types.
+	 */
 	return (array) apply_filters(
 		'woocommerce_bis_supported_product_types',
 		array(
@@ -109,6 +117,12 @@ function wc_bis_create_account_on_registration() {
  * @return int
  */
 function wc_bis_get_verification_expiration_time_threshold() {
+	/**
+	 * Filter: woocommerce_bis_verification_expiration_time_threshold
+	 *
+	 * @since 1.2.0
+	 * @param int $threshold The verification expiration time threshold in seconds.
+	 */
 	return (int) apply_filters( 'woocommerce_bis_verification_expiration_time_threshold', HOUR_IN_SECONDS );
 }
 
@@ -140,16 +154,16 @@ function wc_bis_is_loop_signup_prompt_enabled() {
 	return 'yes' === get_option( 'wc_bis_loop_signup_prompt_status', 'no' );
 }
 
-/*
----------------------------------------------------*/
-/*
-	DB.                                              */
-/*---------------------------------------------------*/
+/**
+ * ------------------------------------------------------------
+ * DB functions.
+ * ------------------------------------------------------------
+ */
 
 /**
  * Get a notification object controller.
  *
- * @param  mixed $notification
+ * @param  mixed $notification The notification object, or ID or data array.
  * @return WC_BIS_Notification_Data|false
  */
 function wc_bis_get_notification( $notification ) {
@@ -164,7 +178,7 @@ function wc_bis_get_notification( $notification ) {
 /**
  * Get a notification object controller.
  *
- * @param  array $query_args
+ * @param  array $query_args The query arguments.
  * @return array|int|false Array of WC_BIS_Notification_Data objects | int if count is true, and we have notifications | false if count is used, and no notifications.
  */
 function wc_bis_get_notifications( $query_args ) {
@@ -187,9 +201,9 @@ function wc_bis_get_notifications( $query_args ) {
 /**
  * Checks if a notification configuration exists.
  *
- * @param  array $query_args
- * @param  array $attributes
- * @param  bool  $active
+ * @param  array $query_args The query arguments.
+ * @param  array $attributes The attributes.
+ * @param  bool  $active     The active status.
  * @return WC_BIS_Notification_Data|false
  */
 function wc_bis_notification_exists( $query_args, $attributes = array(), $active = false ) {
@@ -239,8 +253,8 @@ function wc_bis_notification_exists( $query_args, $attributes = array(), $active
 /**
  * Get a sign ups for a product ID.
  *
- * @param  array|int $product_id
- * @param  bool      $active
+ * @param  array|int $product_id The product ID.
+ * @param  bool      $active     The active status.
  * @return int
  */
 function wc_bis_get_notifications_count( $product_id, $active = false ) {
@@ -261,23 +275,22 @@ function wc_bis_get_notifications_count( $product_id, $active = false ) {
 	return absint( $count );
 }
 
-/*
----------------------------------------------------*/
-/*
-	Display functions.                               */
-/*---------------------------------------------------*/
+/**
+ * ------------------------------------------------------------
+ * Display functions.
+ * ------------------------------------------------------------
+ */
 
 /**
  * Get notification type label.
  *
- * @param  string $slug
+ * @since 9.9.0
+ * @param  string $slug The notification type slug.
  * @return string
  */
 function wc_bis_get_notification_type_label( $slug ) {
-
 	$types = wc_bis_get_notification_types();
-
-	if ( ! in_array( $slug, array_keys( $types ) ) ) {
+	if ( ! in_array( $slug, array_keys( $types ), true ) ) {
 		return '-';
 	}
 
@@ -287,40 +300,41 @@ function wc_bis_get_notification_type_label( $slug ) {
 /**
  * Get activity type label.
  *
- * @param  string $slug
+ * @since 9.9.0
+ * @param  string $slug The activity type slug.
  * @return string
  */
 function wc_bis_get_activity_type_label( $slug ) {
-
 	$types = wc_bis_get_activity_types();
-
-	if ( ! in_array( $slug, array_keys( $types ) ) ) {
+	if ( ! in_array( $slug, array_keys( $types ), true ) ) {
 		return '-';
 	}
 
 	return $types[ $slug ];
 }
 
-/*
----------------------------------------------------*/
-/*
-	Conditional.                                     */
-/*---------------------------------------------------*/
+/**
+ * ------------------------------------------------------------
+ * Conditional functions.
+ * ------------------------------------------------------------
+ */
 
 /**
  * Is email format.
  *
+ * @since 9.9.0
+ * @param  string $value The value to check.
  * @return bool
  */
 function wc_bis_is_email( $value ) {
 	return filter_var( $value, FILTER_VALIDATE_EMAIL );
 }
 
-/*
----------------------------------------------------*/
-/*
-	Utilities.                                       */
-/*---------------------------------------------------*/
+/**
+ * ------------------------------------------------------------
+ * Utilities.
+ * ------------------------------------------------------------
+ */
 
 /**
  * Get the minimum time between two notifications.
@@ -351,6 +365,9 @@ function wc_bis_debug_enabled() {
 
 	/**
 	 * 'woocommerce_bis_debug_enabled' filter.
+	 *
+	 * @since 9.9.0
+	 * @param bool $debug The debug status.
 	 */
 	return apply_filters( 'woocommerce_bis_debug_enabled', $debug );
 }
@@ -369,12 +386,12 @@ function wc_bis_double_opt_in_required() {
 /**
  * Generates a unique notification hash.
  *
- * @param  string $input
- * @param  string $action
+ * @since 9.9.0
+ * @param  string $input  The input string to hash.
+ * @param  string $action The action to perform (encrypt|decrypt).
  * @return string
  */
 function wc_bis_notification_hash( $input, $action ) {
-
 	// Hint: This will be deprecated after dropping support for lt 1.2.0. @see WC_BIS_Account::process_unsubscribe().
 
 	$output        = '';
@@ -388,10 +405,9 @@ function wc_bis_notification_hash( $input, $action ) {
 	$iv = substr( hash( 'sha256', $secret_iv ), 0, 16 );
 
 	if ( 'encrypt' === $action ) {
-		$output = openssl_encrypt( $input, $cyther_method, $key, 0, $iv );
-		$output = base64_encode( $output );
+		$output = base64_encode( openssl_encrypt( $input, $cyther_method, $key, 0, $iv ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	} elseif ( 'decrypt' === $action ) {
-		$output = openssl_decrypt( base64_decode( $input ), $cyther_method, $key, 0, $iv );
+		$output = openssl_decrypt( base64_decode( $input ), $cyther_method, $key, 0, $iv ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 	}
 
 	return $output;
@@ -403,7 +419,7 @@ function wc_bis_notification_hash( $input, $action ) {
  * @since 1.0.1
  * @deprecated 9.9.0 No longer needed when merged into WC core.
  *
- * @param  string $screen_id
+ * @param  string $screen_id The screen ID.
  * @return string
  */
 function wc_bis_get_formatted_screen_id( $screen_id ) {

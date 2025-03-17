@@ -5,6 +5,9 @@
  * @package  WooCommerce Back In Stock Notifications
  * @since    1.0.0
  */
+
+declare( strict_types=1 );
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -13,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Sync Stock Controller.
  *
  * @class    WC_BIS_Sync
- * @version  x.x.x
+ * @version  9.9.0
  */
 class WC_BIS_Sync {
 
@@ -33,6 +36,9 @@ class WC_BIS_Sync {
 
 	/**
 	 * Init.
+	 *
+	 * @since 9.9.0
+	 * @return void
 	 */
 	public function __construct() {
 
@@ -70,10 +76,26 @@ class WC_BIS_Sync {
 		}
 
 		if ( ! empty( $this->queue['outofstock'] ) ) {
+			/**
+			 * Hook: woocommerce_bis_sync_handle_outofstock_products
+			 *
+			 * Fires when handling out of stock products.
+			 *
+			 * @since 9.9.0
+			 * @param array $product_ids The product IDs.
+			 */
 			do_action( 'woocommerce_bis_sync_handle_outofstock_products', $this->queue['outofstock'] );
 		}
 
 		if ( ! empty( $this->queue['instock'] ) ) {
+			/**
+			 * Hook: woocommerce_bis_sync_handle_instock_products
+			 *
+			 * Fires when handling in stock products.
+			 *
+			 * @since 9.9.0
+			 * @param array $product_ids The product IDs.
+			 */
 			do_action( 'woocommerce_bis_sync_handle_instock_products', $this->queue['instock'] );
 		}
 
@@ -84,9 +106,10 @@ class WC_BIS_Sync {
 	/**
 	 * Handle stock status changes.
 	 *
-	 * @param  mixed  $product_id
-	 * @param  string $stock_status
-	 * @param  mixed  $product (Optional)
+	 * @since 9.9.0
+	 * @param  mixed  $product_id   The product ID.
+	 * @param  string $stock_status The new stock status.
+	 * @param  mixed  $product      The product object.
 	 * @return void
 	 */
 	public function product_stock_status_changed( $product_id, $stock_status, $product = null ) {
@@ -117,9 +140,12 @@ class WC_BIS_Sync {
 		}
 
 		/**
-		 * Hook: woocommerce_bis_before_stock_change
+		 * Hook: woocommerce_bis_before_stock_status_change
 		 *
-		 * @param WC_Product  $product
+		 * Fires before a product's stock status is changed.
+		 *
+		 * @since 9.9.0
+		 * @param WC_Product $product The product object.
 		 */
 		do_action( 'woocommerce_bis_before_stock_status_change', $product );
 	}
@@ -127,7 +153,8 @@ class WC_BIS_Sync {
 	/**
 	 * Handle stock changes.
 	 *
-	 * @param  WC_Product $product
+	 * @since 9.9.0
+	 * @param  WC_Product $product The product object.
 	 * @return void
 	 */
 	public function product_stock_changed( $product ) {
@@ -184,7 +211,10 @@ class WC_BIS_Sync {
 		/**
 		 * Hook: woocommerce_bis_before_stock_change
 		 *
-		 * @param WC_Product  $product
+		 * Fires before a product's stock quantity is changed.
+		 *
+		 * @since 9.9.0
+		 * @param WC_Product $product The product object.
 		 */
 		do_action( 'woocommerce_bis_before_stock_change', $product );
 	}
@@ -192,8 +222,9 @@ class WC_BIS_Sync {
 	/**
 	 * Add a product id to the sync queue.
 	 *
-	 * @param  mixed  $product
-	 * @param  string $stock_status
+	 * @since 9.9.0
+	 * @param  mixed  $product      The product object or ID.
+	 * @param  string $stock_status The stock status.
 	 * @return bool
 	 */
 	public function add_product( $product, $stock_status ) {
@@ -228,14 +259,14 @@ class WC_BIS_Sync {
 	/**
 	 * Add a product id to the sync queue.
 	 *
-	 * @param  int    $product_id
-	 * @param  string $group
+	 * @since 9.9.0
+	 * @param  int    $product_id The product ID.
+	 * @param  string $group      The queue group.
 	 * @return bool
 	 */
 	public function add_to_queue( $product_id, $group ) {
-
 		// Sanity check the group.
-		if ( ! in_array( $group, array( 'instock', 'outofstock' ) ) ) {
+		if ( ! in_array( $group, array( 'instock', 'outofstock' ), true ) ) {
 			return false;
 		}
 
@@ -248,7 +279,7 @@ class WC_BIS_Sync {
 		}
 
 		// Already added.
-		if ( in_array( $product_id, $this->queue[ $group ] ) ) {
+		if ( in_array( $product_id, $this->queue[ $group ], true ) ) {
 			return true;
 		}
 
@@ -264,17 +295,28 @@ class WC_BIS_Sync {
 	/**
 	 * Validate product to be synced.
 	 *
-	 * @param  WC_Product $product
-	 * @param  string     $context
+	 * @since 9.9.0
+	 * @param  WC_Product $product  The product object.
+	 * @param  string     $context  The validation context.
 	 * @return bool
 	 */
-	public function validate_product( $product, $context = '' ) {
+	public function validate_product( $product, $context = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$valid = false;
 
 		if ( $product->is_type( wc_bis_get_supported_types() ) ) {
 			$valid = true;
 		}
 
+		/**
+		 * Filter: woocommerce_bis_validate_product_sync
+		 *
+		 * Allow filtering whether a product should be synced.
+		 *
+		 * @since 9.9.0
+		 * @param bool       $valid   Whether the product should be synced.
+		 * @param WC_Product $product The product object.
+		 * @return bool
+		 */
 		return (bool) apply_filters( 'woocommerce_bis_validate_product_sync', $valid, $product );
 	}
 }

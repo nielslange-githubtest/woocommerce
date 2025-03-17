@@ -15,22 +15,44 @@
  * @version 9.9.0
  */
 
+declare( strict_types = 1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
+/**
+ * Output the email header.
+ *
  * @hooked WC_Emails::email_header() Output the email header
+ *
+ * @param string $email_heading The email heading.
+ * @param WC_Email $email The email object.
+ *
+ * @since 9.9.0
  */
 do_action( 'woocommerce_email_header', $email_heading, $email );
 
-/*
+/**
+ * Output the notification verification content.
+ *
  * @hooked WC_BIS_Emails::verify_notification_email_html() Output the notification content
+ *
+ * @param string $notification The notification.
+ * @param WC_Email $email The email object.
+ *
+ * @since 9.9.0
  */
 do_action( 'woocommerce_email_verify_notification_html', $notification, $email );
 
-/*
+/**
+ * Output the email footer.
+ *
  * @hooked WC_Emails::email_footer() Output the email footer
+ *
+ * @param WC_Email $email The email object.
+ *
+ * @since 9.9.0
  */
 do_action( 'woocommerce_email_footer', $email );

@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,12 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * DB API class.
  *
- * @version  x.x.x
+ * @version  9.9.0
  */
 class WC_BIS_Notifications_DB {
 
 	/**
 	 * Cloning is forbidden.
+	 *
+	 * @since 9.9.0
+	 * @return void
 	 */
 	public function __clone() {
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'Foul!', 'woocommerce' ), '1.0.0' );
@@ -27,16 +32,12 @@ class WC_BIS_Notifications_DB {
 
 	/**
 	 * Unserializing instances of this class is forbidden.
+	 *
+	 * @since 9.9.0
+	 * @return void
 	 */
 	public function __wakeup() {
 		_doing_it_wrong( __FUNCTION__, esc_html__( 'Foul!', 'woocommerce' ), '1.0.0' );
-	}
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		// ...
 	}
 
 	/**
@@ -73,8 +74,8 @@ class WC_BIS_Notifications_DB {
 				'order_by'            => array( 'id' => 'ASC' ),
 				'limit'               => -1,
 				'offset'              => -1,
-				'return'              => 'all', // 'ids' | 'objects'
-				'meta_query'          => array(),
+				'return'              => 'all', // Other options: 'ids' | 'objects'.
+				'meta_query'          => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			)
 		);
 
@@ -84,7 +85,7 @@ class WC_BIS_Notifications_DB {
 
 			$select = "COUNT( {$table}.id )";
 
-		} elseif ( in_array( $args['return'], array( 'ids' ) ) ) {
+		} elseif ( in_array( (string) $args['return'], array( 'ids' ), true ) ) {
 
 				$select = $table . '.id';
 		} else {
@@ -225,7 +226,7 @@ class WC_BIS_Notifications_DB {
 
 			$valid_statuses = array_keys( get_post_statuses() );
 			$post_status    = esc_sql( $args['product_status'] );
-			if ( in_array( $post_status, $valid_statuses ) ) {
+			if ( in_array( $post_status, $valid_statuses, true ) ) {
 
 				// Maybe add JOIN statement.
 				if ( false === strpos( $join, '_products' ) ) {
@@ -339,7 +340,8 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get a record from the DB.
 	 *
-	 * @param  mixed $notification
+	 * @since 9.9.0
+	 * @param  mixed $notification The notification ID or object.
 	 * @return false|WC_BIS_Notification_Data
 	 */
 	public function get( $notification ) {
@@ -365,7 +367,8 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get a notification from the DB using hash.
 	 *
-	 * @param  string $hash
+	 * @since 9.9.0
+	 * @param  string $hash The notification hash.
 	 * @return false|WC_BIS_Notification_Data
 	 */
 	public function get_by_hash( $hash ) {
@@ -391,10 +394,10 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Create a record in the DB.
 	 *
-	 * @param  array $args
+	 * @since 9.9.0
+	 * @param  array $args The notification data.
 	 * @return false|int
-	 *
-	 * @throws Exception
+	 * @throws Exception When validation fails.
 	 */
 	public function add( $args ) {
 
@@ -442,8 +445,7 @@ class WC_BIS_Notifications_DB {
 	 * @param  WC_BIS_Notification_Data|int $notification The Notification ID or object.
 	 * @param  array                        $args         The data to update.
 	 * @return bool
-	 *
-	 * @throws Exception
+	 * @throws Exception When validation fails.
 	 */
 	public function update( $notification, $args ) {
 
@@ -467,28 +469,26 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Validate data.
 	 *
-	 * @throws Exception
-	 *
-	 * @param  array                    &$args
-	 * @param  WC_BIS_Notification_Data $notification
+	 * @since 9.9.0
+	 * @param  array                    &$args         The data to validate.
+	 * @param  WC_BIS_Notification_Data $notification  The notification object.
 	 * @return void
+	 * @throws Exception When validation fails.
 	 */
 	public function validate( &$args, $notification = false ) {
-
 		if ( ! empty( $args['user_email'] ) && ! filter_var( $args['user_email'], FILTER_VALIDATE_EMAIL ) ) {
 			/* translators: %s: Email input string */
-			throw new Exception( sprintf( __( 'Invalid e-mail: %s.', 'woocommerce' ), $args['user_email'] ) );
+			throw new Exception( sprintf( esc_html__( 'Invalid e-mail: %s.', 'woocommerce' ), esc_html( $args['user_email'] ) ) );
 		}
 
 		// New Sub.
 		if ( ! $notification || ! $notification->get_id() ) {
-
 			if ( empty( $args['product_id'] ) ) {
-				throw new Exception( __( 'Product is empty.', 'woocommerce' ) );
+				throw new Exception( esc_html__( 'Product is empty.', 'woocommerce' ) );
 			}
 
 			if ( empty( $args['user_id'] ) && empty( $args['user_email'] ) ) {
-				throw new Exception( __( 'Customer is empty.', 'woocommerce' ) );
+				throw new Exception( esc_html__( 'Customer is empty.', 'woocommerce' ) );
 			}
 
 			// Pre-fill date, if not already filled.
@@ -501,7 +501,8 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Delete a record from the DB.
 	 *
-	 * @param  mixed $notification
+	 * @since 9.9.0
+	 * @param  mixed $notification The notification ID or object.
 	 * @return void
 	 */
 	public function delete( $notification ) {
@@ -533,6 +534,8 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get most delayed products.
 	 *
+	 * @since 9.9.0
+	 * @param  int $limit The number of products to return.
 	 * @return array
 	 */
 	public function get_delayed_products( $limit = 5 ) {
@@ -560,6 +563,8 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get most anticipated products.
 	 *
+	 * @since 9.9.0
+	 * @param  int $limit The number of products to return.
 	 * @return array
 	 */
 	public function get_anticipated_products( $limit = 5 ) {
@@ -585,8 +590,12 @@ class WC_BIS_Notifications_DB {
 	}
 
 	/**
-	 * Get most anticipated products.
+	 * Get most subscribed products.
 	 *
+	 * @since 9.9.0
+	 * @param  int $start The start timestamp.
+	 * @param  int $limit The number of products to return.
+	 * @param  int $end   The end timestamp.
 	 * @return array
 	 */
 	public function get_most_subscribed_products( $start = 0, $limit = 5, $end = 0 ) {
@@ -624,7 +633,7 @@ class WC_BIS_Notifications_DB {
 	 * Bulk enqueue notifications.
 	 *
 	 * @param  array|int $product_ids The product IDs.
-	 * @param  bool      $force       The force flag. Whether to override spam protection.
+	 * @param  bool      $force       Whether to force the queue.
 	 * @return int
 	 */
 	public function bulk_enqueue_by_product_id( $product_ids, $force = false ) {
@@ -670,14 +679,14 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Bulk set queue status.
 	 *
-	 * @deprecated x.x.x
-	 *
-	 * @param  array  $notification_ids
-	 * @param  string $value
+	 * @since 9.9.0
+	 * @deprecated 9.9.0
+	 * @param  array  $notification_ids The notification IDs.
+	 * @param  string $value            The queue status value.
 	 * @return int
 	 */
 	public function bulk_set_queue_status( $notification_ids, $value = 'on' ) {
-		_deprecated_function( __METHOD__, 'x.x.x', 'WC_BIS_Notifications_DB::bulk_enqueue_by_product_id()' );
+		_deprecated_function( __METHOD__, '9.9.0', 'WC_BIS_Notifications_DB::bulk_enqueue_by_product_id()' );
 		if ( ! is_array( $notification_ids ) ) {
 			$notification_ids = array( $notification_ids );
 		}
@@ -706,13 +715,13 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Bulk renew subscribe dates.
 	 *
-	 * @deprecated x.x.x
-	 *
-	 * @param  array|int $notification_ids
+	 * @since 9.9.0
+	 * @deprecated 9.9.0
+	 * @param  array|int $notification_ids The notification IDs.
 	 * @return int
 	 */
 	public function bulk_renew_subscribe_dates( $notification_ids ) {
-		_deprecated_function( __METHOD__, 'x.x.x', 'WC_BIS_Notifications_DB::bulk_enqueue_by_product_id()' );
+		_deprecated_function( __METHOD__, '9.9.0', 'WC_BIS_Notifications_DB::bulk_enqueue_by_product_id()' );
 		if ( ! is_array( $notification_ids ) ) {
 			$notification_ids = array( $notification_ids );
 		}
@@ -741,11 +750,10 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get notifications number per day.
 	 *
-	 * @since x.x.x
-	 *
-	 * @param  int    $date_start  Start date as a Unix timestamp.
-	 * @param  int    $date_end    End date as a Unix timestamp.
-	 * @param  string $date_column Date column name (e.g., 'create_date', 'subscribe_date', 'last_notified_date').
+	 * @since 9.9.0
+	 * @param  int    $date_start   Start date as a Unix timestamp.
+	 * @param  int    $date_end     End date as a Unix timestamp.
+	 * @param  string $date_column  Date column name.
 	 * @return array
 	 */
 	public function get_notifications_number_per_day( int $date_start, int $date_end, string $date_column ): array {
@@ -779,8 +787,7 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Bulk renew subscribe dates by product id.
 	 *
-	 * @since x.x.x
-	 *
+	 * @since 9.9.0
 	 * @param  array|int $product_ids The product IDs.
 	 * @return int
 	 */
@@ -815,8 +822,7 @@ class WC_BIS_Notifications_DB {
 	/**
 	 * Get subscribed notifications count per product.
 	 *
-	 * @since x.x.x
-	 *
+	 * @since 9.9.0
 	 * @param  array|int $product_ids   The product IDs.
 	 * @param  int       $sent_throttle The throttle time in seconds.
 	 * @return array {

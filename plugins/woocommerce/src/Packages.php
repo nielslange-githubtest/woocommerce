@@ -80,7 +80,7 @@ class Packages {
 		// Display a notice in the Plugins tab next to plugins already merged into WooCommerce core.
 		add_filter( 'all_plugins', array( __CLASS__, 'mark_merged_plugins_as_pending_update' ), 10, 1 );
 		add_action( 'after_plugin_row', array( __CLASS__, 'display_notice_for_merged_plugins' ), 10, 1 );
-		// Check for deactivated plugins from previous redirect
+		// Check for deactivated plugins from previous redirect.
 		$deactivated_plugins = get_transient( 'wc_deactivated_merged_plugins' );
 		if ( $deactivated_plugins ) {
 			delete_transient( 'wc_deactivated_merged_plugins' );
@@ -198,7 +198,7 @@ class Packages {
 	 * ensure that a plugin gets deactivated. Note that for the first request it will still be active,
 	 * and as such, there may be some odd behavior. This is unlikely to cause any issues though
 	 * because it will be deactivated on the request that updates or activates WooCommerce.
-	 * 
+	 *
 	 * @param bool $is_redirecting Whether this deactivation is followed by a redirect.
 	 */
 	public static function deactivate_merged_packages( $is_redirecting = false ) {
@@ -239,6 +239,11 @@ class Packages {
 		}
 	}
 
+	/**
+	 * Show deactivation notices.
+	 *
+	 * @param array $plugins_data Plugins data.
+	 */
 	protected static function show_deactivation_notices( $plugins_data ) {
 		foreach ( $plugins_data as $plugin_data ) {
 			add_action(
