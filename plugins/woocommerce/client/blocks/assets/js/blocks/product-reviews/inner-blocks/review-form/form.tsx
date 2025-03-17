@@ -18,7 +18,14 @@ const CommentsFormPlaceholder = () => {
 
 	return (
 		<div className="comment-respond">
-			<h3>{ __( 'Add a review', 'woocommerce' ) }</h3>
+			<span
+				id="reply-title"
+				className="comment-reply-title"
+				role="heading"
+				aria-level={ 3 }
+			>
+				{ __( 'Add a review', 'woocommerce' ) }
+			</span>
 			<form
 				noValidate
 				className="review-form"

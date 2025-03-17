@@ -24,7 +24,7 @@
 		font-family: inherit;
 	}
 	&[class*="-font-size"] :where(.comment-reply-title),
-	&[style*="font-size"] :where(.comment-reply-title) {
+	&[style*="font-size"] .comment-respond :where(.comment-reply-title) {
 		font-size: inherit;
 	}
 	&[style*="line-height"] :where(.comment-reply-title) {
@@ -76,10 +76,8 @@
 	}
 
 	.comment-reply-title {
+		font-size: var(--wp--preset--font-size--medium);
+		font-weight: 700;
 		margin-bottom: 0;
-		:where(small) {
-			font-size: var(--wp--preset--font-size--medium, smaller);
-			margin-left: 0.5em;
-		}
 	}
 }
