@@ -323,7 +323,7 @@ class PluginsHelper {
 			 *
 			 * @since 9.9
 			 */
-			do_action( 'woocommerce_plugins_install_after', $slug, $source );
+			do_action( 'woocommerce_plugins_install_before', $slug, $source );
 
 			$upgrader = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
 			$result   = $upgrader->install( $api->download_link );
