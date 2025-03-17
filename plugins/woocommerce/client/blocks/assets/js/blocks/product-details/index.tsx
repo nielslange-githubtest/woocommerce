@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { registerBlockType } from '@wordpress/blocks';
+import { registerProductBlockType } from '@woocommerce/atomic-utils';
 import { isExperimentalBlocksEnabled } from '@woocommerce/block-settings';
 
 /**
@@ -12,11 +12,15 @@ import save from './save';
 import edit from './edit';
 import icon from './icon';
 
+const blockConfig = {
+	...metadata,
+	icon,
+	edit,
+	save,
+};
+
 if ( isExperimentalBlocksEnabled() ) {
-	// @ts-expect-error metadata is not typed.
-	registerBlockType( metadata, {
-		icon,
-		edit,
-		save,
+	registerProductBlockType( blockConfig, {
+		isAvailableOnPostEditor: true,
 	} );
 }
