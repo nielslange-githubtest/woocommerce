@@ -17,23 +17,23 @@
 	// This block has customizable padding, border-box makes that more predictable.
 	box-sizing: border-box;
 
-	&[style*="font-weight"] :where(.comment-reply-title) {
+	&[style*="font-weight"].comment-respond :where(.comment-reply-title) {
 		font-weight: inherit;
 	}
-	&[style*="font-family"] :where(.comment-reply-title) {
+	&[style*="font-family"].comment-respond :where(.comment-reply-title) {
 		font-family: inherit;
 	}
-	&[class*="-font-size"] :where(.comment-reply-title),
-	&[style*="font-size"] .comment-respond :where(.comment-reply-title) {
+	&[class*="-font-size"].comment-respond :where(.comment-reply-title),
+	&[style*="font-size"].comment-respond :where(.comment-reply-title) {
 		font-size: inherit;
 	}
-	&[style*="line-height"] :where(.comment-reply-title) {
+	&[style*="line-height"].comment-respond :where(.comment-reply-title) {
 		line-height: inherit;
 	}
-	&[style*="font-style"] :where(.comment-reply-title) {
+	&[style*="font-style"].comment-respond :where(.comment-reply-title) {
 		font-style: inherit;
 	}
-	&[style*="letter-spacing"] :where(.comment-reply-title) {
+	&[style*="letter-spacing"].comment-respond :where(.comment-reply-title) {
 		letter-spacing: inherit;
 	}
 

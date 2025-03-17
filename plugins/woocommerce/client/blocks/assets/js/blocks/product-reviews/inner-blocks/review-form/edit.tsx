@@ -34,7 +34,7 @@ export default function PostCommentsFormEdit( {
 	const instanceIdDesc = sprintf( 'comments-form-edit-%d-desc', instanceId );
 
 	const blockProps = useBlockProps( {
-		className: clsx( {
+		className: clsx( 'comment-respond', {
 			[ `has-text-align-${ textAlign }` ]: textAlign,
 		} ),
 		'aria-describedby': instanceIdDesc,

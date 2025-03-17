@@ -17,7 +17,7 @@ const CommentsFormPlaceholder = () => {
 	const instanceId = useInstanceId( CommentsFormPlaceholder );
 
 	return (
-		<div className="comment-respond">
+		<div>
 			<span
 				id="reply-title"
 				className="comment-reply-title"
