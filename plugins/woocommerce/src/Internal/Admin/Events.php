@@ -293,7 +293,6 @@ class Events {
 		}
 	}
 
-
 	/**
 	 * Install options for core profiler plugin install.
 	 *
@@ -301,9 +300,9 @@ class Events {
 	 *
 	 * Install options are a list of options that are set for the plugin being installed. The options can be installed before or after the plugin is installed.
 	 *
-	 * @param $slug string Plugin slug.
-	 * @param $source string Source of the plugin install.
-	 * @param $priority string Priority of the plugin install. Can be 'before' or 'after'.
+	 * @param string $slug Plugin slug.
+	 * @param string $source Source of the plugin install.
+	 * @param string $priority Priority of the plugin install. Can be 'before' or 'after'.
 	 *
 	 * @return void|null
 	 */
@@ -322,7 +321,7 @@ class Events {
 
 		$install_options = new ProcessCoreProfilerPluginInstallOptions( current( $specs )->plugins, $slug );
 
-		if ( $priority === 'before' ) {
+		if ( 'before' === $priority ) {
 			$install_options->process_before();
 		} else {
 			$install_options->process_after();

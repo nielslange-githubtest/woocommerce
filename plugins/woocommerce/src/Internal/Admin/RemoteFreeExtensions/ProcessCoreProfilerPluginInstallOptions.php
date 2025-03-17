@@ -115,9 +115,9 @@ class ProcessCoreProfilerPluginInstallOptions {
 	/**
 	 * Updates an option in the WordPress database.
 	 *
-	 * @param string $name Name of the option.
-	 * @param $value mixed Value of the option.
-	 * @param $autoload string Autoload option.
+	 * @param string $name Option name.
+	 * @param mixed  $value Option value.
+	 * @param string $autoload Autoload option.
 	 *
 	 * @return void
 	 */
@@ -132,12 +132,11 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @return bool True if the option is not "after" priority.
 	 */
 	private function is_before_priority( object $install_option ): bool {
-		if (!isset($install_option->options) || !is_object($install_option->options)) {
-			return true; // Default to 'before' if options are missing
+		if ( ! isset( $install_option->options ) || ! is_object( $install_option->options ) ) {
+			return true; // Default to 'before' if options are missing.
 		}
-		return empty($install_option->options->install_priority) || 'after' !== $install_option->options->install_priority;
+		return empty( $install_option->options->install_priority ) || 'after' !== $install_option->options->install_priority;
 	}
-
 
 	/**
 	 * Determines if an install option should be processed after installation.
@@ -146,10 +145,10 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @return bool True if the option has "after" priority.
 	 */
 	private function is_after_priority( object $install_option ): bool {
-		if (!isset($install_option->options) || !is_object($install_option->options)) {
-			return false; // Default to 'not after' if options are missing
+		if ( ! isset( $install_option->options ) || ! is_object( $install_option->options ) ) {
+			return false; // Default to 'not after' if options are missing.
 		}
-		return !empty($install_option->options->install_priority) && 'after' === $install_option->options->install_priority;
+		return ! empty( $install_option->options->install_priority ) && 'after' === $install_option->options->install_priority;
 	}
 
 	/**
