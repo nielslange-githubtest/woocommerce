@@ -1191,24 +1191,6 @@ final class WooCommerce {
 	}
 
 	/**
-	 * Get Back In Stock notifications class instance.
-	 *
-	 * @return WC_Back_In_Stock|WC_BIS_Noop
-	 */
-	public function bis_notifications() {
-		static $noop_instance = null;
-
-		if ( ! BackInStockNotifications::is_enabled() ) {
-			if ( ! $noop_instance ) {
-				$noop_instance = new WC_BIS_Noop();
-			}
-			return $noop_instance;
-		}
-
-		return WC_Back_In_Stock::instance();
-	}
-
-	/**
 	 * Check if plugin assets are built and minified
 	 *
 	 * @return bool
