@@ -333,7 +333,7 @@ test.describe( 'Shopper → Local pickup', () => {
 		await checkoutPageObject.verifyBillingDetails();
 	} );
 
-	test( 'Delivery/pickup toggle is shown when hide rates until address is entered is on, but methods exist', async ( {
+	test( 'Delivery/pickup toggle is shown but shipping method is selected by default', async ( {
 		admin,
 		page,
 		frontendUtils,
@@ -345,9 +345,11 @@ test.describe( 'Shopper → Local pickup', () => {
 			'page=wc-settings&tab=shipping&section=options'
 		);
 
-		await admin.page
-			.getByLabel( 'Hide shipping costs until an address is entered' )
-			.check();
+		await expect(
+			admin.page.getByLabel(
+				'Hide shipping costs until an address is entered'
+			)
+		).toBeDisabled();
 
 		let saveButton = admin.page.getByRole( 'button', {
 			name: 'Save changes',
@@ -398,12 +400,10 @@ test.describe( 'Shopper → Local pickup', () => {
 
 		await page.getByRole( 'radio', { name: 'Ship', exact: true } ).click();
 
-		// Check no rates are showing.
+		// Check flat rate is selected.
 		await expect(
-			page.getByText(
-				'Enter a shipping address to view shipping options.'
-			)
-		).toBeVisible();
+			page.getByRole( 'radio', { name: 'Flat rate shipping $' } )
+		).toBeChecked();
 
 		await page
 			.getByRole( 'radio', { name: 'Pickup', exact: true } )
