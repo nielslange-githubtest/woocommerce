@@ -32,12 +32,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		/**
 		 * Hook: woocommerce_email_notification_product_before_title.
 		 *
+		 * @since 9.9.0
+		 *
 		 * @hooked woocommerce_email_notification_product_image - 10
 		 */
 		do_action( 'woocommerce_bis_email_notification_product_before_title', $product, $notification );
 
 		/**
 		 * Hook: woocommerce_email_notification_product_title.
+		 *
+		 * @since 9.9.0
 		 *
 		 * @hooked woocommerce_email_notification_product_title - 10
 		 */
@@ -46,12 +50,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 		/**
 		 * Hook: woocommerce_email_notification_product_after_title.
 		 *
+		 * @since 9.9.0
+		 *
 		 * @hooked woocommerce_email_notification_product_attributes - 10
 		 * @hooked woocommerce_email_notification_product_price - 20
 		 */
 		do_action( 'woocommerce_bis_email_notification_product_after_title', $product, $notification );
 		?>
 
+		/**
+		 * Hook: woocommerce_bis_email_verify_button_text.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param string $button_text The button text.
+		 * @param WC_BIS_Notification_Data $notification The notification data.
+		 * @return string
+		 */
 		<a href="<?php echo esc_url( $verification_href ); ?>" id="notification__action_button"><?php echo esc_html( apply_filters( 'woocommerce_bis_email_verify_button_text', _x( 'Confirm', 'Verify email notification', 'woocommerce' ), $notification ) ); ?></a>
 
 		<div id="notification__verification_expiration">

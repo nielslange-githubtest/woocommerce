@@ -1,7 +1,7 @@
 <?php
 /**
  * Back In Stock Notifications class file.
- * 
+ *
  * @since 9.9.0
  */
 
@@ -214,11 +214,11 @@ class BackInStockNotifications {
 
 	/**
 	 * Returns true if the feature is enabled in this WC instance.
-	 * 
+	 *
 	 * The user option takes precedence over the rollout period flag.
-	 * 
+	 *
 	 * Helper method redirected to \Automattic\WooCommerce\Packages\Packages::is_package_enabled.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
@@ -242,7 +242,7 @@ class BackInStockNotifications {
 
 		// This needs to run after the standalone plugin is deactivated to restore the daily task.
 		add_action( 'deactivate_' . $bis_plugin_name, array( __CLASS__, 'maybe_setup_events' ), 20 );
-		
+
 		// Cleanup events when WooCommerce is deactivated.
 		add_action( 'deactivate_woocommerce/woocommerce.php', array( __CLASS__, 'cleanup_events' ), 20 );
 
@@ -259,7 +259,7 @@ class BackInStockNotifications {
 			// so init() needs to be skipped. This should only be triggered once after
 			// a plugin update during the request when BIS plugin is deactivated.
 			self::$bis_plugin_is_active = true;
-		}		
+		}
 
 		// Check for CLI activation via WP-CLI.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -418,7 +418,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 * Create BIS db tables when feature is enabled after WC installation has run.
 	 *
 	 * This should be called from the feature flag change hook.
-	 * 
+	 *
 	 * @return mixed|void
 	 */
 	public static function maybe_create_database_tables() {
@@ -440,7 +440,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 *
 	 * @param string $option The option name.
 	 * @param string $new_value The new value of the option.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function handle_add_option( $option, $new_value ): void {
@@ -457,7 +457,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 * This should be called from the feature flag change hook.
 	 *
 	 * @param string $option The option name.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function handle_delete_option( $option ): void {
@@ -473,7 +473,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 * Setup BIS events when the feature flag is enabled.
 	 *
 	 * This should be called from the feature flag change hook.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function maybe_setup_events(): void {
@@ -500,7 +500,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 * @param string|null $old_value The old value of the option.
 	 * @param string|null $new_value The new value of the option.
 	 * @param string|null $option The option name.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function maybe_update_bis_infrastructure( $old_value = null, $new_value = null, $option = null ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
@@ -520,7 +520,7 @@ CREATE TABLE {$wpdb->prefix}woocommerce_bis_activity (
 	 *
 	 * This should be called from WooCommerce's deactivation hook or
 	 * when the BIS feature is disabled via the feature flag.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function cleanup_events(): void {

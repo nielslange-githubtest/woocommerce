@@ -23,7 +23,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Output the email header.
+ * Hook: woocommerce_email_header.
+ *
+ * @since 9.9.0
  *
  * @hooked WC_Emails::email_header() Output the email header
  *
@@ -35,7 +37,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 do_action( 'woocommerce_email_header', $email_heading, $email );
 
 /**
- * Output the notification verification content.
+ * Hook: woocommerce_email_verify_notification_html.
+ *
+ * @since 9.9.0
  *
  * @hooked WC_BIS_Emails::verify_notification_email_html() Output the notification content
  *
@@ -47,7 +51,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email );
 do_action( 'woocommerce_email_verify_notification_html', $notification, $email );
 
 /**
- * Output the email footer.
+ * Hook: woocommerce_email_footer.
  *
  * @hooked WC_Emails::email_footer() Output the email footer
  *

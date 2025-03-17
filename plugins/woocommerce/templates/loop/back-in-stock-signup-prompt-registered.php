@@ -22,10 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Hook: woocommerce_bis_before_loop_signup_prompt_signed_up.
+ *
+ * @since 9.9.0
+ *
+ * @param WC_Product $product The product object.
+ */
 do_action( 'woocommerce_bis_before_loop_signup_prompt_signed_up', $product );
 ?>
 	<div class="wc_bis_loop_signup_prompt_container wc_bis_loop_signup_prompt_container--signed_up">
 		<?php echo wp_kses_post( $signup_prompt_html ); ?>
 	</div>
 <?php
+
+/**
+ * Hook: woocommerce_bis_after_loop_signup_prompt_signed_up.
+ *
+ * @since 9.9.0
+ *
+ * @param WC_Product $product The product object.
+ */
 do_action( 'woocommerce_bis_after_loop_signup_prompt_signed_up', $product );

@@ -74,9 +74,9 @@ class WC_BIS_REST_API_Back_In_Stock_Controller extends WC_REST_Controller {
 	 * Deactivate notifications.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
-	 * 
+	 *
 	 * @throws Exception If no notifications are found to deactivate.
-	 * 
+	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function deactivate_notifications( $request ) {
@@ -130,7 +130,7 @@ class WC_BIS_REST_API_Back_In_Stock_Controller extends WC_REST_Controller {
 	 * Force-Send notifications.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
-	 * 
+	 *
 	 * @throws Exception If no product IDs are found to force-send notifications.
 	 * @return WP_REST_Response|WP_Error
 	 */

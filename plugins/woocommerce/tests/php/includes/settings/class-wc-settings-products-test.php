@@ -87,20 +87,20 @@ class WC_Settings_Products_Test extends WC_Settings_Unit_Test_Case {
 		$setting_ids_and_types = $this->get_ids_and_types( $settings );
 
 		$expected = array(
-			'catalog_options'                              => array( 'title', 'sectionend' ),
-			'woocommerce_shop_page_id'                     => 'single_select_page',
-			'woocommerce_cart_redirect_after_add'          => 'checkbox',
-			'woocommerce_enable_ajax_add_to_cart'          => 'checkbox',
-			'woocommerce_placeholder_image'                => 'text',
-			'product_measurement_options'                  => array( 'title', 'sectionend' ),
-			'woocommerce_weight_unit'                      => 'select',
-			'woocommerce_dimension_unit'                   => 'select',
-			'product_rating_options'                       => array( 'title', 'sectionend' ),
-			'woocommerce_enable_reviews'                   => 'checkbox',
-			'woocommerce_review_rating_verification_label' => 'checkbox',
+			'catalog_options'                                 => array( 'title', 'sectionend' ),
+			'woocommerce_shop_page_id'                        => 'single_select_page',
+			'woocommerce_cart_redirect_after_add'             => 'checkbox',
+			'woocommerce_enable_ajax_add_to_cart'             => 'checkbox',
+			'woocommerce_placeholder_image'                   => 'text',
+			'product_measurement_options'                     => array( 'title', 'sectionend' ),
+			'woocommerce_weight_unit'                         => 'select',
+			'woocommerce_dimension_unit'                      => 'select',
+			'product_rating_options'                          => array( 'title', 'sectionend' ),
+			'woocommerce_enable_reviews'                      => 'checkbox',
+			'woocommerce_review_rating_verification_label'    => 'checkbox',
 			'woocommerce_review_rating_verification_required' => 'checkbox',
-			'woocommerce_enable_review_rating'             => 'checkbox',
-			'woocommerce_review_rating_required'           => 'checkbox',
+			'woocommerce_enable_review_rating'                => 'checkbox',
+			'woocommerce_review_rating_required'              => 'checkbox',
 		);
 
 		$this->assertEquals( $expected, $setting_ids_and_types );
@@ -116,16 +116,16 @@ class WC_Settings_Products_Test extends WC_Settings_Unit_Test_Case {
 		$setting_ids_and_types = $this->get_ids_and_types( $settings );
 
 		$expected = array(
-			'product_inventory_options'                                  => array( 'title', 'sectionend' ),
-			'woocommerce_manage_stock'                                   => 'checkbox',
-			'woocommerce_hold_stock_minutes'                             => 'number',
-			'woocommerce_notify_low_stock'                               => 'checkbox',
-			'woocommerce_notify_no_stock'                                => 'checkbox',
-			'woocommerce_stock_email_recipient'                          => 'text',
-			'woocommerce_notify_low_stock_amount'                        => 'number',
-			'woocommerce_notify_no_stock_amount'                         => 'number',
-			'woocommerce_hide_out_of_stock_items'                        => 'checkbox',
-			'woocommerce_stock_format'                                   => 'select',
+			'product_inventory_options'           => array( 'title', 'sectionend' ),
+			'woocommerce_manage_stock'            => 'checkbox',
+			'woocommerce_hold_stock_minutes'      => 'number',
+			'woocommerce_notify_low_stock'        => 'checkbox',
+			'woocommerce_notify_no_stock'         => 'checkbox',
+			'woocommerce_stock_email_recipient'   => 'text',
+			'woocommerce_notify_low_stock_amount' => 'number',
+			'woocommerce_notify_no_stock_amount'  => 'number',
+			'woocommerce_hide_out_of_stock_items' => 'checkbox',
+			'woocommerce_stock_format'            => 'select',
 		);
 
 		$this->assertEquals( $expected, $setting_ids_and_types );
@@ -148,7 +148,7 @@ class WC_Settings_Products_Test extends WC_Settings_Unit_Test_Case {
 			'woocommerce_downloads_grant_access_after_payment' => 'checkbox',
 			'woocommerce_downloads_add_hash_to_filename'       => 'checkbox',
 			'woocommerce_downloads_deliver_inline'             => 'checkbox',
-			'woocommerce_downloads_count_partial'        => 'checkbox',
+			'woocommerce_downloads_count_partial'              => 'checkbox',
 		);
 
 		$this->assertEquals( $expected, $setting_ids_and_types );

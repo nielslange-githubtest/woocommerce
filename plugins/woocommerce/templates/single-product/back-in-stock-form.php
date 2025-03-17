@@ -22,12 +22,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Hook: woocommerce_bis_before_form.
+ *
+ * @since 9.9.0
+ *
+ * @param WC_Product $product The product object.
+ */
 do_action( 'woocommerce_bis_before_form', $product );
 ?><div id="wc_bis_product_form" data-bis-product-id="<?php echo $product->get_parent_id() ? absint( $product->get_parent_id() ) : absint( $product->get_id() ); ?>">
 
 	<p class="wc_bis_form_title"><?php echo wp_kses_post( $header_text ); ?></p>
 
-	<?php do_action( 'woocommerce_bis_before_form_fields', $product ); ?>
+	<?php
+	/**
+	 * Hook: woocommerce_bis_before_form_fields.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param WC_Product $product The product object.
+	 */
+	do_action( 'woocommerce_bis_before_form_fields', $product ); ?>
 
 	<?php if ( ! is_user_logged_in() && ! wc_bis_is_account_required() ) : ?>
 		<input type="text" id="wc_bis_email" name="wc_bis_email" class="input-text" placeholder="<?php echo esc_attr__( 'Enter your e-mail', 'woocommerce' ); ?>" />
@@ -52,7 +67,23 @@ do_action( 'woocommerce_bis_before_form', $product );
 		</label>
 	<?php endif; ?>
 
-	<?php do_action( 'woocommerce_bis_after_form_fields', $product ); ?>
+	<?php
+	/**
+	 * Hook: woocommerce_bis_after_form_fields.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param WC_Product $product The product object.
+	 */
+	do_action( 'woocommerce_bis_after_form_fields', $product ); ?>
 </div>
 <?php
+
+/**
+ * Hook: woocommerce_bis_after_form.
+ *
+ * @since 9.9.0
+ *
+ * @param WC_Product $product The product object.
+ */
 do_action( 'woocommerce_bis_after_form', $product );

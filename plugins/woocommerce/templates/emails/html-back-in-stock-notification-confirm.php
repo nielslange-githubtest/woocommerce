@@ -32,6 +32,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		/**
 		 * Hook: woocommerce_email_notification_product_before_title.
 		 *
+		 * @since 9.9.0
+		 *
 		 * @hooked woocommerce_email_notification_product_image - 10
 		 */
 		do_action( 'woocommerce_bis_email_notification_product_before_title', $product, $notification );
@@ -39,12 +41,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		/**
 		 * Hook: woocommerce_email_notification_product_title.
 		 *
+		 * @since 9.9.0
+		 *
 		 * @hooked woocommerce_email_notification_product_title - 10
 		 */
 		do_action( 'woocommerce_bis_email_notification_product_title', $product, $notification );
 
 		/**
 		 * Hook: woocommerce_email_notification_product_after_title.
+		 *
+		 * @since 9.9.0
 		 *
 		 * @hooked woocommerce_email_notification_product_attributes - 10
 		 * @hooked woocommerce_email_notification_product_price - 20

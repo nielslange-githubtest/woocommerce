@@ -22,9 +22,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Hook: woocommerce_bis_before_account_backinstock.
+ *
+ * @since 9.9.0
+ *
+ * @param bool $has_notifications Whether there are notifications.
+ */
 do_action( 'woocommerce_bis_before_account_backinstock', $has_notifications ); ?>
 
-<?php if ( $has_pending_notifications && (bool) apply_filters( 'woocommerce_bis_account_show_pending_notifications', true ) ) : ?>
+<?php
+/**
+ * Hook: woocommerce_bis_account_backinstock_pending_notifications_heading.
+ *
+ * @since 9.9.0
+ *
+ * @param string $heading The heading text.
+ */
+if ( $has_pending_notifications && (bool) apply_filters( 'woocommerce_bis_account_show_pending_notifications', true ) ) : ?>
 	<h2><?php esc_html_e( 'Pending', 'woocommerce' ); ?></h2>
 	<table class="woocommerce-orders-table woocommerce-MyAccount-orders shop_table shop_table_responsive my_account_orders account-orders-table wc-bis-pending-notifications-table">
 		<thead>
@@ -225,7 +240,15 @@ do_action( 'woocommerce_bis_before_account_backinstock', $has_notifications ); ?
 	</div>
 <?php endif; ?>
 
-<?php if ( (bool) apply_filters( 'woocommerce_bis_account_show_activities', true ) ) : ?>
+<?php
+/**
+ * Hook: woocommerce_bis_account_show_activities.
+ *
+ * @since 9.9.0
+ *
+ * @param bool $show_activities Whether to show activities.
+ */
+if ( (bool) apply_filters( 'woocommerce_bis_account_show_activities', true ) ) : ?>
 
 	<h2><?php esc_html_e( 'Your Activity', 'woocommerce' ); ?></h2>
 
@@ -276,4 +299,12 @@ do_action( 'woocommerce_bis_before_account_backinstock', $has_notifications ); ?
 
 <?php endif; ?>
 
-<?php do_action( 'woocommerce_bis_after_account_backinstock', $has_notifications ); ?>
+<?php
+/**
+ * Hook: woocommerce_bis_after_account_backinstock.
+ *
+ * @since 9.9.0
+ *
+ * @param bool $has_notifications Whether there are notifications.
+ */
+do_action( 'woocommerce_bis_after_account_backinstock', $has_notifications ); ?>
