@@ -742,7 +742,7 @@ class WC_Discounts {
 
 		if ( $coupon->get_maximum_amount() > 0 && apply_filters( 'woocommerce_coupon_validate_maximum_amount', $coupon->get_maximum_amount() < $subtotal, $coupon ) ) {
 			/* translators: %1$s: coupon code, %2$s: coupon maximum amount */
-			throw new Exception( esc_html( sprintf( __( 'The maximum spend for coupon "%1$s" is %2$s.', 'woocommerce' ), $coupon->get_code() , wc_price( $coupon->get_maximum_amount() ) ) ), 112 );
+			throw new Exception( esc_html( sprintf( __( 'The maximum spend for coupon "%1$s" is %2$s.', 'woocommerce' ), $coupon->get_code(), wc_price( $coupon->get_maximum_amount() ) ) ), 112 );
 		}
 
 		return true;
