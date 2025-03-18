@@ -423,7 +423,11 @@ jQuery( function ( $ ) {
 
 				if ( 0 < unit_subtotal_tax ) {
 					$line_subtotal_tax.val(
-						parseFloat( accounting.formatNumber( unit_subtotal_tax * qty, woocommerce_admin_meta_boxes.rounding_precision, '' ) )
+						parseFloat( accounting.formatNumber(
+							unit_subtotal_tax * qty,
+							woocommerce_admin_meta_boxes.rounding_precision,
+							''
+						) )
 							.toString()
 							.replace( '.', woocommerce_admin.mon_decimal_point )
 					);
