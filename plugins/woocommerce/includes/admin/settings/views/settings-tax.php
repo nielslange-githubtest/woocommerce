@@ -74,6 +74,19 @@ $settings = array(
 	),
 
 	array(
+		'title'   => __( 'PHP Tax Rounding Mode', 'woocommerce' ),
+		'id'      => 'woocommerce_tax_rounding_mode',
+		'default' => 'auto',
+		'type'    => 'select',
+		'class'   => 'wc-enhanced-select',
+		'options' => array(
+			'auto' => __( 'Default', 'woocommerce' ),
+			'1' => __( 'Half Up', 'woocommerce' ),
+			'2' => __( 'Half Down', 'woocommerce' ),
+		),
+	),
+
+	array(
 		'title'   => __( 'Display prices in the shop', 'woocommerce' ),
 		'id'      => 'woocommerce_tax_display_shop',
 		'default' => 'excl',

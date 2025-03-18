@@ -1996,13 +1996,14 @@ function wc_asort_by_locale( &$data, $locale = '' ) {
  * @return int
  */
 function wc_get_tax_rounding_mode() {
-	$constant = WC_TAX_ROUNDING_MODE;
+	$mode = WC_TAX_ROUNDING_MODE;
+	$mode = get_option( 'woocommerce_tax_rounding_mode', $mode );
 
-	if ( 'auto' === $constant ) {
-		return 'yes' === get_option( 'woocommerce_prices_include_tax', 'no' ) ? PHP_ROUND_HALF_DOWN : PHP_ROUND_HALF_UP;
+	if ( 'auto' === $mode ) {
+		$mode = ('yes' === get_option( 'woocommerce_prices_include_tax', 'no' ) ) ? PHP_ROUND_HALF_DOWN : PHP_ROUND_HALF_UP;
 	}
 
-	return intval( $constant );
+	return intval( $mode );
 }
 
 /**
