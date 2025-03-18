@@ -25,9 +25,9 @@ when:
         - flux
   - author:
       teamIs:
-        - mailpoet
+        - solaris
       ignore:
         nameIs:
     assign:
       teams:
-        - mailpoet
+        - solaris

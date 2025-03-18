@@ -37,19 +37,19 @@
 		"@types/lodash": "^4.14.202",
 		"@types/prop-types": "^15.7.11",
 		"@types/wordpress__blocks": "11.0.7",
-		"@woocommerce/settings": "^1.0.0",
-		"@woocommerce/tracks": "workspace:^",
-		"@woocommerce/product-editor": "workspace:^",
+		"@woocommerce/product-editor": "workspace:*",
+		"@woocommerce/settings": "1.0.0",
+		"@woocommerce/tracks": "workspace:*",
 		"@wordpress/api-fetch": "wp-6.6",
 		"@wordpress/components": "wp-6.6",
 		"@wordpress/compose": "wp-6.6",
 		"@wordpress/core-data": "wp-6.6",
-		"@wordpress/dataviews": "^4.4.1",
+		"@wordpress/dataviews": "^4.11.1",
 		"@wordpress/date": "wp-6.6",
 		"@wordpress/deprecated": "wp-6.6",
 		"@wordpress/edit-post": "wp-6.6",
-		"@wordpress/editor": "wp-6.6",
 		"@wordpress/edit-site": "6.10.0",
+		"@wordpress/editor": "wp-6.6",
 		"@wordpress/element": "wp-6.6",
 		"@wordpress/hooks": "wp-6.6",
 		"@wordpress/html-entities": "wp-6.6",
@@ -58,13 +58,15 @@
 		"@wordpress/interface": "wp-6.6",
 		"@wordpress/keyboard-shortcuts": "wp-6.6",
 		"@wordpress/keycodes": "wp-6.6",
+		"@wordpress/notices": "wp-6.6",
 		"@wordpress/media-utils": "wp-6.6",
+		"@woocommerce/navigation": "workspace:*",
 		"@wordpress/plugins": "wp-6.6",
 		"@wordpress/preferences": "wp-6.6",
 		"@wordpress/private-apis": "^1.6.0",
 		"@wordpress/router": "1.11.0",
 		"@wordpress/url": "wp-6.6",
-		"classnames": "^2.3.2",
+		"clsx": "^2.1.1",
 		"dompurify": "^2.5.7",
 		"prop-types": "^15.8.1",
 		"react-router-dom": "~6.3.0"
@@ -72,8 +74,8 @@
 	"devDependencies": {
 		"@babel/core": "^7.23.5",
 		"@babel/runtime": "^7.23.5",
-		"@testing-library/jest-dom": "^6.x.x",
 		"@testing-library/dom": "^10.4.x",
+		"@testing-library/jest-dom": "^6.x.x",
 		"@testing-library/react": "^16.x.x",
 		"@testing-library/user-event": "13.5.0",
 		"@types/dompurify": "^2.4.0",
@@ -89,7 +91,7 @@
 		"@woocommerce/internal-js-tests": "workspace:*",
 		"@woocommerce/internal-style-build": "workspace:*",
 		"@wordpress/block-editor": "wp-6.6",
-		"@wordpress/browserslist-config": "wp-6.6",
+		"@wordpress/browserslist-config": "next",
 		"concurrently": "^7.6.0",
 		"copy-webpack-plugin": "^9.1.0",
 		"css-loader": "^3.6.0",
@@ -109,7 +111,7 @@
 		"webpack-cli": "^3.3.12",
 		"webpack-remove-empty-scripts": "^0.7.3",
 		"webpack-rtl-plugin": "^2.0.0",
-		"wireit": "0.14.3"
+		"wireit": "0.14.10"
 	},
 	"scripts": {
 		"build": "pnpm --if-present --workspace-concurrency=Infinity --stream --filter=\"$npm_package_name...\" '/^build:project:.*$/'",
@@ -154,7 +156,6 @@
 						"src/**/*.{js,jsx,ts,tsx}",
 						"typings/**/*.ts"
 					],
-					"cascade": "test:js",
 					"events": [
 						"pull_request",
 						"push"
@@ -230,14 +231,7 @@
 		"dependencyOutputs": {
 			"allowUsuallyExcludedPaths": true,
 			"files": [
-				"node_modules/@woocommerce/internal-style-build/index.js",
-				"node_modules/@woocommerce/internal-style-build/abstracts",
-				"node_modules/@woocommerce/internal-js-tests/build",
-				"node_modules/@woocommerce/internal-js-tests/build-module",
-				"node_modules/@woocommerce/internal-js-tests/jest-preset.js",
-				"node_modules/@woocommerce/eslint-plugin/configs",
-				"node_modules/@woocommerce/eslint-plugin/rules",
-				"node_modules/@woocommerce/eslint-plugin/index.js",
+				"package.json",
 				"node_modules/@woocommerce/product-editor/build",
 				"node_modules/@woocommerce/product-editor/build-module",
 				"node_modules/@woocommerce/product-editor/build-style",
@@ -245,7 +239,17 @@
 				"node_modules/@woocommerce/tracks/build",
 				"node_modules/@woocommerce/tracks/build-module",
 				"node_modules/@woocommerce/tracks/build-types",
-				"package.json"
+				"node_modules/@woocommerce/navigation/build",
+				"node_modules/@woocommerce/navigation/build-module",
+				"node_modules/@woocommerce/navigation/build-types",
+				"node_modules/@woocommerce/eslint-plugin/configs",
+				"node_modules/@woocommerce/eslint-plugin/rules",
+				"node_modules/@woocommerce/eslint-plugin/index.js",
+				"node_modules/@woocommerce/internal-js-tests/build",
+				"node_modules/@woocommerce/internal-js-tests/build-module",
+				"node_modules/@woocommerce/internal-js-tests/jest-preset.js",
+				"node_modules/@woocommerce/internal-style-build/index.js",
+				"node_modules/@woocommerce/internal-style-build/abstracts"
 			]
 		}
 	}

@@ -155,6 +155,11 @@
 	padding: 0.75em 0;
 }
 
+.woocommerce-ordering > label {
+	display: inline;
+	margin-right: 0.25rem;
+}
+
 /**
  * Products
  */
@@ -1242,5 +1247,18 @@ form.checkout_coupon {
 	.checkout-inline-error-message {
 
 		@include checkout-inline-error-message();
+	}
+}
+
+/**
+ * Log in form
+ */
+.woocommerce-page {
+	form {
+		.password-input {
+			input[type="text"] {
+				padding-right: 2.5rem;
+			}
+		}
 	}
 }

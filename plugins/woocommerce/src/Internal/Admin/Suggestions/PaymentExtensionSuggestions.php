@@ -30,7 +30,7 @@ class PaymentExtensionSuggestions {
 	const PAYSTACK          = 'paystack';
 	const PAYU_INDIA        = 'payu_india';
 	const RAZORPAY          = 'razorpay';
-	const SQUARE_IN_PERSON  = 'square_in_person';
+	const SQUARE            = 'square';
 	const STRIPE            = 'stripe';
 	const TILOPAY           = 'tilopay';
 	const VIVA_WALLET       = 'viva_wallet';
@@ -40,6 +40,20 @@ class PaymentExtensionSuggestions {
 	const AFTERPAY          = 'afterpay';
 	const CLEARPAY          = 'clearpay';
 	const KLARNA            = 'klarna';
+	const HELIOPAY          = 'heliopay';
+	const MONEI             = 'monei';
+	const COINBASE          = 'coinbase';
+	const BANK_OF_AMERICA   = 'bank_of_america';
+	const BOLT              = 'bolt_checkout';
+	const AUTHORIZE_NET     = 'authorize_net';
+	const DEPAY             = 'depay';
+	const ELAVON            = 'elavon';
+	const EWAY              = 'eway';
+	const FORTISPAY         = 'fortis';
+	const GO_CARDLESS       = 'go_cardless';
+	const NEXI              = 'nexi';
+	const PAYPAL_ZETTLE     = 'paypal_zettle';
+	const RAPYD             = 'rapyd';
 
 	/*
 	 * The extension types.
@@ -50,6 +64,7 @@ class PaymentExtensionSuggestions {
 	const TYPE_APM              = 'apm'; // Alternative Payment Methods.
 	const TYPE_EXPRESS_CHECKOUT = 'express_checkout';
 	const TYPE_BNPL             = 'bnpl'; // Buy now, pay later.
+	const TYPE_CRYPTO           = 'crypto';
 
 	/*
 	 * The extension plugin types.
@@ -130,7 +145,7 @@ class PaymentExtensionSuggestions {
 			self::WOOPAYMENTS,
 			self::PAYPAL_FULL_STACK,
 			self::STRIPE,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -147,7 +162,7 @@ class PaymentExtensionSuggestions {
 			self::PAYPAL_WALLET,
 			self::AFFIRM,
 			self::AFTERPAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -171,7 +186,7 @@ class PaymentExtensionSuggestions {
 			self::PAYPAL_FULL_STACK,
 			self::STRIPE,
 			self::AIRWALLEX,
-			self::SQUARE_IN_PERSON, // Use the default details.
+			self::SQUARE, // Use the default details.
 			self::PAYPAL_WALLET,
 			self::AMAZON_PAY,
 			self::AFFIRM,
@@ -187,7 +202,7 @@ class PaymentExtensionSuggestions {
 			self::MOLLIE,
 			self::AIRWALLEX,
 			self::VIVA_WALLET,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -204,7 +219,7 @@ class PaymentExtensionSuggestions {
 			self::PAYPAL_WALLET,
 			self::AMAZON_PAY,
 			self::CLEARPAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -216,6 +231,21 @@ class PaymentExtensionSuggestions {
 							'url'   => 'https://www.klarna.com/uk/terms-and-conditions/',
 						),
 					),
+				),
+			),
+		),
+		'AL' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
+		),
+		'AD' => array(
+			self::MONEI,
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
 				),
 			),
 		),
@@ -264,6 +294,13 @@ class PaymentExtensionSuggestions {
 							'url'   => 'https://www.klarna.com/be/fr/conditions-generales/',
 						),
 					),
+				),
+			),
+		),
+		'BA' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
 				),
 			),
 		),
@@ -377,7 +414,7 @@ class PaymentExtensionSuggestions {
 			self::MOLLIE,
 			self::AIRWALLEX,
 			self::VIVA_WALLET,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -393,7 +430,7 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_WALLET,
 			self::AMAZON_PAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -405,6 +442,13 @@ class PaymentExtensionSuggestions {
 							'url'   => 'https://www.klarna.com/fr/legal/',
 						),
 					),
+				),
+			),
+		),
+		'PF' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
 				),
 			),
 		),
@@ -490,6 +534,18 @@ class PaymentExtensionSuggestions {
 				),
 			),
 		),
+		'IS' => array(
+			self::MOLLIE        => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
+		),
 		'IE' => array(
 			self::WOOPAYMENTS,
 			self::PAYPAL_FULL_STACK,
@@ -497,7 +553,7 @@ class PaymentExtensionSuggestions {
 			self::MOLLIE,
 			self::AIRWALLEX,
 			self::VIVA_WALLET,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -513,7 +569,7 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_WALLET,
 			self::AMAZON_PAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -597,6 +653,13 @@ class PaymentExtensionSuggestions {
 		'MD' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+		),
+		'MC' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
 		),
 		'NL' => array(
 			self::WOOPAYMENTS,
@@ -715,6 +778,13 @@ class PaymentExtensionSuggestions {
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
 		),
+		'RS' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
+		),
 		'SK' => array(
 			self::WOOPAYMENTS,
 			self::PAYPAL_FULL_STACK,
@@ -736,14 +806,22 @@ class PaymentExtensionSuggestions {
 				),
 			),
 		),
+		'SI' => array(
+			self::WOOPAYMENTS,
+			self::PAYPAL_FULL_STACK,
+			self::STRIPE,
+			self::MOLLIE,
+			self::PAYPAL_WALLET,
+		),
 		'ES' => array(
 			self::WOOPAYMENTS,
 			self::PAYPAL_FULL_STACK,
 			self::STRIPE,
 			self::MOLLIE,
+			self::MONEI,
 			self::AIRWALLEX,
 			self::VIVA_WALLET,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -759,7 +837,7 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_WALLET,
 			self::AMAZON_PAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -811,9 +889,11 @@ class PaymentExtensionSuggestions {
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'AI' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'AR' => array(
 			self::MERCADO_PAGO => array(
@@ -834,33 +914,42 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'AW' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'BS' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'BB' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'BZ' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'BM' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
-		'BO' => array(),
+		'BO' => array(
+			self::HELIOPAY,
+		),
 		'BQ' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'BR' => array(
 			self::STRIPE       => array(
@@ -889,14 +978,17 @@ class PaymentExtensionSuggestions {
 				),
 			),
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'VG' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'KY' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'CL' => array(
 			self::MERCADO_PAGO => array(
@@ -917,6 +1009,7 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'CO' => array(
 			self::MERCADO_PAGO => array(
@@ -937,69 +1030,86 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'CR' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'CW' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'DM' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'DO' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'EC' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'SV' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
-		'FK' => array(),
+		'FK' => array(
+			self::HELIOPAY,
+		),
 		'GF' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'GD' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'GP' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'GT' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'GY' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'HN' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'JM' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'MQ' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'MX' => array(
 			self::STRIPE       => array(
@@ -1042,18 +1152,23 @@ class PaymentExtensionSuggestions {
 					),
 				),
 			),
+			self::HELIOPAY,
 		),
 		'NI' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'PA' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
-		'PY' => array(),
+		'PY' => array(
+			self::HELIOPAY,
+		),
 		'PE' => array(
 			self::MERCADO_PAGO => array(
 				'_merge_on_type' => array(
@@ -1073,35 +1188,43 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'KN' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'LC' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'SX' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'VC' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'SR' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'TT' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'TC' => array(
 			self::TILOPAY,
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'UY' => array(
 			self::MERCADO_PAGO => array(
@@ -1122,13 +1245,16 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 		'VI' => array(
 			self::TILOPAY,
+			self::HELIOPAY,
 		),
 		'VE' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+			self::HELIOPAY,
 		),
 
 		// APAC.
@@ -1138,7 +1264,7 @@ class PaymentExtensionSuggestions {
 			self::STRIPE,
 			self::AIRWALLEX,
 			self::ANTOM,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -1154,7 +1280,7 @@ class PaymentExtensionSuggestions {
 			),
 			self::PAYPAL_WALLET,
 			self::AFTERPAY,
-			self::KLARNA           => array(
+			self::KLARNA => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -1228,7 +1354,7 @@ class PaymentExtensionSuggestions {
 			self::PAYPAL_FULL_STACK,
 			self::STRIPE,
 			self::ANTOM,
-			self::SQUARE_IN_PERSON => array(
+			self::SQUARE => array(
 				'_merge_on_type' => array(
 					'links' => array(
 						array(
@@ -1314,6 +1440,13 @@ class PaymentExtensionSuggestions {
 		'KR' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+		),
+		'TW' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
 		),
 		'TH' => array(
 			self::STRIPE => array(
@@ -1465,9 +1598,17 @@ class PaymentExtensionSuggestions {
 		'ZW' => array(),
 
 		// Middle East.
+		'AF' => array(),
 		'BH' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+		),
+		'GE' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
 		),
 		'IQ' => array(),
 		'IL' => array(
@@ -1480,6 +1621,13 @@ class PaymentExtensionSuggestions {
 		'JO' => array(
 			self::PAYPAL_FULL_STACK,
 			self::PAYPAL_WALLET,
+		),
+		'KZ' => array(
+			self::PAYPAL_WALLET => array(
+				'_append' => array(
+					'tags' => array( self::TAG_PREFERRED ),
+				),
+			),
 		),
 		'KW' => array(
 			self::PAYPAL_FULL_STACK,
@@ -1711,17 +1859,8 @@ class PaymentExtensionSuggestions {
 	 *              Defaults to true if there is no specific logic for the extension.
 	 */
 	private function is_extension_allowed( string $extension_id, string $country_code, string $context = '' ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-
-		/*
-		 * For now, we only need to run logic for the Square In-Person extension.
-		 * If more extensions need to be filtered out, we can add more logic here until we decide to abstract it.
-		 */
-
-		if ( self::SQUARE_IN_PERSON === $extension_id ) {
-			// Square (In-Person) is only allowed if the merchant is selling offline.
-			return $this->is_merchant_selling_offline();
-		}
-
+		// Add per-extension exclusion logic here.
+		// Returning true for now to avoid excluding any extensions.
 		return true;
 	}
 
@@ -2378,7 +2517,7 @@ class PaymentExtensionSuggestions {
 					),
 				),
 			),
-			self::SQUARE_IN_PERSON  => array(
+			self::SQUARE            => array(
 				'_type'       => self::TYPE_PSP,
 				'title'       => esc_html__( 'Square', 'woocommerce' ),
 				'description' => esc_html__( 'Securely accept credit and debit cards with one low rate, no surprise fees (custom rates available). Sell in store and track sales and inventory in one place.', 'woocommerce' ),
@@ -2486,7 +2625,7 @@ class PaymentExtensionSuggestions {
 				'icon'        => plugins_url( 'assets/images/onboarding/icons/vivacom.svg', WC_PLUGIN_FILE ),
 				'plugin'      => array(
 					'_type' => self::PLUGIN_TYPE_WPORG,
-					'slug'  => 'vivawallet-woocommerce-gateway',
+					'slug'  => 'viva-com-smart-for-woocommerce',
 				),
 				'links'       => array(
 					array(
@@ -2514,7 +2653,7 @@ class PaymentExtensionSuggestions {
 			self::WOOPAYMENTS       => array(
 				'_type'       => self::TYPE_PSP,
 				'title'       => esc_html__( 'Accept payments with Woo', 'woocommerce' ),
-				'description' => esc_html__( 'Credit/debit cards, Apple Pay, Google Pay and more.', 'woocommerce' ),
+				'description' => esc_html__( 'Credit/debit cards, Apple Pay, Google Pay, and more.', 'woocommerce' ),
 				'image'       => plugins_url( 'assets/images/onboarding/woopayments.svg', WC_PLUGIN_FILE ),
 				'icon'        => plugins_url( 'assets/images/onboarding/icons/woo.svg', WC_PLUGIN_FILE ),
 				'plugin'      => array(
@@ -2709,6 +2848,166 @@ class PaymentExtensionSuggestions {
 						'_type' => self::LINK_TYPE_SUPPORT,
 						'url'   => 'https://woocommerce.com/my-account/contact-support/?select=klarna-payments',
 					),
+				),
+			),
+			self::HELIOPAY          => array(
+				'_type'       => self::TYPE_CRYPTO,
+				'title'       => esc_html__( 'Helio Pay', 'woocommerce' ),
+				'description' => esc_html__( 'Effortlessly accept cryptocurrency payments in your WooCommerce store with Helio Pay.', 'woocommerce' ),
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/heliopay.png', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'helio',
+				),
+				'links'       => array(
+					array(
+						'_type' => self::LINK_TYPE_PRICING,
+						'url'   => 'https://www.hel.io/pricing',
+					),
+					array(
+						'_type' => self::LINK_TYPE_ABOUT,
+						'url'   => 'https://woocommerce.com/products/helio-pay/',
+					),
+					array(
+						'_type' => self::LINK_TYPE_TERMS,
+						'url'   => 'https://info.docs.hel.io/terms-of-service',
+					),
+					array(
+						'_type' => self::LINK_TYPE_DOCS,
+						'url'   => 'https://woocommerce.com/document/helio-pay/',
+					),
+					array(
+						'_type' => self::LINK_TYPE_SUPPORT,
+						'url'   => 'https://woocommerce.com/my-account/contact-support/?select=helio-pay',
+					),
+				),
+			),
+			self::MONEI             => array(
+				'_type'       => self::TYPE_PSP,
+				'title'       => esc_html__( 'MONEI', 'woocommerce' ),
+				'description' => esc_html__( 'Accept Cards, Apple Pay, Google Pay, Bizum, PayPal, and many more payment methods in your store.', 'woocommerce' ),
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/monei.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'monei',
+				),
+				'links'       => array(
+					array(
+						'_type' => self::LINK_TYPE_PRICING,
+						'url'   => 'https://monei.com/pricing/',
+					),
+					array(
+						'_type' => self::LINK_TYPE_ABOUT,
+						'url'   => 'https://monei.com/',
+					),
+					array(
+						'_type' => self::LINK_TYPE_TERMS,
+						'url'   => 'https://monei.com/legal-notice/',
+					),
+					array(
+						'_type' => self::LINK_TYPE_DOCS,
+						'url'   => 'https://support.monei.com/hc/en-us/articles/360017801677-Get-started-with-MONEI',
+					),
+					array(
+						'_type' => self::LINK_TYPE_SUPPORT,
+						'url'   => 'https://support.monei.com/hc/en-us/requests/new',
+					),
+				),
+			),
+			self::COINBASE          => array(
+				'_type'       => self::TYPE_CRYPTO,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/coinbase.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'coinbase-commerce',
+				),
+			),
+			self::AUTHORIZE_NET     => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/authorize.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'woocommerce-gateway-authorize-net-cim',
+				),
+			),
+			self::BOLT              => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/bolt.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'bolt-checkout-woocommerce',
+				),
+			),
+			self::BANK_OF_AMERICA   => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/bofa.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'woocommerce-gateway-bank-of-america',
+				),
+			),
+			self::DEPAY             => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/depay.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'depay-payments-for-woocommerce',
+				),
+			),
+			self::ELAVON            => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/elavon.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'woocommerce-gateway-converge',
+				),
+			),
+			self::EWAY              => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/eway.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'woocommerce-gateway-eway',
+				),
+			),
+			self::FORTISPAY         => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/fortispay.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'fortis-for-woocommerce',
+				),
+			),
+			self::GO_CARDLESS       => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/gocardless.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'woocommerce-gateway-gocardless',
+				),
+			),
+			self::NEXI              => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/nexi.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'dibs-easy-for-woocommerce',
+				),
+			),
+			self::PAYPAL_ZETTLE     => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/paypalzettle.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'zettle-pos-integration',
+				),
+			),
+			self::RAPYD             => array(
+				'_type'       => self::TYPE_PSP,
+				'icon'        => plugins_url( 'assets/images/onboarding/icons/rapyd.svg', WC_PLUGIN_FILE ),
+				'plugin'      => array(
+					'_type' => self::PLUGIN_TYPE_WPORG,
+					'slug'  => 'rapyd-payments-plugin-for-woocommerce',
 				),
 			),
 		);

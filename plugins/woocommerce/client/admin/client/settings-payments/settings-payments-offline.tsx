@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import {
 	type OfflinePaymentMethodProvider,
-	PAYMENT_SETTINGS_STORE_NAME,
+	paymentSettingsStore,
 } from '@woocommerce/data';
 
 /**
@@ -15,22 +15,37 @@ import './settings-payments-offline.scss';
 import './settings-payments-body.scss';
 import { OfflinePaymentGateways } from './components/offline-payment-gateways';
 
+/**
+ * A component for managing offline payment gateways in WooCommerce.
+ * It retrieves and displays a list of offline payment gateways,
+ * allows users to reorder them, and updates the order in the store.
+ */
 export const SettingsPaymentsOffline = () => {
+	// Retrieve offline payment gateways and loading state from the store.
 	const { offlinePaymentGateways, isFetching } = useSelect( ( select ) => {
+		const paymentSettings = select( paymentSettingsStore );
 		return {
-			isFetching: select( PAYMENT_SETTINGS_STORE_NAME ).isFetching(),
-			offlinePaymentGateways: select(
-				PAYMENT_SETTINGS_STORE_NAME
-			).getOfflinePaymentGateways(),
+			isFetching: paymentSettings.isFetching(),
+			offlinePaymentGateways: paymentSettings.getOfflinePaymentGateways(),
 		};
-	} );
-	const { updateProviderOrdering } = useDispatch(
-		PAYMENT_SETTINGS_STORE_NAME
-	);
+	}, [] );
+
+	// Dispatch function to update the ordering of payment gateways.
+	const { updateProviderOrdering } = useDispatch( paymentSettingsStore );
 	// State to hold the sorted gateways in case of changing the order, otherwise it will be null
 	const [ sortedOfflinePaymentGateways, setSortedOfflinePaymentGateways ] =
 		useState< OfflinePaymentMethodProvider[] | null >( null );
 
+	/**
+	 * Clear sortedOfflinePaymentGateways when data store updates.
+	 */
+	useEffect( () => {
+		setSortedOfflinePaymentGateways( null );
+	}, [ offlinePaymentGateways ] );
+
+	/**
+	 * Handles updating the order of offline payment gateways.
+	 */
 	function handleOrderingUpdate( sorted: OfflinePaymentMethodProvider[] ) {
 		// Extract the existing _order values in the sorted order
 		const updatedOrderValues = sorted

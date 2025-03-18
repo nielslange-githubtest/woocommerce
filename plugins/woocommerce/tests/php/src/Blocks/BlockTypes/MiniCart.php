@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 namespace Automattic\WooCommerce\Tests\Blocks\BlockTypes;
 
 use Automattic\WooCommerce\Tests\Blocks\Helpers\FixtureData;
+use Automattic\WooCommerce\Enums\ProductStockStatus;
 
 /**
  * Tests for the Checkout block type
@@ -22,13 +23,13 @@ class MiniCart extends \WP_UnitTestCase {
 			$fixtures->get_simple_product(
 				array(
 					'name'          => 'Test Product 1',
-					'stock_status'  => 'instock',
+					'stock_status'  => ProductStockStatus::IN_STOCK,
 					'regular_price' => 10,
 					'weight'        => 10,
 				)
 			),
 		);
-		wc_empty_cart();
+		WC()->cart->empty_cart();
 		add_filter( 'woocommerce_is_rest_api_request', '__return_false', 1 );
 	}
 
@@ -36,8 +37,9 @@ class MiniCart extends \WP_UnitTestCase {
 	 * Tear down test. Called after every test.
 	 * @return void
 	 */
-	protected function tearDown(): void {
+	public function tearDown(): void {
 		parent::tearDown();
+		WC()->cart->empty_cart();
 		remove_filter( 'woocommerce_is_rest_api_request', '__return_false', 1 );
 	}
 

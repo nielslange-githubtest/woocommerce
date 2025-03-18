@@ -6,6 +6,9 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Enums\ProductStatus;
+use Automattic\WooCommerce\Enums\CatalogVisibility;
+use Automattic\WooCommerce\Enums\ProductStockStatus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -147,7 +150,7 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 				'woocommerce_new_product_variation_data',
 				array(
 					'post_type'      => 'product_variation',
-					'post_status'    => $product->get_status() ? $product->get_status() : 'publish',
+					'post_status'    => $product->get_status() ? $product->get_status() : ProductStatus::PUBLISH,
 					'post_author'    => get_current_user_id(),
 					'post_title'     => $product->get_name( 'edit' ),
 					'post_excerpt'   => $product->get_attribute_summary( 'edit' ),
@@ -222,7 +225,7 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 				'post_excerpt'      => $product->get_attribute_summary( 'edit' ),
 				'post_parent'       => $product->get_parent_id( 'edit' ),
 				'comment_status'    => 'closed',
-				'post_status'       => $product->get_status( 'edit' ) ? $product->get_status( 'edit' ) : 'publish',
+				'post_status'       => $product->get_status( 'edit' ) ? $product->get_status( 'edit' ) : ProductStatus::PUBLISH,
 				'menu_order'        => $product->get_menu_order( 'edit' ),
 				'post_date'         => gmdate( 'Y-m-d H:i:s', $product->get_date_created( 'edit' )->getOffsetTimestamp() ),
 				'post_date_gmt'     => gmdate( 'Y-m-d H:i:s', $product->get_date_created( 'edit' )->getTimestamp() ),
@@ -381,9 +384,11 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 		);
 
 		if ( $this->cogs_feature_is_enabled() ) {
+			$cogs_value = get_post_meta( $id, '_cogs_total_value', true );
+			$cogs_value = '' === $cogs_value ? null : (float) $cogs_value;
 			$product->set_props(
 				array(
-					'cogs_value'             => (float) get_post_meta( $id, '_cogs_total_value', true ),
+					'cogs_value'             => $cogs_value,
 					'cogs_value_is_additive' => 'yes' === get_post_meta( $id, '_cogs_value_is_additive', true ),
 				)
 			);
@@ -402,13 +407,13 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 		$exclude_catalog = in_array( 'exclude-from-catalog', $term_names, true );
 
 		if ( $exclude_search && $exclude_catalog ) {
-			$catalog_visibility = 'hidden';
+			$catalog_visibility = CatalogVisibility::HIDDEN;
 		} elseif ( $exclude_search ) {
-			$catalog_visibility = 'catalog';
+			$catalog_visibility = CatalogVisibility::CATALOG;
 		} elseif ( $exclude_catalog ) {
-			$catalog_visibility = 'search';
+			$catalog_visibility = CatalogVisibility::SEARCH;
 		} else {
-			$catalog_visibility = 'visible';
+			$catalog_visibility = CatalogVisibility::VISIBLE;
 		}
 
 		$product->set_parent_data(
@@ -498,8 +503,8 @@ class WC_Product_Variation_Data_Store_CPT extends WC_Product_Data_Store_CPT impl
 		if ( $force || array_intersect( array( 'stock_status' ), array_keys( $changes ) ) ) {
 			$terms = array();
 
-			if ( 'outofstock' === $product->get_stock_status() ) {
-				$terms[] = 'outofstock';
+			if ( ProductStockStatus::OUT_OF_STOCK === $product->get_stock_status() ) {
+				$terms[] = ProductStockStatus::OUT_OF_STOCK;
 			}
 
 			wp_set_post_terms( $product->get_id(), $terms, 'product_visibility', false );

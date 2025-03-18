@@ -2,6 +2,7 @@
 namespace Automattic\WooCommerce\StoreApi\Utilities;
 
 use Automattic\WooCommerce\Checkout\Helpers\ReserveStock;
+use Automattic\WooCommerce\Enums\ProductStatus;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\StoreApi\Exceptions\InvalidCartException;
 use Automattic\WooCommerce\StoreApi\Exceptions\NotPurchasableException;
@@ -479,6 +480,9 @@ class CartController {
 		remove_action( 'woocommerce_check_cart_items', array( $cart, 'check_cart_items' ), 1 );
 		remove_action( 'woocommerce_check_cart_items', array( $cart, 'check_cart_coupons' ), 1 );
 
+		// Before running actions, store notices.
+		$previous_notices = WC()->session->get( 'wc_notices', array() );
+
 		/**
 		 * Fires when cart items are being validated.
 		 *
@@ -494,6 +498,9 @@ class CartController {
 		do_action( 'woocommerce_check_cart_items' );
 
 		$cart_errors = NoticeHandler::convert_notices_to_wp_errors( 'woocommerce_rest_cart_item_error' );
+
+		// Restore notices.
+		WC()->session->set( 'wc_notices', $previous_notices );
 
 		if ( $cart_errors->has_errors() ) {
 			throw new InvalidCartException(
@@ -1131,7 +1138,7 @@ class CartController {
 	protected function get_product_for_cart( $request ) {
 		$product = wc_get_product( $request['id'] );
 
-		if ( ! $product || 'trash' === $product->get_status() ) {
+		if ( ! $product || ProductStatus::TRASH === $product->get_status() ) {
 			throw new RouteException(
 				'woocommerce_rest_cart_invalid_product',
 				__( 'This product cannot be added to the cart.', 'woocommerce' ),
@@ -1367,11 +1374,25 @@ class CartController {
 				continue;
 			}
 
-			$attribute_label           = wc_attribute_label( $attribute['name'] );
-			$lowercase_attribute_label = strtolower( $attribute_label );
-			$variation_attribute_name  = wc_variation_attribute_name( $attribute['name'] );
+			// Sanitized attribute (same as the product page) e.g. attribute_size.
+			$variation_attribute_name = wc_variation_attribute_name( $attribute['name'] );
+			if ( isset( $variation_data[ $variation_attribute_name ] ) ) {
+				$return[ $variation_attribute_name ] =
+					$attribute['is_taxonomy']
+						?
+						sanitize_title( $variation_data[ $variation_attribute_name ] )
+						:
+						html_entity_decode(
+							wc_clean( $variation_data[ $variation_attribute_name ] ),
+							ENT_QUOTES,
+							get_bloginfo( 'charset' )
+						);
+				continue;
+			}
 
 			// Attribute labels e.g. Size.
+			$attribute_label           = wc_attribute_label( $attribute['name'] );
+			$lowercase_attribute_label = strtolower( $attribute_label );
 			if ( isset( $variation_data[ $attribute_label ] ) || isset( $variation_data[ $lowercase_attribute_label ] ) ) {
 
 				// Check both the original and lowercase attribute label.
@@ -1420,7 +1441,7 @@ class CartController {
 			$product = wc_get_product( $product->get_parent_id() );
 		}
 
-		if ( ! $product || 'trash' === $product->get_status() ) {
+		if ( ! $product || ProductStatus::TRASH === $product->get_status() ) {
 			throw new RouteException(
 				'woocommerce_rest_cart_invalid_parent_product',
 				__( 'This product cannot be added to the cart.', 'woocommerce' ),

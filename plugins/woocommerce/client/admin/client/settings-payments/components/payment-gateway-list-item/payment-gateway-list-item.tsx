@@ -26,14 +26,19 @@ import {
 	EnableGatewayButton,
 	SettingsButton,
 } from '~/settings-payments/components/buttons';
+import { ReactivateLivePaymentsButton } from '~/settings-payments/components/buttons/reactivate-live-payments-button';
+import { IncentiveStatusBadge } from '~/settings-payments/components/incentive-status-badge';
+import { OfficialBadge } from '~/settings-payments/components/official-badge';
 
 type PaymentGatewayItemProps = {
 	gateway: PaymentGatewayProvider;
+	installingPlugin: string | null;
 	acceptIncentive: ( id: string ) => void;
 };
 
 export const PaymentGatewayListItem = ( {
 	gateway,
+	installingPlugin,
 	acceptIncentive,
 	...props
 }: PaymentGatewayItemProps ) => {
@@ -45,7 +50,7 @@ export const PaymentGatewayListItem = ( {
 	const gatewayHasRecommendedPaymentMethods =
 		( gateway.onboarding.recommended_payment_methods ?? [] ).length > 0;
 
-	// If the account is not connected or the onboarding is not started, or not completed then the gateway needs setup.
+	// If the account is not connected or the onboarding is not started, or not completed then the gateway needs onboarding.
 	const gatewayNeedsOnboarding =
 		! gateway.state.account_connected ||
 		( gateway.state.account_connected &&
@@ -59,6 +64,11 @@ export const PaymentGatewayListItem = ( {
 			return 'needs_setup';
 		}
 		if ( gateway.state.enabled ) {
+			// A test account also implies test mode.
+			if ( gateway.onboarding.state.test_mode ) {
+				return 'test_account';
+			}
+
 			if ( gateway.state.test_mode ) {
 				return 'test_mode';
 			}
@@ -94,21 +104,20 @@ export const PaymentGatewayListItem = ( {
 					<span className="woocommerce-list__item-title">
 						{ gateway.title }
 						{ incentive ? (
-							<StatusBadge
-								status="has_incentive"
-								message={ incentive.badge }
-							/>
+							<IncentiveStatusBadge incentive={ incentive } />
 						) : (
 							<StatusBadge status={ determineGatewayStatus() } />
 						) }
 						{ gateway.supports?.includes( 'subscriptions' ) && (
 							<Tooltip
+								placement="top"
 								text={ __(
 									'Supports recurring payments',
 									'woocommerce'
 								) }
 								children={
 									<img
+										className="woocommerce-list__item-recurring-payments-icon"
 										src={
 											WC_ASSET_URL +
 											'images/icons/recurring-payments.svg'
@@ -120,6 +129,10 @@ export const PaymentGatewayListItem = ( {
 									/>
 								}
 							/>
+						) }
+						{ /* If the gateway has a matching suggestion, it is an official extension. */ }
+						{ gateway._suggestion_id && (
+							<OfficialBadge variant="expanded" />
 						) }
 					</span>
 					<span
@@ -138,8 +151,8 @@ export const PaymentGatewayListItem = ( {
 						/>
 					) }
 				</div>
-				<div className="woocommerce-list__item-after">
-					<div className="woocommerce-list__item-after__actions">
+				<div className="woocommerce-list__item-buttons">
+					<div className="woocommerce-list__item-buttons__actions">
 						{ ! gateway.state.enabled &&
 							! gatewayNeedsOnboarding && (
 								<EnableGatewayButton
@@ -155,6 +168,7 @@ export const PaymentGatewayListItem = ( {
 									gatewayHasRecommendedPaymentMethods={
 										gatewayHasRecommendedPaymentMethods
 									}
+									installingPlugin={ installingPlugin }
 									incentive={ incentive }
 									acceptIncentive={ acceptIncentive }
 								/>
@@ -162,9 +176,11 @@ export const PaymentGatewayListItem = ( {
 
 						{ ! gatewayNeedsOnboarding && (
 							<SettingsButton
+								gatewayId={ gateway.id }
 								settingsHref={
 									gateway.management._links.settings.href
 								}
+								isInstallingPlugin={ !! installingPlugin }
 							/>
 						) }
 
@@ -182,6 +198,7 @@ export const PaymentGatewayListItem = ( {
 								gatewayHasRecommendedPaymentMethods={
 									gatewayHasRecommendedPaymentMethods
 								}
+								installingPlugin={ installingPlugin }
 							/>
 						) }
 
@@ -193,10 +210,28 @@ export const PaymentGatewayListItem = ( {
 							gateway.onboarding.state.test_mode && (
 								<ActivatePaymentsButton
 									acceptIncentive={ acceptIncentive }
+									installingPlugin={ installingPlugin }
 									incentive={ incentive }
 								/>
 							) }
 
+						{ isWooPayments( gateway.id ) &&
+							// There are no live payments in dev mode or test accounts, so no point in reactivating them.
+							! gateway.state.dev_mode &&
+							gateway.state.account_connected &&
+							gateway.onboarding.state.completed &&
+							! gateway.onboarding.state.test_mode &&
+							gateway.state.test_mode && (
+								<ReactivateLivePaymentsButton
+									settingsHref={
+										gateway.management._links.settings.href
+									}
+								/>
+							) }
+					</div>
+				</div>
+				<div className="woocommerce-list__item-after">
+					<div className="woocommerce-list__item-after__actions">
 						<EllipsisMenu
 							label={ __(
 								'Payment Provider Options',

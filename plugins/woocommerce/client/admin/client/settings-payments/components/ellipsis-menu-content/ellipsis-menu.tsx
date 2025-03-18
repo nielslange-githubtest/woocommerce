@@ -13,10 +13,20 @@ import { isWooPayments } from '~/settings-payments/utils';
 import { WooPaymentsResetAccountModal } from '~/settings-payments/components/modals';
 
 interface EllipsisMenuProps {
+	/**
+	 * The label for the ellipsis menu.
+	 */
 	label: string;
+	/**
+	 * The payment provider associated with the menu.
+	 */
 	provider: PaymentProvider;
 }
 
+/**
+ * A wrapper component for rendering an ellipsis menu with dynamic content based on the provided payment provider.
+ * This component determines whether the provider supports specific actions, such as resetting accounts and displays appropriate menu content.
+ */
 export const EllipsisMenuWrapper = ( {
 	provider,
 	label,
@@ -43,6 +53,11 @@ export const EllipsisMenuWrapper = ( {
 						providerId={ provider.id }
 						pluginFile={ provider.plugin.file }
 						isSuggestion={ provider._type === 'suggestion' }
+						suggestionId={
+							provider._type === 'suggestion'
+								? provider._suggestion_id
+								: undefined
+						}
 						suggestionHideUrl={
 							provider._type === 'suggestion'
 								? provider._links?.hide?.href
@@ -57,10 +72,13 @@ export const EllipsisMenuWrapper = ( {
 						}
 					/>
 				) }
+				focusOnMount={ true }
 			/>
+			{ /* Modal for resetting WooPayments accounts */ }
 			<WooPaymentsResetAccountModal
 				isOpen={ resetAccountModalVisible }
 				onClose={ () => setResetAccountModalVisible( false ) }
+				isTestMode={ provider.onboarding?.state.test_mode }
 			/>
 		</>
 	);

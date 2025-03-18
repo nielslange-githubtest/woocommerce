@@ -12,7 +12,6 @@ use Automattic\WooCommerce\Enums\OrderStatus;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\Internal\Admin\Analytics;
 use Automattic\WooCommerce\Internal\Admin\WCAdminAssets;
-use Automattic\WooCommerce\Internal\BrandingController;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -116,11 +115,6 @@ if ( ! class_exists( 'WC_Admin_Assets', false ) ) :
 
 			if ( WC_Marketplace_Suggestions::show_suggestions_for_screen( $screen_id ) ) {
 				wp_enqueue_style( 'woocommerce_admin_marketplace_styles' );
-			}
-
-			// Override primary color if new branding is in use.
-			if ( BrandingController::use_new_branding() ) {
-				wp_enqueue_style( 'woocommerce_admin_variables', WC()->plugin_url() . '/assets/css/variables-new-branding.css', array(), $version );
 			}
 		}
 
@@ -306,6 +300,7 @@ if ( ! class_exists( 'WC_Admin_Assets', false ) ) :
 					'i18n_enter_a_value'                  => esc_js( __( 'Enter a value', 'woocommerce' ) ),
 					'i18n_enter_menu_order'               => esc_js( __( 'Variation menu order (determines position in the list of variations)', 'woocommerce' ) ),
 					'i18n_enter_a_value_fixed_or_percent' => esc_js( __( 'Enter a value (fixed or %)', 'woocommerce' ) ),
+					'i18n_sale_price_warning'            => esc_js( __( 'Warning: Sale prices will be removed if they are not lower than regular prices.', 'woocommerce' ) ),
 					'i18n_delete_all_variations'          => esc_js( __( 'Are you sure you want to delete all variations? This cannot be undone.', 'woocommerce' ) ),
 					'i18n_last_warning'                   => esc_js( __( 'Last warning, are you sure?', 'woocommerce' ) ),
 					'i18n_choose_image'                   => esc_js( __( 'Choose an image', 'woocommerce' ) ),
@@ -318,6 +313,7 @@ if ( ! class_exists( 'WC_Admin_Assets', false ) ) :
 					'i18n_edited_variations'              => esc_js( __( 'Save changes before changing page?', 'woocommerce' ) ),
 					'i18n_variation_count_single'         => esc_js( __( '1 variation', 'woocommerce' ) ),
 					'i18n_variation_count_plural'         => esc_js( __( '%qty% variations', 'woocommerce' ) ),
+					'i18n_variation_cost_remove_warning'  => esc_js( __( 'The custom cost of goods sold values will revert back to their defaults for all the variations. Would you like to continue?', 'woocommerce' ) ),
 					'variations_per_page'                 => absint( apply_filters( 'woocommerce_admin_meta_boxes_variations_per_page', 15 ) ),
 				);
 

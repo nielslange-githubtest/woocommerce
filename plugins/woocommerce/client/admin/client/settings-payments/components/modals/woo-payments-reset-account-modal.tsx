@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 import { useState } from '@wordpress/element';
@@ -13,16 +12,35 @@ import './modals.scss';
 import { getWooPaymentsResetAccountLink } from '~/settings-payments/utils';
 
 interface WooPaymentsResetAccountModalProps {
+	/**
+	 * Indicates if the modal is currently open.
+	 */
 	isOpen: boolean;
+	/**
+	 * Callback function to handle modal closure.
+	 */
 	onClose: () => void;
+
+	/**
+	 * Indicates if the account is a test-drive/sandbox account.
+	 */
+	isTestMode?: boolean;
 }
 
+/**
+ * A modal component that allows users to reset their WooPayments test account.
+ */
 export const WooPaymentsResetAccountModal = ( {
 	isOpen,
 	onClose,
+	isTestMode,
 }: WooPaymentsResetAccountModalProps ) => {
 	const [ isResettingAccount, setIsResettingAccount ] = useState( false );
 
+	/**
+	 * Handles the "Reset Account" action.
+	 * Redirects the user to the WooPayments reset account link.
+	 */
 	const handleResetAccount = () => {
 		setIsResettingAccount( true );
 
@@ -42,14 +60,23 @@ export const WooPaymentsResetAccountModal = ( {
 						<div className="woocommerce-woopayments-modal__content__item">
 							<div>
 								<span>
-									{ sprintf(
-										/* translators: %s: plugin name */
-										__(
-											'When you reset your test account, all data — including your %s account details, test transactions, and payouts history — will be lost. This action cannot be undone, but you can create a new test account at any time.',
-											'woocommerce'
-										),
-										'WooPayments'
-									) }
+									{ isTestMode
+										? sprintf(
+												/* translators: %s: plugin name */
+												__(
+													'When you reset your test account, all payment data — including your %s account details, test transactions, and payouts history — will be lost. Your order history will remain. This action cannot be undone, but you can create a new test account at any time.',
+													'woocommerce'
+												),
+												'WooPayments'
+										  )
+										: sprintf(
+												/* translators: %s: plugin name */
+												__(
+													'When you reset your account, all payment data — including your %s account details, test transactions, and payouts history — will be lost. Your order history will remain. This action cannot be undone, but you can create a new test account at any time.',
+													'woocommerce'
+												),
+												'WooPayments'
+										  ) }
 								</span>
 							</div>
 						</div>

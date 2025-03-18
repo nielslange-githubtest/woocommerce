@@ -6,6 +6,9 @@
  * @version 3.1.0
  */
 
+use Automattic\WooCommerce\Enums\ProductStatus;
+use Automattic\WooCommerce\Enums\ProductStockStatus;
+use Automattic\WooCommerce\Enums\ProductTaxStatus;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\Utilities\ArrayUtil;
 
@@ -397,7 +400,7 @@ class WC_Product_CSV_Importer extends WC_Product_Importer {
 		$value = $this->unescape_data( $value );
 
 		if ( 'true' === strtolower( $value ) || 'false' === strtolower( $value ) ) {
-			$value = wc_string_to_bool( $value ) ? 'taxable' : 'none';
+			$value = wc_string_to_bool( $value ) ? ProductTaxStatus::TAXABLE : ProductTaxStatus::NONE;
 		}
 
 		return wc_clean( $value );
@@ -879,15 +882,15 @@ class WC_Product_CSV_Importer extends WC_Product_Importer {
 			}
 
 			$statuses       = array(
-				-1 => 'draft',
-				0  => 'private',
-				1  => 'publish',
+				-1 => ProductStatus::DRAFT,
+				0  => ProductStatus::PRIVATE,
+				1  => ProductStatus::PUBLISH,
 			);
-			$data['status'] = $statuses[ $published ] ?? 'draft';
+			$data['status'] = $statuses[ $published ] ?? ProductStatus::DRAFT;
 
 			// Fix draft status of variations.
 			if ( ProductType::VARIATION === ( $data['type'] ?? null ) && -1 === $published ) {
-				$data['status'] = 'publish';
+				$data['status'] = ProductStatus::PUBLISH;
 			}
 
 			unset( $data['published'] );
@@ -905,9 +908,9 @@ class WC_Product_CSV_Importer extends WC_Product_Importer {
 		// Stock is bool or 'backorder'.
 		if ( isset( $data['stock_status'] ) ) {
 			if ( 'backorder' === $data['stock_status'] ) {
-				$data['stock_status'] = 'onbackorder';
+				$data['stock_status'] = ProductStockStatus::ON_BACKORDER;
 			} else {
-				$data['stock_status'] = $data['stock_status'] ? 'instock' : 'outofstock';
+				$data['stock_status'] = $data['stock_status'] ? ProductStockStatus::IN_STOCK : ProductStockStatus::OUT_OF_STOCK;
 			}
 		}
 

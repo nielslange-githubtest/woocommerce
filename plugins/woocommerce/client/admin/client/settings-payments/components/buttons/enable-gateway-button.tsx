@@ -7,11 +7,12 @@ import { useState } from '@wordpress/element';
 import { dispatch, useDispatch } from '@wordpress/data';
 import {
 	EnableGatewayResponse,
-	PAYMENT_SETTINGS_STORE_NAME,
+	paymentSettingsStore,
 	PaymentIncentive,
 	PaymentProviderState,
 } from '@woocommerce/data';
 import { getHistory, getNewPath } from '@woocommerce/navigation';
+import { recordEvent } from '@woocommerce/tracks';
 
 interface EnableGatewayButtonProps {
 	/**
@@ -45,6 +46,10 @@ interface EnableGatewayButtonProps {
 	 */
 	gatewayHasRecommendedPaymentMethods: boolean;
 	/**
+	 * ID of the plugin that is being installed.
+	 */
+	installingPlugin?: string | null;
+	/**
 	 * The text of the button.
 	 */
 	buttonText?: string;
@@ -54,6 +59,11 @@ interface EnableGatewayButtonProps {
 	incentive?: PaymentIncentive | null;
 }
 
+/**
+ * A button component that allows users to enable a payment gateway.
+ * Depending on the gateway's state, it redirects to settings, onboarding, or recommended payment methods pages.
+ * If incentive data is provided, it will trigger the `acceptIncentive` callback with the incentive ID.
+ */
 export const EnableGatewayButton = ( {
 	gatewayId,
 	gatewayState,
@@ -62,13 +72,14 @@ export const EnableGatewayButton = ( {
 	isOffline,
 	acceptIncentive = () => {},
 	gatewayHasRecommendedPaymentMethods,
+	installingPlugin,
 	buttonText = __( 'Enable', 'woocommerce' ),
 	incentive = null,
 }: EnableGatewayButtonProps ) => {
 	const [ isUpdating, setIsUpdating ] = useState( false );
 	const { createErrorNotice } = dispatch( 'core/notices' );
 	const { togglePaymentGateway, invalidateResolutionForStoreSelector } =
-		useDispatch( PAYMENT_SETTINGS_STORE_NAME );
+		useDispatch( paymentSettingsStore );
 
 	const throwError = () => {
 		createErrorNotice(
@@ -85,10 +96,16 @@ export const EnableGatewayButton = ( {
 
 	const enableGateway = ( e: React.MouseEvent ) => {
 		e.preventDefault();
+
 		// Since this logic can toggle the gateway state on and off, we make sure we don't accidentally disable the gateway.
 		if ( gatewayState.enabled ) {
 			return;
 		}
+
+		// Record the event when user clicks on a gateway's enable button.
+		recordEvent( 'settings_payments_provider_enable_click', {
+			provider_id: gatewayId,
+		} );
 
 		const gatewayToggleNonce =
 			window.woocommerce_admin.nonces?.gateway_toggle || '';
@@ -114,6 +131,12 @@ export const EnableGatewayButton = ( {
 				if ( response.data === 'needs_setup' ) {
 					// We only need to perform additional logic/redirects if no account connected.
 					if ( ! gatewayState.account_connected ) {
+						// Record the event when user successfully enables a gateway.
+						recordEvent( 'settings_payments_provider_enable', {
+							provider_id: gatewayId,
+						} );
+
+						// Redirect to the recommended payment methods page if available, or the onboarding URL.
 						if ( gatewayHasRecommendedPaymentMethods ) {
 							const history = getHistory();
 							history.push(
@@ -124,8 +147,26 @@ export const EnableGatewayButton = ( {
 							window.location.href = onboardingHref;
 							return;
 						}
+					} else {
+						createErrorNotice(
+							__(
+								'The provider could not be enabled. Check the Manage page for details.',
+								'woocommerce'
+							),
+							{
+								type: 'snackbar',
+								explicitDismiss: true,
+								actions: [
+									{
+										label: __( 'Manage', 'woocommerce' ),
+										url: settingsHref,
+									},
+								],
+							}
+						);
 					}
 				}
+				// If no redirect occurred, the data needs to be refreshed.
 				invalidateResolutionForStoreSelector(
 					isOffline
 						? 'getOfflinePaymentGateways'
@@ -145,7 +186,7 @@ export const EnableGatewayButton = ( {
 		<Button
 			variant={ 'primary' }
 			isBusy={ isUpdating }
-			disabled={ isUpdating }
+			disabled={ isUpdating || !! installingPlugin }
 			onClick={ enableGateway }
 			href={ settingsHref }
 		>

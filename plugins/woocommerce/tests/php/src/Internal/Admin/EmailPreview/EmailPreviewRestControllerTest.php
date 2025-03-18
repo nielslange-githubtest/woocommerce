@@ -165,8 +165,10 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * @return WP_REST_Request
 	 */
 	private function get_email_preview_request( ?string $type = null, ?string $email = null ) {
+		$nonce   = wp_create_nonce( EmailPreviewRestController::NONCE_KEY );
 		$request = new WP_REST_Request( 'POST', self::ENDPOINT . '/send-preview' );
-		$params  = array();
+		$request->set_query_params( array( 'nonce' => $nonce ) );
+		$params = array();
 		if ( $type ) {
 			$params['type'] = $type;
 		}
@@ -232,8 +234,11 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * @return WP_REST_Request
 	 */
 	private function get_preview_subject_request( ?string $type = null ) {
+		$nonce   = wp_create_nonce( EmailPreviewRestController::NONCE_KEY );
 		$request = new WP_REST_Request( 'GET', self::ENDPOINT . '/preview-subject' );
-		$params  = array();
+		$params  = array(
+			'nonce' => $nonce,
+		);
 		if ( $type ) {
 			$params['type'] = $type;
 		}
@@ -250,7 +255,7 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): key, value', $response->get_data()['message'] );
 
-		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_settings_ids()[0] );
+		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_setting_ids()[0] );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): value', $response->get_data()['message'] );
@@ -275,7 +280,7 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * Test saving transient for an unregistered email fails
 	 */
 	public function test_save_transient_with_unregistered_email() {
-		$keys = EmailPreview::get_email_content_settings_ids( 'unregistered_email_id' );
+		$keys = EmailPreview::get_email_content_setting_ids( 'unregistered_email_id' );
 		foreach ( $keys as $key ) {
 			$request  = $this->get_save_transient_request( $key, 'value' );
 			$response = $this->server->dispatch( $request );
@@ -288,7 +293,7 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * Test saving transient for registered email
 	 */
 	public function test_save_transient_with_registered_email() {
-		$keys = EmailPreview::get_email_content_settings_ids( EmailPreview::DEFAULT_EMAIL_ID );
+		$keys = EmailPreview::get_email_content_setting_ids( EmailPreview::DEFAULT_EMAIL_ID );
 		foreach ( $keys as $key ) {
 			$request  = $this->get_save_transient_request( $key, 'value' );
 			$response = $this->server->dispatch( $request );
@@ -307,7 +312,7 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 		);
 		add_filter( 'user_has_cap', $filter_callback );
 
-		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_settings_ids()[0], 'value' );
+		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_setting_ids()[0], 'value' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( rest_authorization_required_code(), $response->get_status() );
@@ -319,11 +324,11 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * Test saving transient with a successful saving.
 	 */
 	public function test_save_transient_success_response() {
-		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_settings_ids()[0], 'value' );
+		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_setting_ids()[0], 'value' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'Transient saved for key ' . EmailPreview::get_email_style_settings_ids()[0] . '.', $response->get_data()['message'] );
+		$this->assertEquals( 'Transient saved for key ' . EmailPreview::get_email_style_setting_ids()[0] . '.', $response->get_data()['message'] );
 	}
 
 	/**
@@ -357,10 +362,10 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * Test saving transient with a failed saving.
 	 */
 	public function test_save_transient_error_response() {
-		set_transient( EmailPreview::get_email_style_settings_ids()[0], 'value', HOUR_IN_SECONDS );
+		set_transient( EmailPreview::get_email_style_setting_ids()[0], 'value', HOUR_IN_SECONDS );
 
 		// Saving the transient will fail because the transient key is already set to the same value.
-		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_settings_ids()[0], 'value' );
+		$request  = $this->get_save_transient_request( EmailPreview::get_email_style_setting_ids()[0], 'value' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 500, $response->get_status() );
@@ -375,8 +380,10 @@ class EmailPreviewRestControllerTest extends WC_REST_Unit_Test_Case {
 	 * @return WP_REST_Request
 	 */
 	private function get_save_transient_request( ?string $key = null, ?string $value = null ) {
+		$nonce   = wp_create_nonce( EmailPreviewRestController::NONCE_KEY );
 		$request = new WP_REST_Request( 'POST', self::ENDPOINT . '/save-transient' );
-		$params  = array();
+		$request->set_query_params( array( 'nonce' => $nonce ) );
+		$params = array();
 		if ( $key ) {
 			$params['key'] = $key;
 		}

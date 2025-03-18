@@ -1,7 +1,9 @@
 .components-country-select-control {
 	font-size: 13px;
 	color: $gray-900;
-	position: relative;
+	width: 100%;
+	flex-grow: 1;
+	min-width: 0;
 
 	&__label {
 		color: $gray-700;
@@ -36,16 +38,12 @@
 
 	&__button {
 		width: 100%;
-		background-color: #fff;
 		margin: 0 1px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 6px 8px;
-		min-width: 240px;
-		max-width: 280px;
 		text-overflow: ellipsis;
-		border: 1px solid $gray-300;
 
 		&:hover {
 			color: initial;
@@ -69,10 +67,7 @@
 			fill: initial;
 			width: 18px;
 			flex: 0 0 18px;
-		}
-
-		@media screen and ( max-width: 782px ) {
-			max-width: 100%;
+			margin-left: auto;
 		}
 	}
 
@@ -81,13 +76,13 @@
 	}
 
 	&__menu {
-		margin: -3px 1px;
+		margin: -3px -1px;
 		background-color: #fff;
 		border: 1px solid $gray-300;
 		border-top: none;
 		border-radius: 2px;
 		max-height: 450px;
-		width: calc(100% - 2px);
+		width: 100%;
 		outline: none;
 		overflow: hidden;
 		padding: 0;

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { OPTIONS_STORE_NAME } from '@woocommerce/data';
+import { optionsStore } from '@woocommerce/data';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, resolveSelect, select, useSelect } from '@wordpress/data';
 import { useContext, useEffect } from '@wordpress/element';
@@ -34,7 +34,6 @@ async function installPatterns() {
 		method: 'POST',
 	} );
 
-	// @ts-expect-error -- No types for this exist yet.
 	await dispatch( coreStore ).invalidateResolutionForStoreSelector(
 		'getBlockPatterns'
 	);
@@ -99,9 +98,13 @@ async function installFonts(
 	const { __experimentalSaveSpecifiedEntityEdits: saveSpecifiedEntityEdits } =
 		dispatch( coreStore );
 
-	saveSpecifiedEntityEdits( 'root', 'globalStyles', globalStylesId, [
-		'settings.typography.fontFamilies',
-	] );
+	saveSpecifiedEntityEdits(
+		'root',
+		'globalStyles',
+		globalStylesId,
+		[ 'settings.typography.fontFamilies' ],
+		undefined
+	);
 
 	return {
 		...enabledFontFamilies,
@@ -121,7 +124,7 @@ export const OptInSubscribe = () => {
 	] = useGlobalSetting( 'typography.fontFamilies' );
 
 	const isOptedIn = useSelect( ( selectStore ) => {
-		const allowTracking = selectStore( OPTIONS_STORE_NAME ).getOption(
+		const allowTracking = selectStore( optionsStore ).getOption(
 			'woocommerce_allow_tracking'
 		);
 		return allowTracking === 'yes';

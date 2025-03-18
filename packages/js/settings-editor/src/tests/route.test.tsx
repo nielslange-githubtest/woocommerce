@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createElement } from '@wordpress/element';
+import { createElement, useContext } from '@wordpress/element';
 import { screen, render, renderHook } from '@testing-library/react';
 import { addAction, applyFilters, didFilter } from '@wordpress/hooks';
 /* eslint-disable @woocommerce/dependency-group */
@@ -39,27 +39,38 @@ jest.mock( '../components/sidebar', () => ( {
 	),
 } ) );
 
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useContext: jest.fn(),
+} ) );
+
 const mockSettingsPages = {
-	general: {
-		label: 'General',
-		icon: 'settings',
-		slug: 'general',
-		sections: {
-			default: {
-				label: 'General',
-				settings: [
-					{
-						title: 'Store Address',
-						type: 'title' as const,
-						desc: 'This is where your business is located.',
-						id: 'store_address',
-						value: false,
-					},
-				],
+	pages: {
+		general: {
+			label: 'General',
+			icon: 'settings',
+			slug: 'general',
+			sections: {
+				default: {
+					label: 'General',
+					settings: [
+						{
+							title: 'Store Address',
+							type: 'title' as const,
+							desc: 'This is where your business is located.',
+							id: 'store_address',
+							value: false,
+						},
+					],
+				},
 			},
+			is_modern: false,
+			start: null,
+			end: null,
 		},
-		is_modern: false,
 	},
+	start: null,
+	_wpnonce: 'test-nonce',
 };
 
 describe( 'route.tsx', () => {
@@ -73,6 +84,10 @@ describe( 'route.tsx', () => {
 				settingsData: mockSettingsPages,
 			},
 		};
+
+		( useContext as jest.Mock ).mockReturnValue( {
+			settingsData: mockSettingsPages,
+		} );
 
 		// Mock default location
 		(
@@ -128,19 +143,25 @@ describe( 'route.tsx', () => {
 			} );
 
 			// Mock a modern page
-			window.wcSettings = {
-				admin: {
-					settingsData: {
-						modern: {
-							label: 'Modern',
-							icon: 'published',
-							slug: 'modern',
-							sections: {},
-							is_modern: true,
-						},
+			const mockModernPages = {
+				pages: {
+					modern: {
+						label: 'Modern',
+						icon: 'published',
+						slug: 'modern',
+						sections: {},
+						is_modern: true,
+						start: null,
+						end: null,
 					},
 				},
+				start: null,
+				_wpnonce: 'test-nonce',
 			};
+
+			( useContext as jest.Mock ).mockReturnValue( {
+				settingsData: mockModernPages,
+			} );
 
 			( applyFilters as jest.Mock ).mockReturnValue( {
 				modern: {
