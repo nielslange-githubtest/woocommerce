@@ -2372,7 +2372,7 @@ class WC_Order extends WC_Abstract_Order {
 	 * @param array  $total_rows  Total rows.
 	 * @param string $tax_display Tax to display.
 	 */
-	protected function add_order_item_totals_payment_method_row( &$total_rows, $tax_display, $includes_payment_auth_code ) {
+	protected function add_order_item_totals_payment_method_row( &$total_rows, $tax_display ) {
 		if ( $this->get_total() > 0 && $this->get_payment_method_title() && 'other' !== $this->get_payment_method() ) {
 			$value = $this->get_payment_method_title();
 
@@ -2386,15 +2386,6 @@ class WC_Order extends WC_Abstract_Order {
 				'label' => __( 'Payment method:', 'woocommerce' ),
 				'value' => $value,
 			);
-
-			$auth_code = $this->get_meta( '_charge_id', true );
-			if ( $includes_payment_auth_code && $auth_code ) {
-				$total_rows['payment_auth_code'] = array(
-					'type'  => 'payment_auth_code',
-					'label' => __( 'Auth code:', 'woocommerce' ),
-					'value' => $auth_code,
-				);
-			}
 		}
 	}
 
@@ -2429,7 +2420,7 @@ class WC_Order extends WC_Abstract_Order {
 	 * @param string $tax_display Tax to display.
 	 * @return array
 	 */
-	public function get_order_item_totals( $tax_display = '', $includes_payment_auth_code = false ) {
+	public function get_order_item_totals( $tax_display = '' ) {
 		$tax_display = $tax_display ? $tax_display : get_option( 'woocommerce_tax_display_cart' );
 		$total_rows  = array();
 
@@ -2441,12 +2432,12 @@ class WC_Order extends WC_Abstract_Order {
 		$this->add_order_item_totals_fee_rows( $total_rows, $tax_display );
 		$this->add_order_item_totals_tax_rows( $total_rows, $tax_display );
 		if ( ! $email_improvements_enabled ) {
-			$this->add_order_item_totals_payment_method_row( $total_rows, $tax_display, $includes_payment_auth_code );
+			$this->add_order_item_totals_payment_method_row( $total_rows, $tax_display );
 		}
 		$this->add_order_item_totals_refund_rows( $total_rows, $tax_display );
 		$this->add_order_item_totals_total_row( $total_rows, $tax_display );
 		if ( $email_improvements_enabled ) {
-			$this->add_order_item_totals_payment_method_row( $total_rows, $tax_display, $includes_payment_auth_code );
+			$this->add_order_item_totals_payment_method_row( $total_rows, $tax_display );
 		}
 
 		return apply_filters( 'woocommerce_get_order_item_totals', $total_rows, $this, $tax_display );

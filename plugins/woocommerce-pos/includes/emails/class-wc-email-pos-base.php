@@ -76,7 +76,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 						'sent_to_admin'              => $sent_to_admin,
 						'plain_text'                 => $plain_text,
 						'email'                      => $email,
-						'includes_payment_auth_code' => true,
 					)
 				);
 			} else {
@@ -87,7 +86,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 						'sent_to_admin'              => $sent_to_admin,
 						'plain_text'                 => $plain_text,
 						'email'                      => $email,
-						'includes_payment_auth_code' => true,
 					)
 				);
 			}
@@ -109,6 +107,18 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			return $unit_price . $quantity_display;
 		}
 
+		public function order_item_totals($total_rows, $order, $tax_display ) {
+			$auth_code = $order->get_meta( '_charge_id', true );
+			if ( $auth_code ) {
+				$total_rows['payment_auth_code'] = array(
+					'type'  => 'payment_auth_code',
+					'label' => __( 'Auth code:', 'woocommerce' ),
+					'value' => $auth_code,
+				);
+			}
+			return $total_rows;
+		}
+
 		/**
 		 * Get content html with payment auth code included.
 		 *
@@ -118,7 +128,11 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			// Add filter to include unit price in the quantity column for order items table.
 			add_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10, 2 );
 
-			// Custom action to show the order details table with payment auth code.
+			// Add filter to include payment auth code in the order item totals table.
+			add_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10, 3 );
+
+			// TODO: date_paid, if needed.
+			// Custom action to show the order details.
 			add_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10, 4 );
 			
 			$content = wc_get_template_html(
@@ -136,6 +150,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 
 			// Remove action and filter after generating content to avoid affecting other emails.
 			remove_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10 );
+			remove_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10 );
 			remove_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10 );
 			return $content;
 		}
