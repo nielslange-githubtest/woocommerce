@@ -184,21 +184,15 @@ foreach ( $items as $item_id => $item ) :
 		</td>
 		<td class="td font-family text-align-<?php echo esc_attr( $price_text_align ); ?>" style="vertical-align:middle;">
 			<?php
-			if ( isset( $includes_unit_price_with_quantity ) && $includes_unit_price_with_quantity ) {
-				echo wp_kses_post( $order->get_formatted_item_subtotal( $item ) );
-				echo '&nbsp;';
-				if ( ! $email_improvements_enabled ) {
-					echo '&times;';
-				}
-			}
-			echo $email_improvements_enabled ? '&times;' : '';
 			$qty          = $item->get_quantity();
 			$refunded_qty = $order->get_qty_refunded_for_item( $item_id );
 
+			$qty_display = $email_improvements_enabled ? '&times;' : '';
+
 			if ( $refunded_qty ) {
-				$qty_display = '<del>' . esc_html( $qty ) . '</del> <ins>' . esc_html( $qty - ( $refunded_qty * -1 ) ) . '</ins>';
+				$qty_display = $qty_display . '<del>' . esc_html( $qty ) . '</del> <ins>' . esc_html( $qty - ( $refunded_qty * -1 ) ) . '</ins>';
 			} else {
-				$qty_display = esc_html( $qty );
+				$qty_display = $qty_display . esc_html( $qty );
 			}
 			echo wp_kses_post( apply_filters( 'woocommerce_email_order_item_quantity', $qty_display, $item ) );
 			?>

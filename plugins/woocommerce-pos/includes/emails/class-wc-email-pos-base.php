@@ -5,6 +5,8 @@
  * @package WooCommerce\POS\Emails
  */
 
+use Automattic\WooCommerce\Utilities\FeaturesUtil;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -35,17 +37,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			
 			// Default to manual sending
 			$this->manual = true;
-		}
-		
-		/**
-		 * Add unit price in quantity column in order items.
-		 *
-		 * @param array $args Order items arguments.
-		 * @return array Modified arguments.
-		 */
-		public function add_unit_price_in_quantity_arg( $args ) {
-			$args['includes_unit_price_with_quantity'] = true;
-			return $args;
 		}
 		
 		/**
@@ -101,7 +92,23 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 				);
 			}
 		}
-		
+
+		public function order_item_quantity( $quantity_display, $item ) {
+			$order = isset($this->object) ? $this->object : null;
+			$unit_price = '';
+			
+			if ($order && is_a($item, 'WC_Order_Item_Product')) {
+				$unit_price = $order->get_formatted_item_subtotal($item) . ' ';
+
+				$email_improvements_enabled = FeaturesUtil::feature_is_enabled( 'email_improvements' );
+				if (!$email_improvements_enabled) {
+					$unit_price = $unit_price . '&times;';
+				}
+			}
+
+			return $unit_price . $quantity_display;
+		}
+
 		/**
 		 * Get content html with payment auth code included.
 		 *
@@ -109,7 +116,8 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 */
 		public function get_content_html() {
 			// Add filter to include unit price in the quantity column for order items table.
-			add_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10, 1 );
+			add_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10, 2 );
+
 			// Custom action to show the order details table with payment auth code.
 			add_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10, 4 );
 			
@@ -128,8 +136,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 
 			// Remove action and filter after generating content to avoid affecting other emails.
 			remove_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10 );
-			remove_filter( 'woocommerce_email_order_items_args', array( $this, 'add_unit_price_in_quantity_arg' ), 10 );
-
+			remove_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10 );
 			return $content;
 		}
 		
