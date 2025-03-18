@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { registerProductBlockType } from '@woocommerce/atomic-utils';
 import { isExperimentalBlocksEnabled } from '@woocommerce/block-settings';
+import { registerProductBlockType } from '@woocommerce/atomic-utils';
 
 /**
  * Internal dependencies
