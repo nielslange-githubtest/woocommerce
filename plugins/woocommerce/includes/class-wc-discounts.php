@@ -703,7 +703,8 @@ class WC_Discounts {
 	 */
 	protected function validate_coupon_expiry_date( $coupon ) {
 		if ( $coupon->get_date_expires() && apply_filters( 'woocommerce_coupon_validate_expiry_date', time() > $coupon->get_date_expires()->getTimestamp(), $coupon, $this ) ) {
-			throw new Exception( __( 'This coupon has expired.', 'woocommerce' ), 107 );
+			/* translators: %s: coupon code */
+			throw new Exception( sprintf( __( 'Coupon "%s" has expired.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 107 );
 		}
 
 		return true;
@@ -721,8 +722,8 @@ class WC_Discounts {
 		$subtotal = wc_remove_number_precision( $this->get_object_subtotal() );
 
 		if ( $coupon->get_minimum_amount() > 0 && apply_filters( 'woocommerce_coupon_validate_minimum_amount', $coupon->get_minimum_amount() > $subtotal, $coupon, $subtotal ) ) {
-			/* translators: %s: coupon minimum amount */
-			throw new Exception( sprintf( __( 'The minimum spend for this coupon is %s.', 'woocommerce' ), wc_price( $coupon->get_minimum_amount() ) ), 108 );
+			/* translators: %s: coupon code and coupon minimum amount */
+			throw new Exception( sprintf( __( 'The minimum spend for coupon "%s" is %s.', 'woocommerce' ), esc_html( $coupon->get_code() ), wc_price( $coupon->get_minimum_amount() ) ), 108 );
 		}
 
 		return true;
@@ -740,8 +741,8 @@ class WC_Discounts {
 		$subtotal = wc_remove_number_precision( $this->get_object_subtotal() );
 
 		if ( $coupon->get_maximum_amount() > 0 && apply_filters( 'woocommerce_coupon_validate_maximum_amount', $coupon->get_maximum_amount() < $subtotal, $coupon ) ) {
-			/* translators: %s: coupon maximum amount */
-			throw new Exception( sprintf( __( 'The maximum spend for this coupon is %s.', 'woocommerce' ), wc_price( $coupon->get_maximum_amount() ) ), 112 );
+			/* translators: %s: coupon code coupon maximum amount */
+			throw new Exception( sprintf( __( 'The maximum spend for coupon "%s" is %s.', 'woocommerce' ), esc_html( $coupon->get_code() ), wc_price( $coupon->get_maximum_amount() ) ), 112 );
 		}
 
 		return true;
@@ -767,7 +768,8 @@ class WC_Discounts {
 			}
 
 			if ( ! $valid ) {
-				throw new Exception( __( 'Sorry, this coupon is not applicable to selected products.', 'woocommerce' ), 109 );
+				/* translators: %s: coupon code */
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 109 );
 			}
 		}
 
@@ -805,7 +807,8 @@ class WC_Discounts {
 			}
 
 			if ( ! $valid ) {
-				throw new Exception( __( 'Sorry, this coupon is not applicable to selected products.', 'woocommerce' ), 109 );
+				/* translators: %s: coupon code */
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 109 );
 			}
 		}
 
@@ -832,7 +835,8 @@ class WC_Discounts {
 			}
 
 			if ( ! $valid ) {
-				throw new Exception( __( 'Sorry, this coupon is not valid for sale items.', 'woocommerce' ), 110 );
+				/* translators: %s: coupon code */
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not valid for sale items.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 110 );
 			}
 		}
 
@@ -860,7 +864,8 @@ class WC_Discounts {
 			}
 
 			if ( ! $valid ) {
-				throw new Exception( __( 'Sorry, this coupon is not applicable to selected products.', 'woocommerce' ), 109 );
+				/* translators: %s: coupon code */
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 109 );
 			}
 		}
 
@@ -905,8 +910,8 @@ class WC_Discounts {
 			}
 
 			if ( ! empty( $products ) ) {
-				/* translators: %s: products list */
-				throw new Exception( sprintf( __( 'Sorry, this coupon is not applicable to the products: %s.', 'woocommerce' ), implode( ', ', $products ) ), 113 );
+				/* translators: %s: coupon code and products list */
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not applicable to the products: %s.', 'woocommerce' ), esc_html( $coupon->get_code() ), implode( ', ', $products ) ), 113 );
 			}
 		}
 
@@ -947,7 +952,7 @@ class WC_Discounts {
 
 			if ( ! empty( $categories ) ) {
 				/* translators: %s: categories list */
-				throw new Exception( sprintf( __( 'Sorry, this coupon is not applicable to the categories: %s.', 'woocommerce' ), implode( ', ', array_unique( $categories ) ) ), 114 );
+				throw new Exception( sprintf( __( 'Sorry, coupon "%s" is not applicable to the categories: %s.', 'woocommerce' ), esc_html( $coupon->get_code() ), implode( ', ', array_unique( $categories ) ) ), 114 );
 			}
 		}
 
