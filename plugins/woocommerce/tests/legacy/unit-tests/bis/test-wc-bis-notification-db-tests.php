@@ -360,7 +360,7 @@ class WC_BIS_Notification_DB_Tests extends WC_BIS_Test_Case {
 				'return'     => 'ids',
 			)
 		);
-		$this->assertContainsOnly( 'int', $notifications, 'Return values are integers' );
+		$this->assertContainsOnly( 'int', $notifications, true, 'Return values are integers' );
 		$this->assertSame( array( $notification_id, $notification_id_2, $notification_id_3, $notification_id_4 ), $notifications, 'Return values are correct' );
 
 		// Test ordering of return values.
