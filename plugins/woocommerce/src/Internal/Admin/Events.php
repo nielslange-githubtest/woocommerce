@@ -129,23 +129,6 @@ class Events {
 	public function init() {
 		add_action( 'wc_admin_daily', array( $this, 'do_wc_admin_daily' ) );
 		add_filter( 'woocommerce_get_note_from_db', array( $this, 'get_note_from_db' ), 10, 1 );
-		add_action(
-			'woocommerce_plugins_install_before',
-			function ( $slug, $source ) {
-				$this->install_options_for_core_profiler_plugin_install( $slug, $source, 'before' );
-			},
-			10,
-			2
-		);
-
-		add_action(
-			'woocommerce_plugins_install_after',
-			function ( $slug, $source ) {
-				$this->install_options_for_core_profiler_plugin_install( $slug, $source, 'after' );
-			},
-			10,
-			2
-		);
 
 		// Initialize the WC_Notes_Refund_Returns Note to attach hook.
 		\WC_Notes_Refund_Returns::init();
@@ -290,41 +273,6 @@ class Events {
 
 		if ( ! in_array( 'store_details', $completed_tasks, true ) && ! in_array( 'marketing', $completed_tasks, true ) ) {
 			RemoteFreeExtensionsDataSourcePoller::get_instance()->read_specs_from_data_sources();
-		}
-	}
-
-	/**
-	 * Install options for core profiler plugin install.
-	 *
-	 * When a plugin is installed from the core profiler, this method is called to process the install options.
-	 *
-	 * Install options are a list of options that are set for the plugin being installed. The options can be installed before or after the plugin is installed.
-	 *
-	 * @param string $slug Plugin slug.
-	 * @param string $source Source of the plugin install.
-	 * @param string $priority Priority of the plugin install. Can be 'before' or 'after'.
-	 *
-	 * @return void|null
-	 */
-	public function install_options_for_core_profiler_plugin_install( $slug, $source, $priority ) {
-		// Only proceed if the plugin install was initiated from the core profiler.
-		if ( 'core-profiler' !== $source ) {
-			return;
-		}
-
-		// Retrieve the core profiler spec.
-		$specs = array_filter( Init::get_specs(), fn( $spec ) => 'obw/core-profiler' === $spec->key );
-
-		if ( ! $specs ) {
-			return null;
-		}
-
-		$install_options = new ProcessCoreProfilerPluginInstallOptions( current( $specs )->plugins, $slug );
-
-		if ( 'before' === $priority ) {
-			$install_options->process_before();
-		} else {
-			$install_options->process_after();
 		}
 	}
 }
