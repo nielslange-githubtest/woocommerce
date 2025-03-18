@@ -4,7 +4,7 @@
 import { test as setup } from './fixtures';
 import { setComingSoon } from '../utils/coming-soon';
 import { skipOnboardingWizard } from '../utils/onboarding';
-import { WC_API_PATH } from '../utils/api-client';
+import { WC_API_PATH, WP_API_PATH } from '../utils/api-client';
 
 setup( 'configure HPOS', async ( { restApi } ) => {
 	const { DISABLE_HPOS } = process.env;
@@ -97,12 +97,12 @@ setup( 'general settings', async ( { restApi } ) => {
 	} );
 } );
 
-setup( 'create BIS pages', async ( { wpApi } ) => {
+setup( 'create BIS pages', async ( { restApi } ) => {
 	console.log( 'Creating BIS pages...' );
 
 	// List all pages
-	const response_list = await wpApi.get(
-		'./wp-json/wp/v2/pages?slug=confirmation-email,verification-email,notification-email',
+	const response_list = await restApi.get(
+		`${ WP_API_PATH }/pages?slug=confirmation-email,verification-email,notification-email`,
 		{
 			data: {
 				_fields: [ 'id', 'slug' ],
@@ -111,7 +111,7 @@ setup( 'create BIS pages', async ( { wpApi } ) => {
 		}
 	);
 
-	const list = await response_list.json();
+	const list = response_list.data;
 
 	const pages = [
 		{
@@ -135,28 +135,33 @@ setup( 'create BIS pages', async ( { wpApi } ) => {
 		const existingPage = list.find( ( p ) => p.slug === page.slug );
 		if ( existingPage ) {
 			console.log( `Updating ${page.title} page:`, existingPage.id );
-			await wpApi.put( `./wp-json/wp/v2/pages/${ existingPage.id }`, {
-				data: {
-					content: {
-						raw: page.content,
-					},
+			await restApi.put( `${ WP_API_PATH }/pages/${ existingPage.id }`, {
+				content: {
+					raw: page.content,
 				},
 				failOnStatusCode: true,
 			} );
 		} else {
 			console.log( `Creating ${page.title} page...` );
-			const response = await wpApi.post( './wp-json/wp/v2/pages', {
-				data: {
-					title: page.title,
-					slug: page.slug,
-					content: {
-						raw: page.content,
-					},
-					status: 'publish',
+			const response = await restApi.post( `${ WP_API_PATH }/pages`, {
+				title: {
+					raw: page.title,
 				},
+				slug: page.slug,
+				content: {
+					raw: page.content,
+				},
+				status: 'publish',
 			} );
-			const newPage = await response.json();
-			console.log( `Created ${page.title} page:`, newPage.id );
+			const newPage = response.data;
+			if (
+				newPage.title.rendered === page.title &&
+				newPage.slug === page.slug
+			) {
+				console.log( `Created ${page.title} page:`, newPage.id );
+			} else {
+				console.error( `Failed to create ${page.title} page` );
+			}
 		}
 	}
 } );

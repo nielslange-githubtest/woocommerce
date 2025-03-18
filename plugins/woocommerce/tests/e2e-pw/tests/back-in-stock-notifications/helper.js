@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
 import { expect, request } from '@playwright/test';
 
 /**
@@ -10,6 +9,7 @@ import { expect, request } from '@playwright/test';
 import { setOption } from '../../utils/options';
 import { logIn } from '../../utils/login';
 import { customer } from '../../test-data/data';
+import ApiClient, { WC_API_PATH } from '../../utils/api-client';
 
 const now = Date.now();
 const productName = `Out of stock product test ${ now }`;
@@ -19,12 +19,7 @@ class AcceptanceHelper {
 	constructor( baseURL, page ) {
 		this.page = page;
 		this.baseURL = baseURL;
-		this.api = new WooCommerceRestApi( {
-			url: baseURL,
-			consumerKey: process.env.CONSUMER_KEY,
-			consumerSecret: process.env.CONSUMER_SECRET,
-			version: 'wc/v3',
-		} );
+		this.api = ApiClient.getInstance();
 	}
 	given = {
 		iAmViewingThePageOfASimpleProductThatIsOutOfStock:
@@ -204,7 +199,7 @@ class AcceptanceHelper {
 
 	async aVariableProductWhoseVariationsAreAllOutOfStock() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: `A Variable Product ${ now }`,
 				type: 'variable',
 				attributes: [
@@ -220,7 +215,7 @@ class AcceptanceHelper {
 				this.productData = response.data;
 			} );
 		await this.api.post(
-			'products/' + this.productData.id + '/variations',
+			`${ WC_API_PATH }/products/${ this.productData.id }/variations`,
 			{
 				regular_price: '1.00',
 				stock_status: 'outofstock',
@@ -233,7 +228,7 @@ class AcceptanceHelper {
 			}
 		);
 		const variation = await this.api.post(
-			'products/' + this.productData.id + '/variations',
+			`${ WC_API_PATH }/products/${ this.productData.id }/variations`,
 			{
 				regular_price: '1.00',
 				stock_status: 'outofstock',
@@ -570,7 +565,7 @@ class AcceptanceHelper {
 			'yes'
 		);
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -597,7 +592,7 @@ class AcceptanceHelper {
 			'yes'
 		);
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -616,7 +611,7 @@ class AcceptanceHelper {
 
 	async signUpsAreSingleOptInWithCheckbox() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -635,7 +630,7 @@ class AcceptanceHelper {
 
 	async signUpsAreSingleOptInWithoutCheckbox() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -672,7 +667,7 @@ class AcceptanceHelper {
 
 	async signUpsAreLimitedToLoggedInUsers() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -691,7 +686,7 @@ class AcceptanceHelper {
 
 	async aSimpleProductThatIsOutOfStock() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: productName,
 				type: 'simple',
 				regular_price: productPrice,
@@ -704,7 +699,7 @@ class AcceptanceHelper {
 
 	async theProductHasNotifications() {
 		return this.api
-			.post( 'create-bis-notifications', {
+			.post( `${ WC_API_PATH }/create-bis-notifications`, {
 				product_id: this.productData.id,
 			} )
 			.then( ( response ) => {
@@ -714,7 +709,7 @@ class AcceptanceHelper {
 
 	async theVariationHasNotifications() {
 		return this.api
-			.post( 'create-bis-notifications', {
+			.post( `${ WC_API_PATH }/create-bis-notifications`, {
 				product_id: this.variationId,
 			} )
 			.then( ( response ) => {
@@ -729,7 +724,7 @@ class AcceptanceHelper {
 
 	async aVariableProductThatContainsOutOfStockVariationsWithAnAttributeWithValueAny() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: `A Variable Product with any ${ now }`,
 				type: 'variable',
 				attributes: [
@@ -745,7 +740,7 @@ class AcceptanceHelper {
 				this.productData = response.data;
 			} );
 		const variation = await this.api.post(
-			'products/' + this.productData.id + '/variations',
+			`${ WC_API_PATH }/products/${ this.productData.id }/variations`,
 			{
 				regular_price: '1.00',
 				stock_status: 'outofstock',
@@ -779,7 +774,7 @@ class AcceptanceHelper {
 
 	async aVariableProductThatContainsOutOfStockVariations() {
 		await this.api
-			.post( 'products', {
+			.post( `${ WC_API_PATH }/products`, {
 				name: `A Variable Product ${ now }`,
 				type: 'variable',
 				attributes: [
@@ -795,7 +790,7 @@ class AcceptanceHelper {
 				this.productData = response.data;
 			} );
 		await this.api.post(
-			'products/' + this.productData.id + '/variations',
+			`${ WC_API_PATH }/products/${ this.productData.id }/variations`,
 			{
 				regular_price: '1.00',
 				attributes: [
@@ -807,7 +802,7 @@ class AcceptanceHelper {
 			}
 		);
 		const variation = await this.api.post(
-			'products/' + this.productData.id + '/variations',
+			`${ WC_API_PATH }/products/${ this.productData.id }/variations`,
 			{
 				regular_price: '1.00',
 				stock_status: 'outofstock',
@@ -926,8 +921,8 @@ class AcceptanceHelper {
 			.fill( customer.email );
 	}
 
-	deleteCurrentProduct() {
-		this.api.post( 'products/batch', {
+	async deleteCurrentProduct() {
+		await this.api.post( `${ WC_API_PATH }/products/batch`, {
 			delete: [ this.productData.id ],
 		} );
 	}
