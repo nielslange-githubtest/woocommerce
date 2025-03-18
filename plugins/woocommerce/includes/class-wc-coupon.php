@@ -1045,7 +1045,7 @@ class WC_Coupon extends WC_Legacy_Coupon {
 				break;
 			case self::E_WC_COUPON_ALREADY_APPLIED:
 				/* translators: %s: coupon code */
-				$err = __( 'Coupon code "%s" already applied!', 'woocommerce' , esc_html( $this->get_code() ) );
+				$err = sprintf( __( 'Coupon code "%s" already applied!', 'woocommerce' ), esc_html( $this->get_code() ) );
 				break;
 			case self::E_WC_COUPON_ALREADY_APPLIED_INDIV_USE_ONLY:
 				/* translators: %s: coupon code */
@@ -1060,12 +1060,12 @@ class WC_Coupon extends WC_Legacy_Coupon {
 				$err = sprintf( __( 'Coupon "%s" has expired.', 'woocommerce' ), esc_html( $this->get_code() ) );
 				break;
 			case self::E_WC_COUPON_MIN_SPEND_LIMIT_NOT_MET:
-				/* translators: %s: coupon code and coupon minimum amount */
-				$err = sprintf( __( 'The minimum spend for coupon "%s" is %s.', 'woocommerce' ), esc_html( $this->get_code() ), wc_price( $this->get_minimum_amount() ) );
+				/* translators: %1$s: coupon code,  %2$s: coupon minimum amount */
+				$err = sprintf( __( 'The minimum spend for coupon "%1$s" is %2$s.', 'woocommerce' ), esc_html( $this->get_code() ), wc_price( $this->get_minimum_amount() ) );
 				break;
 			case self::E_WC_COUPON_MAX_SPEND_LIMIT_MET:
-				/* translators: %s: coupon code and coupon maximum amount */
-				$err = sprintf( __( 'The maximum spend for coupon "%s" is %s.', 'woocommerce' ),  esc_html( $this->get_code() ), wc_price( $this->get_maximum_amount() ) );
+				/* translators: %1$s: coupon code, %2$s: coupon maximum amount */
+				$err = sprintf( __( 'The maximum spend for coupon "%1$s" is %2$s.', 'woocommerce' ), esc_html( $this->get_code() ), wc_price( $this->get_maximum_amount() ) );
 				break;
 			case self::E_WC_COUPON_NOT_APPLICABLE:
 				/* translators: %s: coupon code */
@@ -1073,8 +1073,8 @@ class WC_Coupon extends WC_Legacy_Coupon {
 				break;
 			case self::E_WC_COUPON_USAGE_LIMIT_COUPON_STUCK:
 				if ( is_user_logged_in() && wc_get_page_id( 'myaccount' ) > 0 && ! WC()->is_store_api_request() ) {
-					/* translators: %s: coupon code and myaccount page link. */
-					$err = sprintf( __( 'Usage limit for coupon "%s" has been reached. If you were using this coupon just now but your order was not complete, you can retry or cancel the order by going to the <a href="%s">my account page</a>.', 'woocommerce' ), esc_html( $this->get_code() ), wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ) );
+					/* translators: %1$s: coupon code, %2$s: myaccount page link. */
+					$err = sprintf( __( 'Usage limit for coupon "%1$s" has been reached. If you were using this coupon just now but your order was not complete, you can retry or cancel the order by going to the <a href="%2$s">my account page</a>.', 'woocommerce' ), esc_html( $this->get_code() ), wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ) );
 				} else {
 					$err = $this->get_coupon_error( self::E_WC_COUPON_USAGE_LIMIT_REACHED );
 				}
@@ -1094,8 +1094,8 @@ class WC_Coupon extends WC_Legacy_Coupon {
 					}
 				}
 
-				/* translators: %s: coupon code and products list */
-				$err = sprintf( __( 'Sorry, coupon "%s" is not applicable to the products: %s.', 'woocommerce' ), esc_html( $this->get_code() ), implode( ', ', $products ) );
+				/* translators: %1$s: coupon code, %2$s: products list */
+				$err = sprintf( __( 'Sorry, coupon "%1$s" is not applicable to the products: %2$s.', 'woocommerce' ), esc_html( $this->get_code() ), implode( ', ', $products ) );
 				break;
 			case self::E_WC_COUPON_EXCLUDED_CATEGORIES:
 				// Store excluded categories that are in cart in $categories.
@@ -1114,8 +1114,8 @@ class WC_Coupon extends WC_Legacy_Coupon {
 					}
 				}
 
-				/* translators: %s: coupon code and categories list */
-				$err = sprintf( __( 'Sorry, coupon "%s" is not applicable to the categories: %s.', 'woocommerce' ), esc_html( $this->get_code() ), implode( ', ', array_unique( $categories ) ) );
+				/* translators: %1$s: coupon code, %2$s: categories list */
+				$err = sprintf( __( 'Sorry, coupon "%1$s" is not applicable to the categories: %1$s.', 'woocommerce' ), esc_html( $this->get_code() ), implode( ', ', array_unique( $categories ) ) );
 				break;
 			case self::E_WC_COUPON_NOT_VALID_SALE_ITEMS:
 				/* translators: %s: coupon code */
