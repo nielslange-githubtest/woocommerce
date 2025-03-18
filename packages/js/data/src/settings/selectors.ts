@@ -1,34 +1,77 @@
 /**
+ * External dependencies
+ */
+import deprecated from '@wordpress/deprecated';
+
+/**
  * Internal dependencies
  */
-import { getResourceName, getResourcePrefix } from '../utils';
-import { SettingsState, Settings } from './types';
+import { SettingsState, SettingsGroupType } from './types';
 
+/**
+ * Retrieves the names of all settings groups.
+ *
+ * @param {Object} state State param added by wp.data.
+ */
 export const getSettingsGroupNames = ( state: SettingsState ) => {
-	const groupNames = new Set(
-		Object.keys( state ).map( ( resourceName ) => {
-			return getResourcePrefix( resourceName );
-		} )
-	);
-	return [ ...groupNames ];
+	return Object.keys( state );
 };
 
-export const getSettings = ( state: SettingsState, group: string ) => {
-	const settings: Settings = {};
-	const settingIds = ( state[ group ] && state[ group ].data ) || [];
-	if ( ! Array.isArray( settingIds ) || settingIds.length === 0 ) {
-		return settings;
-	}
-	settingIds.forEach( ( id ) => {
-		settings[ id ] = state[ getResourceName( group, id ) ].data;
+/**
+ * Retrieves the settings for a given group.
+ *
+ * @param {Object} state State param added by wp.data.
+ * @param {string} group The settings group.
+ */
+export const getSettings = < T extends string >(
+	state: SettingsState,
+	group: T
+): SettingsGroupType< T > & { [ K in T ]: SettingsGroupType< T > } => {
+	// Clone the settings object to avoid mutating the original state.
+	const settings = {
+		...( state[ group ]?.settings || {} ),
+	};
+	const clonedSettings = { ...settings };
+
+	// Ensure backwards compatibility with old settings structure.
+	Object.defineProperty( settings, group, {
+		enumerable: true,
+		configurable: true,
+		get: () => {
+			deprecated( 'getSettings(...)[ group ]', {
+				since: '9.9',
+				version: '10.2',
+				alternative: 'getSettings(...)',
+				plugin: 'woocommerce',
+				hint: 'getSettings returns the settings object.',
+			} );
+
+			return clonedSettings;
+		},
 	} );
-	return settings;
+
+	return settings as SettingsGroupType< T > & {
+		[ K in T ]: SettingsGroupType< T >;
+	};
 };
 
+/**
+ * Retrieves the dirty keys for a given group.
+ *
+ * @param {Object} state State param added by wp.data.
+ * @param {string} group The settings group.
+ */
 export const getDirtyKeys = ( state: SettingsState, group: string ) => {
-	return state[ group ].dirty || [];
+	return state[ group ]?.dirty || [];
 };
 
+/**
+ * Checks if is dirty for given keys in a group. If keys is empty, it will return false.
+ *
+ * @param {Object}   state State param added by wp.data.
+ * @param {string}   group The settings group.
+ * @param {string[]} keys  The keys to check.
+ */
 export const getIsDirty = (
 	state: SettingsState,
 	group: string,
@@ -44,23 +87,44 @@ export const getIsDirty = (
 	return keys.some( ( key ) => dirtyMap.includes( key ) );
 };
 
-export const getSettingsForGroup = (
+/**
+ * Retrieves a subset of settings for a given group.
+ *
+ * @param {Object}   state State param added by wp.data.
+ * @param {string}   group The settings group.
+ * @param {string[]} keys  The keys to retrieve.
+ */
+export const getSettingsForGroup = < T extends string >(
 	state: SettingsState,
-	group: string,
-	keys: string[]
+	group: T,
+	keys: ( keyof SettingsGroupType< T > )[]
 ) => {
-	const allSettings = getSettings( state, group );
-	return keys.reduce< Settings >( ( accumulator, key ) => {
-		accumulator[ key ] = allSettings[ key ] || {};
-		return accumulator;
-	}, {} );
+	const settings = getSettings( state, group );
+
+	return keys.reduce< Partial< SettingsGroupType< T > > >(
+		( accumulator, key ) => {
+			accumulator[ key ] = settings[ key ];
+			return accumulator;
+		},
+		{}
+	);
 };
 
+/**
+ * Checks if an update request is currently being made for a given group.
+ *
+ * @param {Object} state State param added by wp.data.
+ * @param {string} group The settings group.
+ */
 export const isUpdateSettingsRequesting = (
 	state: SettingsState,
 	group: string
 ) => {
-	return state[ group ] && Boolean( state[ group ].isRequesting );
+	if ( ! state[ group ] ) {
+		return false;
+	}
+
+	return state[ group ].isRequesting;
 };
 
 /**
@@ -68,7 +132,7 @@ export const isUpdateSettingsRequesting = (
  *
  * @param {Object}   state                   State param added by wp.data.
  * @param {string}   group                   The settings group.
- * @param {string}   name                    The identifier for the setting.
+ * @param {string}   settingId               The identifier for the setting.
  * @param {*}        [fallback=false]        The value to use as a fallback
  *                                           if the setting is not in the
  *                                           state.
@@ -78,41 +142,83 @@ export const isUpdateSettingsRequesting = (
  *                                           (if it exists for the key) and
  *                                           the provided fallback arg.
  *
- * @return {*}  The value present in the settings state for the given
- *                   name.
+ * @return {*}  The value present in the settings state for the given settingId.
  */
-export function getSetting(
+export function getSetting< T extends never >( // Using never type as the return type is unknown due to fallback
 	state: SettingsState,
-	group: string,
-	name: string,
-	fallback = false,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- _fallback in default filter is unused.
-	filter = ( val: unknown, _fallback: unknown | boolean ) => val
+	group: T,
+	settingId: string,
+	fallback: T = false as T,
+	filter = (
+		val: T,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars -- _fallback in default filter is unused.
+		_fallback: T
+	) => val
 ) {
-	const resourceName = getResourceName( group, name );
-	const value =
-		( state[ resourceName ] && state[ resourceName ].data ) || fallback;
-	return filter( value, fallback );
+	if ( ! state[ group ] ) {
+		return fallback;
+	}
+
+	if ( ! state[ group ].settings ) {
+		return fallback;
+	}
+
+	const settings = getSettings( state, group );
+
+	// For backwards compatibility, if the group is the same as the name, return the group.
+	if ( group === settingId ) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			'[] The getSetting selector has changed to `getSetting( state, group, settingId )`. Please update your code to use the selector with the new signature. This will be deprecated in 10.2.'
+		);
+		return filter( settings[ settingId ] as T, fallback );
+	}
+
+	if ( ! Object.prototype.hasOwnProperty.call( settings, settingId ) ) {
+		return fallback;
+	}
+
+	const value = settings[ settingId ];
+	return filter( value as T, fallback );
 }
 
+/**
+ * Retrieves the last settings error for a given group.
+ *
+ * @param {Object} state State param added by wp.data.
+ * @param {string} group The settings group.
+ */
 export const getLastSettingsErrorForGroup = (
 	state: SettingsState,
 	group: string
 ) => {
-	const settingsIds = state[ group ].data;
-	if ( ! Array.isArray( settingsIds ) || settingsIds.length === 0 ) {
-		return state[ group ].error;
-	}
-	return [ ...settingsIds ].pop().error;
+	return state[ group ]?.error;
 };
 
+/**
+ * Retrieves the settings error for a given group and id.
+ * If no id is provided, it will return the error for the group.
+ *
+ * @param {Object} state State param added by wp.data.
+ * @param {string} group The settings group.
+ * @param {string} id    The setting id.
+ */
 export const getSettingsError = (
 	state: SettingsState,
 	group: string,
 	id: string
 ) => {
-	if ( ! id ) {
-		return ( state[ group ] && state[ group ].error ) || false;
+	if ( ! state[ group ] ) {
+		return false;
 	}
-	return state[ getResourceName( group, id ) ].error || false;
+
+	if ( ! id ) {
+		return state[ group ].error || false;
+	}
+
+	if ( ! state[ group ].settingsErrors ) {
+		return false;
+	}
+
+	return state[ group ].settingsErrors[ id ];
 };

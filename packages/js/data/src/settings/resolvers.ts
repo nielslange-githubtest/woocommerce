@@ -46,7 +46,7 @@ type RawSetting = {
 	placeholder?: string;
 };
 
-function settingsToSettingsResource( settings: RawSetting[] ) {
+function resultsToSettings( settings: RawSetting[] ) {
 	return settings.reduce< {
 		[ id: string ]: unknown;
 	} >( ( resource, setting ) => {
@@ -55,21 +55,32 @@ function settingsToSettingsResource( settings: RawSetting[] ) {
 	}, {} );
 }
 
+/**
+ * Get the settings for a given group.
+ *
+ * @param {string} group The group to get the settings for.
+ * @return {Promise<void>} A promise that resolves when the settings are retrieved.
+ * @throws {Error} If the settings cannot be retrieved.
+ */
 export function* getSettings( group: string ) {
 	yield dispatch( STORE_NAME, 'setIsRequesting', group, true );
+
 	try {
 		const url = NAMESPACE + '/settings/' + group;
 		const results: RawSetting[] = yield apiFetch( {
 			path: url,
 			method: 'GET',
 		} );
-		const resource = settingsToSettingsResource( results );
-		return updateSettingsForGroup( group, { [ group ]: resource } );
+		const settings = resultsToSettings( results );
+
+		return updateSettingsForGroup( group, settings );
 	} catch ( error ) {
 		if ( error instanceof Error || isRestApiError( error ) ) {
 			return updateErrorForGroup( group, null, error.message );
 		}
-		throw `Unexpected error ${ error }`;
+		throw new Error( `Unexpected error ${ error }` );
+	} finally {
+		yield dispatch( STORE_NAME, 'setIsRequesting', group, false );
 	}
 }
 

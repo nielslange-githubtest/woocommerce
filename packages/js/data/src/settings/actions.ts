@@ -5,8 +5,8 @@
 import { __ } from '@wordpress/i18n';
 import { apiFetch, select } from '@wordpress/data-controls';
 import { controls } from '@wordpress/data';
-import { concat } from 'lodash';
 import { DispatchFromMap } from '@automattic/data-stores';
+import deprecated from '@wordpress/deprecated';
 
 /**
  * Internal dependencies
@@ -20,34 +20,84 @@ import { Settings } from './types';
 const resolveSelect =
 	controls && controls.resolveSelect ? controls.resolveSelect : select;
 
+/**
+ * Check if the settings are in the legacy format to maintain backwards compatibility.
+ */
+const isLegacyGroupSetting = ( group: string, settings: Settings ) => {
+	return (
+		Object.keys( settings ).length === 1 &&
+		Object.keys( settings )[ 0 ] === group
+	);
+};
+
+/**
+ * Update the settings for a given group. This only updates the settings in the
+ * state, it does not persist them to the database.
+ *
+ * @param {string}   group    The group to update.
+ * @param {Settings} settings The settings to update.
+ * @param {Date}     [time]   The time to update the settings.
+ */
 export function updateSettingsForGroup(
 	group: string,
-	data: Settings,
+	settings: Settings,
 	time = new Date()
 ) {
+	let settingsToUpdate = {
+		...settings,
+	};
+
+	if ( isLegacyGroupSetting( group, settings ) ) {
+		deprecated(
+			'updateSettingsForGroup settings argument with group name as key',
+			{
+				since: '9.9',
+				version: '10.2',
+				alternative: 'settings object directly',
+				plugin: 'woocommerce',
+				hint: 'The method should be updated to use the new signature.',
+			}
+		);
+		settingsToUpdate = settings[ group ] as Settings;
+	}
+
 	return {
 		type: TYPES.UPDATE_SETTINGS_FOR_GROUP,
 		group,
-		data,
+		settings: settingsToUpdate,
 		time,
 	};
 }
 
+/**
+ * Update the error for a given group.
+ *
+ * @param {string}          group    The group to update.
+ * @param {Settings | null} settings The settings to update.
+ * @param {unknown}         error    The error to update.
+ * @param {Date}            [time]   The time to update the error.
+ */
 export function updateErrorForGroup(
 	group: string,
-	data: Settings | null,
+	settings: Settings | null,
 	error: unknown,
 	time = new Date()
 ) {
 	return {
 		type: TYPES.UPDATE_ERROR_FOR_GROUP,
 		group,
-		data,
+		settings,
 		error,
 		time,
 	};
 }
 
+/**
+ * Set the is requesting flag for a given group.
+ *
+ * @param {string}  group        The group to update.
+ * @param {boolean} isRequesting The is requesting flag to update.
+ */
 export function setIsRequesting( group: string, isRequesting: boolean ) {
 	return {
 		type: TYPES.SET_IS_REQUESTING,
@@ -63,7 +113,11 @@ export function clearIsDirty( group: string ) {
 	};
 }
 
-// this would replace setSettingsForGroup
+/**
+ * Persist the settings for a given group.
+ *
+ * @param {string} group The group to persist.
+ */
 export function* persistSettingsForGroup( group: string ) {
 	// first dispatch the is persisting action
 	yield setIsRequesting( group, true );
@@ -73,40 +127,33 @@ export function* persistSettingsForGroup( group: string ) {
 		'getDirtyKeys',
 		group
 	);
+
 	// if there is nothing dirty, bail
 	if ( dirtyKeys.length === 0 ) {
 		yield setIsRequesting( group, false );
 		return;
 	}
 
-	// get data slice for keys
-	const dirtyData: {
-		[ key: string ]: Record< string, unknown >;
-	} = yield resolveSelect(
+	const dirtyData: Record< string, unknown > = yield resolveSelect(
 		STORE_NAME,
 		'getSettingsForGroup',
 		group,
 		dirtyKeys
 	);
-	const url = `${ NAMESPACE }/settings/${ group }/batch`;
-	const update = dirtyKeys.reduce< Array< { id: string; value: unknown } > >(
-		( updates, key ) => {
-			const u = Object.keys( dirtyData[ key ] ).map( ( k ) => {
-				return { id: k, value: dirtyData[ key ][ k ] };
-			} );
 
-			return concat( updates, u );
-		},
-		[]
-	);
+	const update = Object.entries( dirtyData ).map( ( [ key, value ] ) => {
+		return {
+			id: key,
+			value,
+		};
+	} );
+
 	try {
 		const results: unknown = yield apiFetch( {
-			path: url,
+			path: `${ NAMESPACE }/settings/${ group }/batch`,
 			method: 'POST',
 			data: { update },
 		} );
-
-		yield setIsRequesting( group, false );
 
 		if ( ! results ) {
 			throw new Error(
@@ -120,23 +167,50 @@ export function* persistSettingsForGroup( group: string ) {
 		// remove dirtyKeys from map - note we're only doing this if there is no error.
 		yield clearIsDirty( group );
 	} catch ( e ) {
-		yield updateErrorForGroup( group, null, e );
-		yield setIsRequesting( group, false );
+		yield updateErrorForGroup( group, dirtyData, e );
 		throw e;
+	} finally {
+		yield setIsRequesting( group, false );
 	}
 }
 
-// allows updating and persisting immediately in one action.
+/**
+ * Update the settings for a given group and persist them immediately.
+ *
+ * @param {string}   group    The group to update.
+ * @param {Settings} settings The settings to update.
+ */
 export function* updateAndPersistSettingsForGroup(
 	group: string,
-	data: Settings
+	settings: Settings
 ) {
+	let settingsToUpdate = {
+		...settings,
+	};
+	if ( isLegacyGroupSetting( group, settings ) ) {
+		deprecated(
+			'updateAndPersistSettingsForGroup settings argument with group name as key',
+			{
+				since: '9.9',
+				version: '10.2',
+				alternative: 'settings object directly',
+				plugin: 'woocommerce',
+				hint: 'The method should be updated to use the new signature.',
+			}
+		);
+
+		settingsToUpdate = settings[ group ] as Settings;
+	}
+
 	// Preemptively set requesting to allow for loading UI when optimistically updating settings.
 	yield setIsRequesting( group, true );
-	yield updateSettingsForGroup( group, data );
+	yield updateSettingsForGroup( group, settingsToUpdate );
 	yield* persistSettingsForGroup( group );
 }
 
+/**
+ * Clear the settings
+ */
 export function clearSettings() {
 	return {
 		type: TYPES.CLEAR_SETTINGS,

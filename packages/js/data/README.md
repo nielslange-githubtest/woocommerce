@@ -20,7 +20,7 @@ import { useSelect } from '@wordpress/data';
 
 function MySettings() {
 	const settings = useSelect( select => {
-		return select( settingsStore ).getSettings('general').general;
+		return select( settingsStore ).getSettings('general');
 	} );
 	return (
 		<ul>
