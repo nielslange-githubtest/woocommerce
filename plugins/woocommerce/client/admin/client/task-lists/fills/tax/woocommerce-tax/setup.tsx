@@ -50,7 +50,7 @@ export const Setup: React.FC< SetupProps > = ( {
 
 		return {
 			activePlugins: getActivePlugins(),
-			generalSettings: getSettings( 'general' )?.general,
+			generalSettings: getSettings( 'general' ),
 			isResolving:
 				! hasFinishedResolution( 'getOption', [
 					'woocommerce_setup_jetpack_opted_in',

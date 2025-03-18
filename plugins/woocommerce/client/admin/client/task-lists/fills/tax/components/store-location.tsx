@@ -59,7 +59,10 @@ export const StoreLocation: React.FC< {
 			} = select( settingsStore );
 
 			return {
-				generalSettings: getSettings( 'general' )?.general,
+				generalSettings: getSettings( 'general' ) as Record<
+					string,
+					string
+				>,
 				isResolving: ! hasFinishedResolution( 'getSettings', [
 					'general',
 				] ),
@@ -74,7 +77,7 @@ export const StoreLocation: React.FC< {
 			isResolving ||
 			isUpdating ||
 			! hasCompleteAddress(
-				generalSettings || {},
+				generalSettings,
 				Boolean(
 					document.getElementById(
 						'woocommerce-store-address-form-postcode'

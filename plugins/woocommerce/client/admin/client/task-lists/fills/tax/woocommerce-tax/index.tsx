@@ -35,7 +35,10 @@ export const WooCommerceTax: React.FC< TaxChildProps > = ( {
 		const activePlugins = getActivePlugins();
 
 		return {
-			generalSettings: getSettings( 'general' ).general,
+			generalSettings: getSettings( 'general' ) as Record<
+				string,
+				string
+			>,
 			isJetpackConnected: select( pluginsStore ).isJetpackConnected(),
 			isResolving:
 				! hasFinishedResolution( 'isJetpackConnected', undefined ) ||

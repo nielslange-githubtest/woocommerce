@@ -25,7 +25,9 @@ const ShippingRecommendations: React.FC = () => {
 		countryCode,
 		isSellingDigitalProductsOnly,
 	} = useSelect( ( select ) => {
-		const settings = select( settingsStore ).getSettings( 'general' );
+		const settings = select( settingsStore ).getSettings(
+			'general'
+		) as Record< string, string >;
 
 		const { getActivePlugins, getInstalledPlugins } =
 			select( pluginsStore );
@@ -37,7 +39,7 @@ const ShippingRecommendations: React.FC = () => {
 			activePlugins: getActivePlugins(),
 			installedPlugins: getInstalledPlugins(),
 			countryCode: getCountryCode(
-				settings.general?.woocommerce_default_country
+				settings?.woocommerce_default_country
 			),
 			isSellingDigitalProductsOnly:
 				profileItems?.length === 1 && profileItems[ 0 ] === 'downloads',

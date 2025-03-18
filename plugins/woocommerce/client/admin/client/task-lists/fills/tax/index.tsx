@@ -53,11 +53,14 @@ export const Tax: React.FC< TaxProps > = ( { onComplete, query, task } ) => {
 			const { getSettings, hasFinishedResolution } =
 				select( settingsStore );
 			return {
-				generalSettings: getSettings( 'general' ).general,
+				generalSettings: getSettings( 'general' ) as Record<
+					string,
+					string
+				>,
 				isResolving: ! hasFinishedResolution( 'getSettings', [
 					'general',
 				] ),
-				taxSettings: getSettings( 'tax' ).tax || {},
+				taxSettings: getSettings( 'tax' ) || {},
 			};
 		},
 		[]
@@ -67,16 +70,12 @@ export const Tax: React.FC< TaxProps > = ( { onComplete, query, task } ) => {
 		setIsPending( true );
 		if ( generalSettings?.woocommerce_calc_taxes !== 'yes' ) {
 			updateAndPersistSettingsForGroup( 'tax', {
-				tax: {
-					...taxSettings,
-					wc_connect_taxes_enabled: 'no',
-				},
+				...taxSettings,
+				wc_connect_taxes_enabled: 'no',
 			} );
 			updateAndPersistSettingsForGroup( 'general', {
-				general: {
-					...generalSettings,
-					woocommerce_calc_taxes: 'yes',
-				},
+				...generalSettings,
+				woocommerce_calc_taxes: 'yes',
 			} )
 				.then( () => redirectToTaxSettings() )
 				.catch( ( error: unknown ) => {
@@ -93,16 +92,12 @@ export const Tax: React.FC< TaxProps > = ( { onComplete, query, task } ) => {
 		try {
 			await Promise.all( [
 				updateAndPersistSettingsForGroup( 'tax', {
-					tax: {
-						...taxSettings,
-						wc_connect_taxes_enabled: 'yes',
-					},
+					...taxSettings,
+					wc_connect_taxes_enabled: 'yes',
 				} ),
 				updateAndPersistSettingsForGroup( 'general', {
-					general: {
-						...generalSettings,
-						woocommerce_calc_taxes: 'yes',
-					},
+					...generalSettings,
+					woocommerce_calc_taxes: 'yes',
 				} ),
 			] );
 		} catch ( error: unknown ) {
@@ -150,8 +145,9 @@ export const Tax: React.FC< TaxProps > = ( { onComplete, query, task } ) => {
 
 	const partners = useMemo( () => {
 		const countryCode =
-			getCountryCode( generalSettings?.woocommerce_default_country ) ||
-			'';
+			getCountryCode(
+				generalSettings?.woocommerce_default_country as string
+			) || '';
 		const {
 			additionalData: {
 				woocommerceTaxCountries = [],

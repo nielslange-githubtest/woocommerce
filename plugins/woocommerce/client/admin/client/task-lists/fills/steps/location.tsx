@@ -77,14 +77,12 @@ const StoreLocation = ( {
 		setSubmitting( true );
 		try {
 			await updateAndPersistSettingsForGroup( 'general', {
-				general: {
-					...settings,
-					woocommerce_store_address: values.addressLine1,
-					woocommerce_store_address_2: values.addressLine2,
-					woocommerce_default_country: values.countryState,
-					woocommerce_store_city: values.city,
-					woocommerce_store_postcode: values.postCode,
-				},
+				...settings,
+				woocommerce_store_address: values.addressLine1,
+				woocommerce_store_address_2: values.addressLine2,
+				woocommerce_default_country: values.countryState,
+				woocommerce_store_city: values.city,
+				woocommerce_store_postcode: values.postCode,
 			} );
 
 			setSubmitting( false );

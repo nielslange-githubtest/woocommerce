@@ -21,7 +21,7 @@ const ShippingRecommendationWrapper = compose(
 
 		return {
 			activePlugins: getActivePlugins(),
-			generalSettings: getSettings( 'general' )?.general,
+			generalSettings: getSettings( 'general' ),
 			isJetpackConnected: select( pluginsStore ).isJetpackConnected(),
 			isResolving:
 				! hasFinishedResolution( 'getOption', [

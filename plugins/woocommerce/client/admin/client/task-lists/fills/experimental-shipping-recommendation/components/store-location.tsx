@@ -26,7 +26,10 @@ export const StoreLocation = ( {
 		const { getSettings, hasFinishedResolution } = select( settingsStore );
 
 		return {
-			generalSettings: getSettings( 'general' )?.general,
+			generalSettings: getSettings( 'general' ) as Record<
+				string,
+				string
+			>,
 			isResolving: ! hasFinishedResolution( 'getSettings', [
 				'general',
 			] ),

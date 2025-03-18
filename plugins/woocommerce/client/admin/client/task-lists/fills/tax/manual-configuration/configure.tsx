@@ -21,7 +21,10 @@ export const Configure: React.FC<
 		const { getSettings } = select( settingsStore );
 
 		return {
-			generalSettings: getSettings( 'general' )?.general,
+			generalSettings: getSettings( 'general' ) as Record<
+				string,
+				string
+			>,
 		};
 	}, [] );
 
