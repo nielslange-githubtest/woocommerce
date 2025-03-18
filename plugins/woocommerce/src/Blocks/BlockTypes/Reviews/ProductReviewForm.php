@@ -31,6 +31,16 @@ class ProductReviewForm extends AbstractBlock {
 			return;
 		}
 
+		$product = wc_get_product( $block->context['postId'] );
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		if ( get_option( 'woocommerce_review_rating_verification_required' ) !== 'no' && ! wc_customer_bought_product( '', get_current_user_id(), $product->get_id() ) ) {
+			return '<p class="woocommerce-verification-required">' . esc_html__( 'Only logged in customers who have purchased this product may leave a review.', 'woocommerce' ) . '</p>';
+		}
+
 		$classes = array( 'comment-respond' );
 		if ( isset( $attributes['textAlign'] ) ) {
 			$classes[] = 'has-text-align-' . $attributes['textAlign'];
