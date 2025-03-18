@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types = 1 );
 namespace Automattic\WooCommerce\Blocks\BlockTypes\Reviews;
 
 use Automattic\WooCommerce\Blocks\BlockTypes\AbstractBlock;
@@ -17,7 +17,9 @@ class ProductReviewForm extends AbstractBlock {
 	/**
 	 * Render the block.
 	 *
-	 * @param array $attributes Block attributes.
+	 * @param array    $attributes Block attributes.
+	 * @param string   $content Block content.
+	 * @param WP_Block $block Block instance.
 	 * @return string Rendered block content.
 	 */
 	protected function render( $attributes, $content, $block ) {
@@ -111,6 +113,13 @@ class ProductReviewForm extends AbstractBlock {
 
 				ob_start();
 				echo '<div id="review_form_wrapper"><div id="review_form">';
+				/**
+				 * Filters the comment form arguments.
+				 *
+				 * @since 9.9.0
+				 * @param array $comment_form The comment form arguments.
+				 * @param int   $post_id      The post ID.
+				 */
 				comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $comment_form ), $block->context['postId'] );
 				echo '</div></div>';
 				$form = ob_get_clean();
