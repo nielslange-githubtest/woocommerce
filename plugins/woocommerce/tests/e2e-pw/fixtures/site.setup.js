@@ -134,7 +134,7 @@ setup( 'create BIS pages', async ( { restApi } ) => {
 	for ( const page of pages ) {
 		const existingPage = list.find( ( p ) => p.slug === page.slug );
 		if ( existingPage ) {
-			console.log( `Updating ${page.title} page:`, existingPage.id );
+			console.log( `Updating ${ page.title } page:`, existingPage.id );
 			await restApi.put( `${ WP_API_PATH }/pages/${ existingPage.id }`, {
 				content: {
 					raw: page.content,
@@ -142,7 +142,7 @@ setup( 'create BIS pages', async ( { restApi } ) => {
 				failOnStatusCode: true,
 			} );
 		} else {
-			console.log( `Creating ${page.title} page...` );
+			console.log( `Creating ${ page.title } page...` );
 			const response = await restApi.post( `${ WP_API_PATH }/pages`, {
 				title: {
 					raw: page.title,
@@ -158,9 +158,9 @@ setup( 'create BIS pages', async ( { restApi } ) => {
 				newPage.title.rendered === page.title &&
 				newPage.slug === page.slug
 			) {
-				console.log( `Created ${page.title} page:`, newPage.id );
+				console.log( `Created ${ page.title } page:`, newPage.id );
 			} else {
-				console.error( `Failed to create ${page.title} page` );
+				console.error( `Failed to create ${ page.title } page` );
 			}
 		}
 	}
