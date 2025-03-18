@@ -17,11 +17,14 @@ class WC_Shop_Customizer {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'customize_register', array( $this, 'add_sections' ) );
-		add_action( 'customize_controls_print_styles', array( $this, 'add_styles' ) );
-		add_action( 'customize_controls_print_scripts', array( $this, 'add_scripts' ), 30 );
-		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'add_frontend_scripts' ) );
+
+		if ( wc_current_theme_is_fse_theme() ) {
+			add_action( 'customize_register', array( $this, 'add_sections' ) );
+			add_action( 'customize_controls_print_styles', array( $this, 'add_styles' ) );
+			add_action( 'customize_controls_print_scripts', array( $this, 'add_scripts' ), 30 );
+			add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'add_frontend_scripts' ) );
+		}
 	}
 
 	/**
@@ -291,7 +294,6 @@ class WC_Shop_Customizer {
 			</script>
 			<?php
 		}
-
 	}
 
 	/**
@@ -954,8 +956,7 @@ class WC_Shop_Customizer {
 global $pagenow;
 if (
 	'customize.php' === $pagenow ||
-	isset( $_REQUEST['customize_theme'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	! wc_current_theme_is_fse_theme()
+	isset( $_REQUEST['customize_theme'] )
 ) {
 	new WC_Shop_Customizer();
 }
