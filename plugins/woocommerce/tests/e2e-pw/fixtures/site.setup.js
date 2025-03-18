@@ -98,7 +98,7 @@ setup( 'general settings', async ( { restApi } ) => {
 } );
 
 setup( 'create BIS pages', async ( { wpApi } ) => {
-	console.log('Creating BIS pages...');
+	console.log( 'Creating BIS pages...' );
 
 	// List all pages
 	const response_list = await wpApi.get(
@@ -117,46 +117,46 @@ setup( 'create BIS pages', async ( { wpApi } ) => {
 		{
 			slug: 'confirmation-email',
 			title: 'Confirmation email',
-			content: '[bis_confirmation_received_email]'
+			content: '[bis_confirmation_received_email]',
 		},
 		{
 			slug: 'verification-email',
 			title: 'Verification email',
-			content: '[bis_verify_received_email]'
+			content: '[bis_verify_received_email]',
 		},
 		{
 			slug: 'notification-email',
 			title: 'Notification email',
-			content: '[bis_notification_received_email]'
-		}
+			content: '[bis_notification_received_email]',
+		},
 	];
 
 	for ( const page of pages ) {
 		const existingPage = list.find( ( p ) => p.slug === page.slug );
 		if ( existingPage ) {
-			console.log(`Updating ${page.title} page:`, existingPage.id);
+			console.log( `Updating ${page.title} page:`, existingPage.id );
 			await wpApi.put( `./wp-json/wp/v2/pages/${ existingPage.id }`, {
 				data: {
 					content: {
-						raw: page.content
+						raw: page.content,
 					},
 				},
 				failOnStatusCode: true,
 			} );
 		} else {
-			console.log(`Creating ${page.title} page...`);
-			const response = await wpApi.post('./wp-json/wp/v2/pages', {
+			console.log( `Creating ${page.title} page...` );
+			const response = await wpApi.post( './wp-json/wp/v2/pages', {
 				data: {
 					title: page.title,
 					slug: page.slug,
 					content: {
-						raw: page.content
+						raw: page.content,
 					},
-					status: 'publish'
-				}
-			});
+					status: 'publish',
+				},
+			} );
 			const newPage = await response.json();
-			console.log(`Created ${page.title} page:`, newPage.id);
+			console.log( `Created ${page.title} page:`, newPage.id );
 		}
 	}
 } );

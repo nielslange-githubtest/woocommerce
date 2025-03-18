@@ -761,11 +761,11 @@ class AcceptanceHelper {
 	}
 
 	iChooseAVariationThatIsInStock() {
-		return this.page.getByLabel('Colour').selectOption('Red');
+		return this.page.getByLabel( 'Colour' ).selectOption( 'Red' );
 	}
 
 	iChooseAVariationThatIsOutOfStock() {
-		return this.page.getByLabel('Colour').selectOption('White');
+		return this.page.getByLabel( 'Colour' ).selectOption( 'White' );
 	}
 
 	async iSeeSomeDetailsAboutTheVariationProductISubscribedTo() {
