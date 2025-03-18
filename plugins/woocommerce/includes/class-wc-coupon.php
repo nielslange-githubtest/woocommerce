@@ -1053,7 +1053,7 @@ class WC_Coupon extends WC_Legacy_Coupon {
 				break;
 			case self::E_WC_COUPON_USAGE_LIMIT_REACHED:
 				/* translators: %s: coupon code */
-				$err = sprintf( __( 'Usage limit of coupon "%s" has been reached.', 'woocommerce' ), esc_html( $this->get_code() ) );
+				$err = sprintf( __( 'Usage limit for coupon "%s" has been reached.', 'woocommerce' ), esc_html( $this->get_code() ) );
 				break;
 			case self::E_WC_COUPON_EXPIRED:
 				/* translators: %s: coupon code */
