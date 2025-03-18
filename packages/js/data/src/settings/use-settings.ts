@@ -69,12 +69,13 @@ export const useSettings: (
 
 	const updateSettings = useCallback(
 		( nameOrSettings: string | Settings, maybeSettings?: Settings ) => {
+			// Backwards compatibility for the old interface
 			if ( typeof nameOrSettings === 'string' && maybeSettings ) {
 				updateSettingsForGroup( group, {
 					[ nameOrSettings ]: maybeSettings,
 				} );
-			} else if ( typeof nameOrSettings === 'object' ) {
-				updateSettingsForGroup( group, nameOrSettings );
+			} else {
+				updateSettingsForGroup( group, nameOrSettings as Settings );
 			}
 		},
 		[ group, updateSettingsForGroup ]
@@ -96,8 +97,11 @@ export const useSettings: (
 				await updateAndPersistSettingsForGroup( group, {
 					[ nameOrSettings ]: maybeSettings,
 				} );
-			} else if ( typeof nameOrSettings === 'object' ) {
-				await updateAndPersistSettingsForGroup( group, nameOrSettings );
+			} else {
+				await updateAndPersistSettingsForGroup(
+					group,
+					nameOrSettings as Settings
+				);
 			}
 		},
 		[ group, updateAndPersistSettingsForGroup ]
