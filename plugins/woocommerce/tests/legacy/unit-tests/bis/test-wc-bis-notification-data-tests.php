@@ -6,6 +6,8 @@
  * @since    3.0.0
  */
 
+declare( strict_types=1 );
+
 /**
  * Test cases for the 'WC_BIS_Notifications_Data_Tests' class.
  *

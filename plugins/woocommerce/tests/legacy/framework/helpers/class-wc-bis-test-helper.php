@@ -6,6 +6,8 @@
  * @since    3.0.0
  */
 
+declare( strict_types=1 );
+
 use Automattic\WooCommerce\Internal\BackInStockNotifications;
 
 /**
@@ -43,4 +45,4 @@ class WC_BIS_Test_Helper {
 	public static function reset_feature() {
 		delete_option( BackInStockNotifications::$enable_option_name );
 	}
-} 
+}

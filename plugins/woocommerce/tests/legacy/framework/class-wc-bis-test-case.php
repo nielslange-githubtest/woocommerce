@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 /**
  * BIS test case class.
  */
@@ -14,7 +16,7 @@ class WC_BIS_Test_Case extends WC_Unit_Test_Case {
 	/**
 	 * No need to strip newlines and tabs when using expectedOutputString().
 	 *
-	 * @param  string $output
+	 * @param  string $output Output string.
 	 * @return string
 	 */
 	public function filter_output( $output ) {

@@ -6,6 +6,8 @@
  * @since    1.0.0
  */
 
+declare( strict_types=1 );
+
 /**
  * WC_BIS_Product_Helpers class.
  *
