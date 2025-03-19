@@ -41,17 +41,17 @@ class ProductAttributes extends AbstractBlock {
 		ob_start();
 
 		?>
-		<table class="woocommerce-product-attributes shop_attributes">
+		<table class="wc-block-product-attributes">
 			<tbody>
 				<?php
 				// Display Weight if available.
 				if ( $product->get_weight() ) {
 					?>
-					<tr class="woocommerce-product-attributes-item woocommerce-product-attributes-item--weight">
-						<th class="woocommerce-product-attributes-item__label">
+					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__weight">
+						<th class="wc-block-product-attributes-item__label">
 							<?php echo esc_html__( 'Weight', 'woocommerce' ); ?>
 						</th>
-						<td class="woocommerce-product-attributes-item__value">
+						<td class="wc-block-product-attributes-item__value">
 							<?php echo esc_html( $product->get_weight() . ' ' . get_option( 'woocommerce_weight_unit' ) ); ?>
 						</td>
 					</tr>
@@ -61,11 +61,11 @@ class ProductAttributes extends AbstractBlock {
 				// Display Dimensions if available.
 				if ( $product->has_dimensions() ) {
 					?>
-					<tr class="woocommerce-product-attributes-item woocommerce-product-attributes-item--dimensions">
-						<th class="woocommerce-product-attributes-item__label">
+					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__dimensions">
+						<th class="wc-block-product-attributes-item__label">
 							<?php echo esc_html__( 'Dimensions', 'woocommerce' ); ?>
 						</th>
-						<td class="woocommerce-product-attributes-item__value">
+						<td class="wc-block-product-attributes-item__value">
 							<?php echo esc_html( wc_format_dimensions( $product->get_dimensions( false ) ) ); ?>
 						</td>
 					</tr>
@@ -82,11 +82,11 @@ class ProductAttributes extends AbstractBlock {
 
 					$attribute_name = wc_attribute_label( $attribute->get_name() );
 					?>
-					<tr class="woocommerce-product-attributes-item woocommerce-product-attributes-item--<?php echo esc_attr( sanitize_title( $attribute->get_name() ) ); ?>">
-						<th class="woocommerce-product-attributes-item__label">
+					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__<?php echo esc_attr( sanitize_title( $attribute->get_name() ) ); ?>">
+						<th class="wc-block-product-attributes-item__label">
 							<?php echo esc_html( $attribute_name ); ?>
 						</th>
-						<td class="woocommerce-product-attributes-item__value">
+						<td class="wc-block-product-attributes-item__value">
 							<?php
 							$values = array();
 							if ( $attribute->is_taxonomy() ) {

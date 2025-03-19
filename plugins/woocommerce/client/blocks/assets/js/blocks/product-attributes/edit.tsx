@@ -56,15 +56,15 @@ const Edit = ( {
 
 	return isSpecificProductContext ? (
 		<div { ...blockProps }>
-			<table className="woocommerce-product-attributes shop_attributes">
+			<table className="wc-block-product-attributes">
 				<tbody>
 					{ /* Display Weight if available */ }
 					{ product.weight && (
-						<tr className="woocommerce-product-attributes-item woocommerce-product-attributes-item--weight">
-							<th className="woocommerce-product-attributes-item__label">
+						<tr className="wc-block-product-attributes-item wc-block-product-attributes-item__weight">
+							<th className="wc-block-product-attributes-item__label">
 								{ __( 'Weight', 'woocommerce' ) }
 							</th>
-							<td className="woocommerce-product-attributes-item__value">
+							<td className="wc-block-product-attributes-item__value">
 								{ product.weight }
 							</td>
 						</tr>
@@ -75,11 +75,11 @@ const Edit = ( {
 						Object.values( product.dimensions ).some(
 							( dim ) => dim !== ''
 						) && (
-							<tr className="woocommerce-product-attributes-item woocommerce-product-attributes-item--dimensions">
-								<th className="woocommerce-product-attributes-item__label">
+							<tr className="wc-block-product-attributes-item wc-block-product-attributes-item__dimensions">
+								<th className="wc-block-product-attributes-item__label">
 									{ __( 'Dimensions', 'woocommerce' ) }
 								</th>
-								<td className="woocommerce-product-attributes-item__value">
+								<td className="wc-block-product-attributes-item__value">
 									{ `${ product.dimensions.length } × ${ product.dimensions.width } × ${ product.dimensions.height }` }
 								</td>
 							</tr>
@@ -89,12 +89,12 @@ const Edit = ( {
 					{ product.attributes?.map( ( attribute ) => (
 						<tr
 							key={ attribute.id }
-							className={ `woocommerce-product-attributes-item woocommerce-product-attributes-item--${ attribute.name.toLowerCase() }` }
+							className={ `wc-block-product-attributes-item wc-block-product-attributes-item__${ attribute.name.toLowerCase() }` }
 						>
-							<th className="woocommerce-product-attributes-item__label">
+							<th className="wc-block-product-attributes-item__label">
 								{ attribute.name }
 							</th>
-							<td className="woocommerce-product-attributes-item__value">
+							<td className="wc-block-product-attributes-item__value">
 								{ attribute.options.join( ', ' ) }
 							</td>
 						</tr>
