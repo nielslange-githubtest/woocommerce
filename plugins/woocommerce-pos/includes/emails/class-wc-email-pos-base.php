@@ -65,38 +65,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			$policy_text = $this->get_option( 'refund_returns_policy', '' );
 			return $this->format_string( $policy_text );
 		}
-		
-		/**
-		 * Show the order details table with payment auth code.
-		 *
-		 * @param WC_Order $order         Order instance.
-		 * @param bool     $sent_to_admin If should sent to admin.
-		 * @param bool     $plain_text    If is plain text email.
-		 * @param string   $email         Email address.
-		 */
-		public function order_details( $order, $sent_to_admin = false, $plain_text = false, $email = '' ) {
-			if ( $plain_text ) {
-				wc_get_template(
-					'emails/plain/email-order-details.php',
-					array(
-						'order'                      => $order,
-						'sent_to_admin'              => $sent_to_admin,
-						'plain_text'                 => $plain_text,
-						'email'                      => $email,
-					)
-				);
-			} else {
-				wc_get_template(
-					'emails/email-order-details.php',
-					array(
-						'order'                      => $order,
-						'sent_to_admin'              => $sent_to_admin,
-						'plain_text'                 => $plain_text,
-						'email'                      => $email,
-					)
-				);
-			}
-		}
 
 		public function order_item_quantity( $quantity_display, $item ) {
 			$order = isset($this->object) ? $this->object : null;
@@ -147,10 +115,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			// Add filter to include payment auth code in the order item totals table.
 			add_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10, 3 );
 
-			// TODO: date_paid, if needed.
-			// Custom action to show the order details.
-			add_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10, 4 );
-			
 			$content = wc_get_template_html(
 				$this->template_html,
 				array(
@@ -166,7 +130,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			);
 
 			// Remove action and filter after generating content to avoid affecting other emails.
-			remove_action( 'woocommerce_pos_email_order_details', array( $this, 'order_details' ), 10 );
 			remove_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10 );
 			remove_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10 );
 			return $content;

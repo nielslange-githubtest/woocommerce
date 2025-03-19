@@ -68,14 +68,14 @@ if ( ! empty( $order->get_billing_first_name() ) ) {
 <?php
 
 /**
- * Hook for the woocommerce_pos_email_order_details.
+ * Hook for the woocommerce_email_order_details.
  *
  * @hooked WC_Email_Customer_POS_Completed_Order::order_details() Shows the order details table.
  * @hooked WC_Structured_Data::generate_order_data() Generates structured data.
  * @hooked WC_Structured_Data::output_structured_data() Outputs structured data.
  * @since 1.0.0
  */
-do_action( 'woocommerce_pos_email_order_details', $order, $sent_to_admin, $plain_text, $email );
+do_action( 'woocommerce_email_order_details', $order, $sent_to_admin, $plain_text, $email );
 
 /**
  * Hook for the woocommerce_email_order_meta.
