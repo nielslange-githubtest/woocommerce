@@ -37,13 +37,11 @@ const productGalleryLargeImage = {
 			const percentageX = ( event.offsetX / element.clientWidth ) * 100;
 			const percentageY = ( event.offsetY / element.clientHeight ) * 100;
 
-			const { selectedImageId } = getContext();
-
 			const imageId = parseInt(
 				target.getAttribute( 'data-image-id' ) ?? '0',
 				10
 			);
-			if ( selectedImageId === imageId ) {
+			if ( state.selectedImageId === imageId ) {
 				target.style.transform = `scale(1.3)`;
 				target.style.transformOrigin = `${ percentageX }% ${ percentageY }%`;
 			}
@@ -55,21 +53,21 @@ const productGalleryLargeImage = {
 				return;
 			}
 
-			const image = target.querySelector(
-				'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
-			) as HTMLElement;
+			const selectedImage = target.querySelector(
+				`[data-image-id="${ state.selectedImageId }"]`
+			);
 
-			if ( ! image ) {
+			if ( ! selectedImage ) {
 				return;
 			}
 
-			image.style.transform = `scale(1.0)`;
-			image.style.transformOrigin = '';
+			selectedImage.style.transform = `scale(1.0)`;
+			selectedImage.style.transformOrigin = '';
 		},
 	},
 };
 
-const { actions } = store< Store >(
+const { state, actions } = store< Store >(
 	'woocommerce/product-gallery',
 	productGalleryLargeImage,
 	{
