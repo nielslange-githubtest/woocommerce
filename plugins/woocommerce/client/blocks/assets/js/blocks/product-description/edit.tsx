@@ -18,11 +18,7 @@ import {
 } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { withQueryLoopProductContextValidation } from '../product-details/utils';
+import { withQueryLoopProductContextValidation } from '@woocommerce/block-hocs';
 
 /**
  * Returns whether the current user can edit the given entity.
