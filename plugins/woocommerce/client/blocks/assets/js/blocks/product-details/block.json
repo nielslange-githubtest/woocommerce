@@ -8,10 +8,5 @@
 	"category": "woocommerce",
 	"textdomain": "woocommerce",
 	"attributes": {},
-	"usesContext": [ "query", "queryId", "postId" ],
-	"ancestor": [
-		"woocommerce/single-product",
-		"woocommerce/product-template",
-		"core/post-template"
-	]
+	"usesContext": [ "query", "queryId", "postId" ]
 }

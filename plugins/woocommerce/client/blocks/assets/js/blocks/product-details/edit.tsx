@@ -4,11 +4,6 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { InnerBlockTemplate } from '@wordpress/blocks';
 
-/**
- * Internal dependencies
- */
-import { withQueryLoopProductContextValidation } from './utils';
-
 const createAccordionItem = (
 	title: string,
 	content: InnerBlockTemplate[]
@@ -66,4 +61,4 @@ const Edit = () => {
 	return <InnerBlocks template={ TEMPLATE } />;
 };
 
-export default withQueryLoopProductContextValidation( Edit, 'Product Details' );
+export default Edit;
