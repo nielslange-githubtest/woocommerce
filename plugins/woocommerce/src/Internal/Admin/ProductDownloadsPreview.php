@@ -5,9 +5,13 @@
  * @package WooCommerce\Internal\ProductDownloads
  */
 
+declare(strict_types=1);
+
 namespace Automattic\WooCommerce\Internal\Admin;
 
 use Automattic\WooCommerce\Internal\RegisterHooksInterface;
+use WP_REST_Server;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +27,159 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * Register hooks.
 	 */
 	public function register() {
-		add_action( 'init', array( $this, 'serve_admin_image_src' ), 5 );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Register REST API routes for admin product downloads preview.
+	 */
+	public function register_rest_routes() {
+		$namespace = 'wc/v3';
+		$route_base = '/admin/product-downloads-preview';
+		$route_pattern = '/(?P<product_id>[\d]+)/(?P<attachment_id>[\d]+)';
+
+		$args = [
+			'product_id' => [
+				'required' => true,
+				'type' => 'integer',
+				'description' => 'Product ID that the downloadable image belongs to',
+			],
+			'attachment_id' => [
+				'required' => true,
+				'type' => 'integer',
+				'description' => 'Attachment ID to preview',
+			],
+			'size' => [
+				'type' => 'string',
+				'default' => 'large',
+				'description' => 'Image size to display',
+			],
+			'token' => [
+				'required' => true,
+				'type' => 'string',
+				'description' => 'Secure access token',
+			],
+		];
+
+		register_rest_route(
+			$namespace,
+			$route_base . $route_pattern,
+			[
+				'methods' => WP_REST_Server::READABLE,
+				'callback' => [$this, 'get_preview'],
+				'permission_callback' => [$this, 'get_preview_permissions_check'],
+				'args' => $args,
+			]
+		);
+	}
+
+	/**
+	 * Permission check for the REST API endpoint.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return bool|\WP_Error
+	 */
+	public function get_preview_permissions_check( $request ) {
+		$token = $request->get_param( 'token' );
+		
+		if ( empty( $token ) ) {
+			return new WP_Error(
+				'woocommerce_rest_missing_token',
+				__( 'Missing access token.', 'woocommerce' ),
+				array( 'status' => 401 )
+			);
+		}
+		
+		// Check if token exists in transient.
+		$transient_key = 'wc_preview_token_' . $token;
+		$stored = get_transient( $transient_key );
+		
+		if ( ! $stored ) {
+			return new WP_Error(
+				'woocommerce_rest_invalid_token',
+				__( 'Invalid or expired access token.', 'woocommerce' ),
+				array( 'status' => 401 )
+			);
+		}
+		
+		// Verify token is for the right attachment and product.
+		if ( $stored['attachment_id'] != $request->get_param( 'attachment_id' ) ||
+			$stored['product_id'] != $request->get_param( 'product_id' ) ) {
+			return new WP_Error(
+				'woocommerce_rest_token_mismatch',
+				__( 'Token does not match requested resource.', 'woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+		
+		// Delete the transient to prevent reuse.
+		delete_transient( $transient_key );
+		
+		return true;
+	}
+
+	/**
+	 * REST API endpoint callback to serve the preview image.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_preview( $request ) {
+		$attachment_id = $request['attachment_id'];
+		$product_id = $request['product_id'];
+		$requested_size = $request['size'] ?? 'large';
+
+		// Get file path.
+		$file_path = get_attached_file( $attachment_id );
+		if ( ! $file_path || ! is_readable( $file_path ) ) {
+			return new WP_Error(
+				'woocommerce_rest_file_not_found',
+				__( 'File not found', 'woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Only allow image mime types.
+		$mime_type = get_post_mime_type( $attachment_id );
+		$allowed_mime_types = array(
+			'image/jpeg',
+			'image/jpg',
+			'image/png',
+			'image/gif',
+			'image/webp',
+		);
+
+		if ( ! in_array( $mime_type, $allowed_mime_types, true ) ) {
+			return new WP_Error(
+				'woocommerce_rest_invalid_file_type',
+				__( 'Invalid file type', 'woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Handle image size requests - use 'large' as maximum size, 'full' can be too large.
+		$size = $requested_size === 'full' ? 'large' : $requested_size;
+
+		$resized = image_get_intermediate_size( $attachment_id, $size );
+		if ( $resized && isset( $resized['path'] ) ) {
+			$uploads_dir = wp_upload_dir();
+			$resized_file_path = $uploads_dir['basedir'] . '/' . $resized['path'];
+			if ( is_readable( $resized_file_path ) ) {
+				$file_path = $resized_file_path;
+			}
+		}
+
+		// Serve the file with appropriate headers.
+		$this->clean_buffers();
+
+		// We need to manually build the response to send proper binary data.
+		nocache_headers();
+		header( 'Content-Type: ' . $mime_type );
+		header( 'Content-Length: ' . filesize( $file_path ) );
+		header( 'Content-Disposition: inline; filename="' . basename( $file_path ) . '"' );
+
+		readfile( $file_path );
+		exit;
 	}
 
 	/**
@@ -41,81 +197,29 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			return '';
 		}
 
-		return add_query_arg(
-			array(
-				'wc-uploads-image-src' => $attachment_id,
-				'product'              => $product_id,
-				'nonce'                => wp_create_nonce( 'admin-image-src-' . $attachment_id ),
-				'size'                 => $size,
-			),
-			trailingslashit( home_url() )
+		// Generate a secure token.
+		$token = wp_generate_password( 32, false );
+		
+		// Store token in transient with 15-minute expiration.
+		$transient_key = 'wc_preview_token_' . $token;
+		$token_data = [
+			'attachment_id' => $attachment_id,
+			'product_id' => $product_id,
+		];
+		
+		set_transient( $transient_key, $token_data, 15 * MINUTE_IN_SECONDS );
+		
+		// Generate URL with token.
+		$url = rest_url( "wc/v3/admin/product-downloads-preview/{$product_id}/{$attachment_id}" );
+		$url = add_query_arg(
+			[
+				'size' => $size,
+				'token' => $token,
+			],
+			$url
 		);
-	}
-
-	/**
-	 * Serve image directly with appropriate headers for src attributes
-	 *
-	 * @since 9.9.0
-	 */
-	public function serve_admin_image_src() {
-		if ( ! isset( $_GET['wc-uploads-image-src'] )
-			|| ! isset( $_GET['product'] )
-			|| ! isset( $_GET['nonce'] ) ) {
-			return;
-		}
-
-		$attachment_id = absint( $_GET['wc-uploads-image-src'] );
-
-		// Security check.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'admin-image-src-' . $attachment_id )
-			|| ! current_user_can( 'manage_woocommerce' )
-		) {
-			$this->download_error( __( 'Invalid access token', 'woocommerce' ), '', 403 );
-		}
-
-		// Get file path.
-		$file_path = get_attached_file( $attachment_id );
-		if ( ! $file_path || ! is_readable( $file_path ) ) {
-			$this->download_error( __( 'File not found', 'woocommerce' ), '', 404 );
-		}
-
-		// Only allow image mime types.
-		$mime_type        = get_post_mime_type( $attachment_id );
-		$allowed_mime_types = array(
-			'image/jpeg',
-			'image/jpg',
-			'image/png',
-			'image/gif',
-			'image/webp',
-		);
-		if ( ! in_array( $mime_type, $allowed_mime_types, true ) ) {
-			$this->download_error( __( 'Invalid file type', 'woocommerce' ), '', 403 );
-		}
-
-		// Handle image size requests - use 'large' as maximum size, 'full' can be too large
-		$requested_size = isset( $_GET['size'] ) ? sanitize_text_field( wp_unslash( $_GET['size'] ) ) : 'full';
-		$size = $requested_size === 'full' ? 'large' : $requested_size;
-
-		$resized = image_get_intermediate_size( $attachment_id, $size );
-		if ( $resized && isset( $resized['path'] ) ) {
-			$uploads_dir      = wp_upload_dir();
-			$resized_file_path = $uploads_dir['basedir'] . '/' . $resized['path'];
-			if ( is_readable( $resized_file_path ) ) {
-				$file_path = $resized_file_path;
-			}
-		}
-
-		// Prevent any accidental output.
-		$this->clean_buffers();
-
-		// Set headers for direct viewing in browser.
-		nocache_headers();
-		header( 'Content-Type: ' . $mime_type );
-		header( 'Content-Length: ' . filesize( $file_path ) );
-		header( 'Content-Disposition: inline; filename="' . basename( $file_path ) . '"' );
-
-		readfile( $file_path );
-		exit;
+		
+		return $url;
 	}
 
 	/**
@@ -132,19 +236,5 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		} else {
 			@ob_end_clean(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
-	}
-
-	/**
-	 * Die with an error message if the download fails.
-	 *
-	 * @param string $message Error message.
-	 * @param string $title   Error title.
-	 * @param int    $status  Error status.
-	 */
-	private function download_error( $message, $title = '', $status = 404 ) {
-		if ( ! strstr( $message, '<a ' ) ) {
-			$message .= ' <a href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '" class="wc-forward">' . esc_html__( 'Go to shop', 'woocommerce' ) . '</a>';
-		}
-		wp_die( $message, $title, array( 'response' => $status ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

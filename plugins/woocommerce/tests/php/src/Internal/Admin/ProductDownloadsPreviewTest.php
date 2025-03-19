@@ -5,6 +5,7 @@ namespace Automattic\WooCommerce\Tests\Internal\Admin;
 use Automattic\WooCommerce\Internal\Admin\ProductDownloadsPreview;
 use WC_Helper_Product;
 use WC_Unit_Test_Case;
+use WP_REST_Request;
 
 /**
  * Tests for ProductDownloadsPreview class
@@ -101,7 +102,7 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	 */
 	public function test_register_adds_actions() {
 		$this->preview->register();
-		$this->assertEquals( 5, has_action( 'init', array( $this->preview, 'serve_admin_image_src' ) ) );
+		$this->assertTrue( has_action( 'rest_api_init', array( $this->preview, 'register_rest_routes' ) ) > 0 );
 	}
 
 	/**
@@ -126,28 +127,111 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$result = $this->preview->get_admin_image_src_url( $this->product_id, $this->attachment_id, 'thumbnail' );
 
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( 'wc-uploads-image-src=' . $this->attachment_id, $result );
-		$this->assertStringContainsString( 'product=' . $this->product_id, $result );
+		$this->assertStringContainsString( $this->product_id, $result );
+		$this->assertStringContainsString( $this->attachment_id, $result );
 		$this->assertStringContainsString( 'size=thumbnail', $result );
-		$this->assertStringContainsString( 'nonce=', $result );
+		$this->assertStringContainsString( 'token=', $result );
 	}
 
 	/**
-	 * Test serve_admin_image_src bails early if required GET params are missing
+	 * Test permissions check fails with empty token
 	 */
-	public function test_serve_admin_image_src_bails_early_without_required_params() {
-		$_GET = array();
-		ob_start();
-		$this->preview->serve_admin_image_src();
-		$output = ob_get_clean();
+	public function test_get_preview_permissions_check_fails_with_empty_token() {
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', '' );
+		
+		$response = $this->preview->get_preview_permissions_check( $request );
+		
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_missing_token', $response->get_error_code() );
+	}
 
-		$this->assertEmpty( $output );
+	/**
+	 * Test permissions check fails with invalid token
+	 */
+	public function test_get_preview_permissions_check_fails_with_invalid_token() {
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', 'invalid_token' );
+		
+		$response = $this->preview->get_preview_permissions_check( $request );
+		
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_invalid_token', $response->get_error_code() );
+	}
 
-		$_GET = array( 'wc-uploads-image-src' => $this->attachment_id );
-		ob_start();
-		$this->preview->serve_admin_image_src();
-		$output = ob_get_clean();
+	/**
+	 * Test permissions check fails with mismatched resources
+	 */
+	public function test_get_preview_permissions_check_fails_with_mismatched_resources() {
+		// Generate a token
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
 
-		$this->assertEmpty( $output );
+		// Create a token for different product
+		$different_product_id = $this->product_id + 1;
+		$token = wp_generate_password( 32, false );
+		set_transient(
+			'wc_preview_token_' . $token,
+			array(
+				'attachment_id' => $this->attachment_id,
+				'product_id'    => $different_product_id,
+			),
+			60
+		);
+		
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', $this->attachment_id );
+		
+		$response = $this->preview->get_preview_permissions_check( $request );
+		
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_token_mismatch', $response->get_error_code() );
+	}
+
+	/**
+	 * Test permissions check passes with valid token
+	 */
+	public function test_get_preview_permissions_check_passes_with_valid_token() {
+		// Generate a token
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		$token = wp_generate_password( 32, false );
+		set_transient(
+			'wc_preview_token_' . $token,
+			array(
+				'attachment_id' => $this->attachment_id,
+				'product_id'    => $this->product_id,
+			),
+			60
+		);
+		
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', $this->attachment_id );
+		
+		$response = $this->preview->get_preview_permissions_check( $request );
+		
+		$this->assertTrue( $response );
+		
+		// Verify token was deleted after use
+		$this->assertFalse( get_transient( 'wc_preview_token_' . $token ) );
+	}
+
+	/**
+	 * Test invalid file path error in get_preview
+	 */
+	public function test_get_preview_returns_error_for_invalid_file() {
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/99999' );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', 99999 ); // Non-existent attachment ID
+		
+		$response = $this->preview->get_preview( $request );
+		
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_file_not_found', $response->get_error_code() );
 	}
 }
