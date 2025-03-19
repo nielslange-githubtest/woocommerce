@@ -18,19 +18,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * A job queue using WordPress actions.
  *
  * @version 3.5.0
+ *
+ * TODO: backward compatibility
  */
 class WC_Action_Queue implements WC_Queue_Interface {
 
 	/**
 	 * Enqueue an action to run one time, as soon as possible
 	 *
-	 * @param string $hook The hook to trigger.
-	 * @param array  $args Arguments to pass when the hook triggers.
-	 * @param string $group The group to assign this job to.
-	 * @return string The action ID.
+	 * @param string $hook     The hook to trigger.
+	 * @param array  $args     Arguments to pass when the hook triggers.
+	 * @param string $group    The group to assign this job to.
+	 * @param int    $priority Priority, see \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
+	 * @return int The action ID.
 	 */
-	public function add( $hook, $args = array(), $group = '' ) {
-		return $this->schedule_single( time(), $hook, $args, $group );
+	public function add( $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
+		return $this->schedule_single( time(), $hook, $args, $group, $priority );
 	}
 
 	/**

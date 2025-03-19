@@ -29,9 +29,9 @@ class WC_Queue {
 	/**
 	 * The default queue class to initialize
 	 *
-	 * @var string
+	 * @var class-string<WC_Queue_Interface>
 	 */
-	protected static $default_cass = 'WC_Action_Queue';
+	protected static $default_cass = WC_Action_Queue::class;
 
 	/**
 	 * Single instance of WC_Queue_Interface
@@ -53,7 +53,7 @@ class WC_Queue {
 	 *
 	 * And make sure 3rd party code has the chance to attach a custom queue class.
 	 *
-	 * @return string
+	 * @return class-string<WC_Queue_Interface>
 	 */
 	protected static function get_class() {
 		if ( ! did_action( 'plugins_loaded' ) ) {
