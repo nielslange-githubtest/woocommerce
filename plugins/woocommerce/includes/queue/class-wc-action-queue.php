@@ -6,6 +6,8 @@
  * @package WooCommerce\Interface
  */
 
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -35,33 +37,35 @@ class WC_Action_Queue implements WC_Queue_Interface {
 	 * Schedule an action to run once at some time in the future
 	 *
 	 * @param int    $timestamp When the job will run.
-	 * @param string $hook The hook to trigger.
-	 * @param array  $args Arguments to pass when the hook triggers.
-	 * @param string $group The group to assign this job to.
-	 * @return string The action ID.
+	 * @param string $hook      The hook to trigger.
+	 * @param array  $args      Arguments to pass when the hook triggers.
+	 * @param string $group     The group to assign this job to.
+	 * @param int    $priority  Priority, see \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
+	 * @return int The action ID.
 	 */
-	public function schedule_single( $timestamp, $hook, $args = array(), $group = '' ) {
-		return as_schedule_single_action( $timestamp, $hook, $args, $group );
+	public function schedule_single( $timestamp, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
+		return as_schedule_single_action( $timestamp, $hook, $args, $group, $priority );
 	}
 
 	/**
 	 * Schedule a recurring action
 	 *
-	 * @param int    $timestamp When the first instance of the job will run.
+	 * @param int    $timestamp           When the first instance of the job will run.
 	 * @param int    $interval_in_seconds How long to wait between runs.
-	 * @param string $hook The hook to trigger.
-	 * @param array  $args Arguments to pass when the hook triggers.
-	 * @param string $group The group to assign this job to.
-	 * @return string The action ID.
+	 * @param string $hook                The hook to trigger.
+	 * @param array  $args                Arguments to pass when the hook triggers.
+	 * @param string $group               The group to assign this job to.
+	 * @param int    $priority            Priority, see \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
+	 * @return int The action ID.
 	 */
-	public function schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args = array(), $group = '' ) {
-		return as_schedule_recurring_action( $timestamp, $interval_in_seconds, $hook, $args, $group );
+	public function schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
+		return as_schedule_recurring_action( $timestamp, $interval_in_seconds, $hook, $args, $group, $priority );
 	}
 
 	/**
 	 * Schedule an action that recurs on a cron-like schedule.
 	 *
-	 * @param int    $timestamp The schedule will start on or after this time.
+	 * @param int    $timestamp     The schedule will start on or after this time.
 	 * @param string $cron_schedule A cron-link schedule string.
 	 * @see http://en.wikipedia.org/wiki/Cron
 	 *   *    *    *    *    *    *
@@ -73,13 +77,14 @@ class WC_Action_Queue implements WC_Queue_Interface {
 	 *   |    |    +--------------- day of month (1 - 31)
 	 *   |    +-------------------- hour (0 - 23)
 	 *   +------------------------- min (0 - 59)
-	 * @param string $hook The hook to trigger.
-	 * @param array  $args Arguments to pass when the hook triggers.
-	 * @param string $group The group to assign this job to.
-	 * @return string The action ID
+	 * @param string $hook          The hook to trigger.
+	 * @param array  $args          Arguments to pass when the hook triggers.
+	 * @param string $group         The group to assign this job to.
+	 * @param int    $priority      Priority, see \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
+	 * @return int The action ID
 	 */
-	public function schedule_cron( $timestamp, $cron_schedule, $hook, $args = array(), $group = '' ) {
-		return as_schedule_cron_action( $timestamp, $cron_schedule, $hook, $args, $group );
+	public function schedule_cron( $timestamp, $cron_schedule, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
+		return as_schedule_cron_action( $timestamp, $cron_schedule, $hook, $args, $group, $priority );
 	}
 
 	/**
