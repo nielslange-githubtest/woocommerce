@@ -104,8 +104,17 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		}
 
 		public function order_item_totals($total_rows, $order, $tax_display ) {
+			$cash_payment_change_due_amount = $order->get_meta( '_cash_change_amount', true );
+			if ( $cash_payment_change_due_amount !== null && $cash_payment_change_due_amount !== '' ) {
+				$total_rows['cash_payment_change_due_amount'] = array(
+					'type'  => 'cash_payment_change_due_amount',
+					'label' => __( 'Change due:', 'woocommerce' ),
+					'value' => $cash_payment_change_due_amount,
+				);
+			}
+
 			$auth_code = $order->get_meta( '_charge_id', true );
-			if ( $auth_code ) {
+			if ( $auth_code !== null && $auth_code !== '' ) {
 				$total_rows['payment_auth_code'] = array(
 					'type'  => 'payment_auth_code',
 					'label' => __( 'Auth code:', 'woocommerce' ),
