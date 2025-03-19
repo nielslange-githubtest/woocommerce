@@ -603,7 +603,7 @@ class WC_Discounts {
 	protected function validate_coupon_exists( $coupon ) {
 		if ( ( ! $coupon->get_id() && ! $coupon->get_virtual() ) || 'trash' === $coupon->get_status() ) {
 			/* translators: %s: coupon code */
-			throw new Exception( sprintf( __( 'Coupon %s does not exist!', 'woocommerce' ), '"' . esc_html( $coupon->get_code() ) . '"' ), 105 );
+			throw new Exception( sprintf( esc_html__( 'Coupon %s does not exist!', 'woocommerce' ), '"' . esc_html( $coupon->get_code() ) . '"' ), 105 );
 		}
 
 		return true;
@@ -704,7 +704,7 @@ class WC_Discounts {
 	protected function validate_coupon_expiry_date( $coupon ) {
 		if ( $coupon->get_date_expires() && apply_filters( 'woocommerce_coupon_validate_expiry_date', time() > $coupon->get_date_expires()->getTimestamp(), $coupon, $this ) ) {
 			/* translators: %s: coupon code */
-			throw new Exception( sprintf( esc_html__( 'Coupon %s has expired.', 'woocommerce' ), '"' . esc_html( $coupon->get_code() ) . '"' ), 107 ) ;
+			throw new Exception( sprintf( esc_html__( 'Coupon %s has expired.', 'woocommerce' ), '"' . esc_html( $coupon->get_code() ) . '"' ), 107 );
 		}
 
 		return true;
