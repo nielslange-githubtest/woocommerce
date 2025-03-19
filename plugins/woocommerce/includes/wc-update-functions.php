@@ -3003,3 +3003,27 @@ function wc_update_990_update_primary_key_to_composite_in_order_product_lookup_t
 function wc_update_980_remove_order_attribution_install_banner_dismissed_option() {
 	delete_option( 'woocommerce_order_attribution_install_banner_dismissed' );
 }
+
+/**
+ * Remove the transient wc_count_comments as this has migrated to use cache.
+ */
+function wc_update_990_remove_wc_count_comments_transient() {
+	delete_transient( 'wc_count_comments' );
+}
+
+/**
+ * Remove all notes of type 'email' from wp_wc_admin_notes table.
+ *
+ * @return void
+ */
+function wc_update_990_remove_email_notes() {
+	global $wpdb;
+
+	$wpdb->delete(
+		$wpdb->prefix . 'wc_admin_notes',
+		array(
+			'type' => 'email'
+		),
+		array( '%s' )
+	);
+}

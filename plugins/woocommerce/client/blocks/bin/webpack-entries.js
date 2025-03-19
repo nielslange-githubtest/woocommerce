@@ -53,6 +53,11 @@ const blocks = {
 			'add-to-cart-with-options/grouped-product-selector/product-item-template',
 		isExperimental: true,
 	},
+	'add-to-cart-with-options-grouped-product-selector-item-cta': {
+		customDir:
+			'add-to-cart-with-options/grouped-product-selector/product-item-cta',
+		isExperimental: true,
+	},
 	'all-products': {
 		customDir: 'products/all-products',
 	},
@@ -64,6 +69,10 @@ const blocks = {
 	'blockified-product-details': {
 		isExperimental: true,
 		customDir: 'product-details',
+	},
+	'product-description': {
+		isExperimental: true,
+		customDir: 'product-description',
 	},
 	'catalog-sorting': {},
 	'coming-soon': {},
@@ -97,9 +106,6 @@ const blocks = {
 	'product-gallery-large-image-next-previous': {
 		customDir:
 			'product-gallery/inner-blocks/product-gallery-large-image-next-previous',
-	},
-	'product-gallery-pager': {
-		customDir: 'product-gallery/inner-blocks/product-gallery-pager',
 	},
 	'product-gallery-thumbnails': {
 		customDir: 'product-gallery/inner-blocks/product-gallery-thumbnails',
@@ -212,6 +218,10 @@ const blocks = {
 		customDir: 'order-confirmation/create-account',
 		isExperimental: true,
 	},
+	'blockified-product-reviews': {
+		isExperimental: true,
+		customDir: 'product-reviews',
+	},
 };
 
 /**
@@ -252,7 +262,8 @@ const getBlockEntries = ( relativePath, blockEntries = blocks ) => {
 			.map( ( [ blockCode, config ] ) => {
 				const filePaths = glob.sync(
 					`./assets/js/blocks/${ config.customDir || blockCode }/` +
-						relativePath
+						relativePath,
+					{ dotRelative: true }
 				);
 				if ( filePaths.length > 0 ) {
 					return [ blockCode, filePaths ];
@@ -302,7 +313,9 @@ const frontendEntries = getBlockEntries( 'frontend.{t,j}s{,x}', {
 const entries = {
 	styling: {
 		// Packages styles
-		'packages-style': glob.sync( './packages/**/index.{t,j}s' ),
+		'packages-style': glob.sync( './packages/**/index.{t,j}s', {
+			dotRelative: true,
+		} ),
 
 		// Shared blocks code
 		'wc-blocks': './assets/js/index.js',
