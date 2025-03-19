@@ -1,22 +1,12 @@
 /**
  * External dependencies
  */
-import {
-	expect,
-	test,
-	CLASSIC_THEME_SLUG,
-	BlockData,
-} from '@woocommerce/e2e-utils';
+import { expect, test, CLASSIC_THEME_SLUG } from '@woocommerce/e2e-utils';
 
-const blockData: BlockData = {
-	name: 'Mini-Cart',
-	slug: 'woocommerce/mini-cart',
-	mainClass: '.wc-block-minicart',
-	selectors: {
-		frontend: {},
-		editor: {},
-	},
-};
+/**
+ * Internal dependencies
+ */
+import { blockData } from './utils';
 
 test.describe( 'Merchant → Mini Cart', () => {
 	test.beforeEach( async ( { requestUtils } ) => {
