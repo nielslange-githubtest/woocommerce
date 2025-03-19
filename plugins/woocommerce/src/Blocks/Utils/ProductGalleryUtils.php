@@ -29,10 +29,12 @@ class ProductGalleryUtils {
 			return array();
 		}
 
-		return array_values( array_combine(
-			$all_image_ids,
-			self::get_image_src_data( $all_image_ids )
-		) );
+		return array_values( 
+			array_combine(
+				$all_image_ids,
+				self::get_image_src_data( $all_image_ids )
+			)
+		);
 	}
 
 	/**
