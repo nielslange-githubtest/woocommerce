@@ -3,7 +3,6 @@
  */
 import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { ProductResponseItem } from '@woocommerce/types';
 import { useCollection } from '@woocommerce/base-context/hooks';
 
 /**
@@ -31,11 +30,10 @@ const Edit = ( {
 	const blockProps = useBlockProps();
 	const isSpecificProductContext = postId && postType;
 
-	const { results, isLoading } = useCollection< ProductResponseItem >( {
-		namespace: '/wc/store/v1',
+	const { results: product, isLoading } = useCollection< object >( {
+		namespace: '/wc/v3',
 		resourceName: 'products',
 		resourceValues: [ Number( postId ) ],
-		shouldSelect: !! postId,
 	} );
 
 	if ( isLoading ) {
@@ -48,9 +46,6 @@ const Edit = ( {
 		);
 	}
 
-	// Handle both single item and array responses
-	const product = Array.isArray( results ) ? results[ 0 ] : results;
-
 	if ( postId && ! product ) {
 		return (
 			<div { ...blockProps }>
@@ -59,14 +54,39 @@ const Edit = ( {
 		);
 	}
 
-	console.log( 'product', product );
-
 	return isSpecificProductContext ? (
 		<div { ...blockProps }>
 			<table className="woocommerce-product-attributes shop_attributes">
 				<tbody>
+					{ /* Display Weight if available */ }
+					{ product.weight && (
+						<tr className="woocommerce-product-attributes-item woocommerce-product-attributes-item--weight">
+							<th className="woocommerce-product-attributes-item__label">
+								{ __( 'Weight', 'woocommerce' ) }
+							</th>
+							<td className="woocommerce-product-attributes-item__value">
+								{ product.weight }
+							</td>
+						</tr>
+					) }
+
+					{ /* Display Dimensions if available */ }
+					{ product.dimensions &&
+						Object.values( product.dimensions ).some(
+							( dim ) => dim !== ''
+						) && (
+							<tr className="woocommerce-product-attributes-item woocommerce-product-attributes-item--dimensions">
+								<th className="woocommerce-product-attributes-item__label">
+									{ __( 'Dimensions', 'woocommerce' ) }
+								</th>
+								<td className="woocommerce-product-attributes-item__value">
+									{ `${ product.dimensions.length } × ${ product.dimensions.width } × ${ product.dimensions.height }` }
+								</td>
+							</tr>
+						) }
+
 					{ /* Display Product Attributes */ }
-					{ product.attributes.map( ( attribute ) => (
+					{ product.attributes?.map( ( attribute ) => (
 						<tr
 							key={ attribute.id }
 							className={ `woocommerce-product-attributes-item woocommerce-product-attributes-item--${ attribute.name.toLowerCase() }` }
@@ -75,9 +95,7 @@ const Edit = ( {
 								{ attribute.name }
 							</th>
 							<td className="woocommerce-product-attributes-item__value">
-								{ attribute.terms
-									.map( ( term ) => term.name )
-									.join( ', ' ) }
+								{ attribute.options.join( ', ' ) }
 							</td>
 						</tr>
 					) ) }
