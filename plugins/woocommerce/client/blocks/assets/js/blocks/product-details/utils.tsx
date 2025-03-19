@@ -8,7 +8,13 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { BlockEditProps } from '@wordpress/blocks';
+
+type EditComponentProps = BlockEditProps< Record< string, never > > & {
+	context: {
+		postType: string;
+	};
+};
 
 /**
  * Higher-Order Component that checks if a block is inside an invalid Query Loop context.
@@ -18,24 +24,27 @@ import { useMemo } from '@wordpress/element';
  * @param {string} blockName        The name of the block to display in the warning message
  * @return {Function} A wrapped component that includes query loop context validation
  */
-export const withInvalidQueryLoopContext = (
-	WrappedComponent: React.ComponentType,
+export const withQueryLoopProductContextValidation = (
+	WrappedComponent: React.ComponentType< EditComponentProps >,
 	blockName: string
 ) => {
-	return function WithInvalidQueryLoopContextWrapper( props: any ) {
+	return function WithQueryLoopValidation( props: EditComponentProps ) {
 		const { postType } = props.context;
-		const { getBlockParentsByBlockName } = useSelect( blockEditorStore );
-		const blockParents = useMemo( () => {
-			return getBlockParentsByBlockName(
-				props.clientId,
-				'core/post-template'
-			);
-		}, [ getBlockParentsByBlockName, props.clientId ] );
-
-		const isInvalid = blockParents.length > 0 && postType !== 'product';
+		const isInvalidQueryLoopContext = useSelect(
+			( select ) => {
+				const queryLoopAncestors = select(
+					blockEditorStore
+				).getBlockParentsByBlockName(
+					props.clientId,
+					'core/post-template'
+				);
+				return queryLoopAncestors.length > 0 && postType !== 'product';
+			},
+			[ props.clientId, postType ]
+		);
 
 		const blockProps = useBlockProps();
-		if ( isInvalid ) {
+		if ( isInvalidQueryLoopContext ) {
 			return (
 				<div { ...blockProps }>
 					<Warning>

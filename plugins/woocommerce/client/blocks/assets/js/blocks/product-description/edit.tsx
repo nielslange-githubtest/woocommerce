@@ -22,7 +22,7 @@ import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { withInvalidQueryLoopContext } from '../product-details/utils';
+import { withQueryLoopProductContextValidation } from '../product-details/utils';
 
 /**
  * Returns whether the current user can edit the given entity.
@@ -204,7 +204,7 @@ function ProductDescriptionEdit( {
 	);
 }
 
-export default withInvalidQueryLoopContext(
+export default withQueryLoopProductContextValidation(
 	ProductDescriptionEdit,
 	'Product Description'
 );
