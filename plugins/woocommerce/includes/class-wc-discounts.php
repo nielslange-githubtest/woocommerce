@@ -808,7 +808,7 @@ class WC_Discounts {
 
 			if ( ! $valid ) {
 				/* translators: %s: coupon code */
-				throw new Exception( sprintf( esc_html____( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 109 );
+				throw new Exception( sprintf( esc_html__( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 109 );
 			}
 		}
 
@@ -836,7 +836,7 @@ class WC_Discounts {
 
 			if ( ! $valid ) {
 				/* translators: %s: coupon code */
-				throw new Exception( sprintf( esc_html____( 'Sorry, coupon "%s" is not valid for sale items.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 110 );
+				throw new Exception( sprintf( esc_html__( 'Sorry, coupon "%s" is not valid for sale items.', 'woocommerce' ), esc_html( $coupon->get_code() ) ), 110 );
 			}
 		}
 
@@ -952,7 +952,7 @@ class WC_Discounts {
 
 			if ( ! empty( $categories ) ) {
 				/* translators: %1$s: coupon code, %2$s: categories list */
-				throw new Exception( sprintf( esc_html__( 'Sorry, coupon "%1$s" is not applicable to the categories: %2$s.', 'woocommerce' ), esc_html( $coupon->get_code() ), esc_html (implode( ', ', array_unique( $categories ) ) ) ), 114 );
+				throw new Exception( sprintf( esc_html__( 'Sorry, coupon "%1$s" is not applicable to the categories: %2$s.', 'woocommerce' ), esc_html( $coupon->get_code() ), esc_html( implode( ', ', array_unique( $categories ) ) ) ), 114 );
 			}
 		}
 
