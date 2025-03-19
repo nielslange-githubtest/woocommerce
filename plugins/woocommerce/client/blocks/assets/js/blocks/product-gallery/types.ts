@@ -18,9 +18,8 @@ export interface ImageDataItem {
 	sizes: string;
 }
 
-interface ImageDataObject {
-	images: Record< number, ImageDataItem >;
-	image_ids: number[];
+interface ImageData {
+	images: ImageDataItem[];
 }
 
 export interface ProductGalleryContext {
@@ -32,7 +31,6 @@ export interface ProductGalleryContext {
 	touchStartX: number;
 	touchCurrentX: number;
 	isDragging: boolean;
-	userHasInteracted: boolean;
-	imageData: ImageDataObject;
+	imageData: ImageData;
 	image: ImageDataItem;
 }

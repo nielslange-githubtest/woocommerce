@@ -45,7 +45,7 @@ class ProductGallery extends AbstractBlock {
 		?>
 		<dialog
 				data-wp-ref
-				data-wp-bind--open="context.isDialogOpen"
+				data-wp-bind--open="state.isDialogOpen"
 				data-wp-on--close="actions.closeDialog"
 				data-wp-on--keydown="actions.onDialogKeyDown"
 				data-wp-watch="callbacks.dialogStateChange"
@@ -113,32 +113,28 @@ class ProductGallery extends AbstractBlock {
 
 		$image_src_data         = ProductGalleryUtils::get_product_gallery_image_data( $product );
 		$classname              = StyleAttributesUtils::get_classes_by_attributes( $attributes, array( 'extra_classes' ) );
-		$initial_image_id       = count( $image_src_data['image_ids'] ) > 0 ? $image_src_data['image_ids'][0] : -1;
-		$classname_single_image = count( $image_src_data['image_ids'] ) < 2 ? 'is-single-product-gallery-image' : '';
+		$initial_image_id       = count( $image_src_data ) > 0 ? $image_src_data[0] : -1;
+		$classname_single_image = count( $image_src_data ) < 2 ? 'is-single-product-gallery-image' : '';
 		$product_id             = strval( $product->get_id() );
-		$gallery_with_dialog    = $this->inject_dialog( $content, $this->render_dialog( $image_src_data['images'] ) );
+		$gallery_with_dialog    = $this->inject_dialog( $content, $this->render_dialog( $image_src_data ) );
 		$p                      = new \WP_HTML_Tag_Processor( $gallery_with_dialog );
+		wp_interactivity_state(
+			'woocommerce/product-gallery',
+			array(
+				'imageData'         => $image_src_data,
+				'isDialogOpen'      => false,
+				'disableLeft'       => true,
+				'disableRight'      => false,
+				'isDragging'        => false,
+				'touchStartX'       => 0,
+				'touchCurrentX'     => 0,
+				'productId'         => $product_id,
+				'selectedImageId'   => $initial_image_id,
+			)
+		);
 
 		if ( $p->next_tag() ) {
 			$p->set_attribute( 'data-wp-interactive', $this->get_full_block_name() );
-			$p->set_attribute(
-				'data-wp-context',
-				wp_json_encode(
-					array(
-						'imageData'         => $image_src_data,
-						'isDialogOpen'      => false,
-						'disableLeft'       => true,
-						'disableRight'      => false,
-						'isDragging'        => false,
-						'touchStartX'       => 0,
-						'touchCurrentX'     => 0,
-						'productId'         => $product_id,
-						'selectedImageId'   => $initial_image_id,
-						'userHasInteracted' => false,
-					),
-					JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-				)
-			);
 
 			if ( $product->is_type( ProductType::VARIABLE ) ) {
 				$p->set_attribute( 'data-wp-init--watch-changes-on-add-to-cart-form', 'callbacks.watchForChangesOnAddToCartForm' );

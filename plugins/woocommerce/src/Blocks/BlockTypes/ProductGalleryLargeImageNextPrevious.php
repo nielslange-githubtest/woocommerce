@@ -114,12 +114,12 @@ class ProductGalleryLargeImageNextPrevious extends AbstractBlock {
 		$next_button_icon_path     = 'M21.7001 12L19.3 14L28.5 24L19.3 34L21.7001 36L32.5 24L21.7001 12Z';
 		$icon_path                 = $previous_button_icon_path;
 		$button_side_class         = 'left';
-		$button_disabled_directive = 'context.disableLeft';
+		$button_disabled_directive = 'state.disableLeft';
 
 		if ( 'next' === $button_type ) {
 			$icon_path                 = $next_button_icon_path;
 			$button_side_class         = 'right';
-			$button_disabled_directive = 'context.disableRight';
+			$button_disabled_directive = 'state.disableRight';
 		}
 
 		return sprintf(
