@@ -100,6 +100,16 @@ if ( $additional_content ) {
 }
 
 /**
+ * Show store address - this is set in each email's settings.
+ */
+if ( ! empty( $pos_store_address ) ) {
+	echo '<div class="pos-store-address">';
+	echo '<h2>' . esc_html__( 'Store Address', 'woocommerce-pos' ) . '</h2>';
+	echo wp_kses_post( wpautop( wptexturize( $pos_store_address ) ) );
+	echo '</div>';
+}
+
+/**
  * Show refund & returns policy - this is set in each email's settings.
  */
 if ( ! empty( $refund_returns_policy ) ) {

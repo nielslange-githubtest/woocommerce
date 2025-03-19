@@ -34,9 +34,16 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			
 			// Call parent constructor
 			parent::__construct();
-			
-			// Default to manual sending
-			$this->manual = true;
+		}
+
+		/**
+		 * Get the store address text.
+		 *
+		 * @return string
+		 */
+		private function get_pos_store_address() {
+			$address_text = $this->get_option( 'pos_store_address', '' );
+			return $this->format_string( $address_text );
 		}
 		
 		/**
@@ -45,7 +52,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 * @since 1.0.0
 		 * @return string
 		 */
-		public function get_refund_returns_policy_placeholder() {
+		protected function get_refund_returns_policy_placeholder() {
 			return __( 'Brief statement about the refund & returns policy', 'woocommerce-pos' );
 		}
 
@@ -54,7 +61,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 *
 		 * @return string
 		 */
-		public function get_refund_returns_policy() {
+		private function get_refund_returns_policy() {
 			$policy_text = $this->get_option( 'refund_returns_policy', '' );
 			return $this->format_string( $policy_text );
 		}
@@ -150,6 +157,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 					'order'                 => $this->object,
 					'email_heading'         => $this->get_heading(),
 					'additional_content'    => $this->get_additional_content(),
+					'pos_store_address'     => $this->get_pos_store_address(),
 					'refund_returns_policy' => $this->get_refund_returns_policy(),
 					'sent_to_admin'         => false,
 					'plain_text'            => false,
@@ -181,6 +189,46 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 					'email'              => $this,
 				)
 			);
+		}
+
+		/**
+		 * Get store address formatted for emails.
+		 *
+		 * @return string
+		 */
+		protected function get_store_address() {
+			add_filter(
+				'woocommerce_formatted_address_force_country_display',
+				array( $this, 'get_store_address_force_country_display' ),
+				5
+			);
+			$result = wp_specialchars_decode(
+				WC()->countries->get_formatted_address(
+					array(
+						'address_1' => WC()->countries->get_base_address(),
+						'address_2' => WC()->countries->get_base_address_2(),
+						'city'      => WC()->countries->get_base_city(),
+						'state'     => WC()->countries->get_base_state(),
+						'country'   => WC()->countries->get_base_country(),
+						'postcode'  => WC()->countries->get_base_postcode(),
+					),
+					'<br/>'
+				)
+			);
+			remove_filter(
+				'woocommerce_formatted_address_force_country_display',
+				array( $this, 'get_store_address_force_country_display' )
+			);
+			return $result;
+		}
+
+		/**
+		 * Force country display, used by WC_Emails::get_store address() method
+		 *
+		 * @return bool
+		 */
+		public function get_store_address_force_country_display() {
+			return true;
 		}
 	}
 
