@@ -24,15 +24,7 @@ const descriptionAccordion = createAccordionItem( 'Description', [
 
 const additionalInformationAccordion = createAccordionItem(
 	'Additional Information',
-	[
-		[
-			'core/paragraph',
-			{
-				content:
-					'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget turpis eget nunc fermentum ultricies. Nullam nec sapien nec0',
-			},
-		],
-	]
+	[ [ 'woocommerce/product-attributes', {} ] ]
 );
 
 const reviewsAccordion = createAccordionItem( 'Reviews', [

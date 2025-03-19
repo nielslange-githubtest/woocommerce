@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "woocommerce/product-attributes",
+	"version": "1.0.0",
+	"title": "Product Attributes",
+	"description": "Display product attributes, weight, and dimensions.",
+	"category": "woocommerce",
+	"keywords": [ "dimensions", "weight", "additional information" ],
+	"textdomain": "woocommerce",
+	"ancestor": [
+		"woocommerce/single-product",
+		"woocommerce/product-template",
+		"core/post-template"
+	],
+	"usesContext": [ "postId", "postType" ],
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	}
+}
