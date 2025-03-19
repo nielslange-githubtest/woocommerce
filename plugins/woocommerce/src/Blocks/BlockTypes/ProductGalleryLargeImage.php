@@ -136,7 +136,6 @@ class ProductGalleryLargeImage extends AbstractBlock {
 							data-wp-bind--data-image-id="context.image.id"
 							data-wp-bind--tabindex="context.image.tabIndex"
 							data-wp-on--keydown="actions.onSelectedLargeImageKeyDown"
-							data-wp-class--wc-block-woocommerce-product-gallery-large-image__image--active-image-slide="context.image.isActive"
 							data-wp-on--touchstart="actions.onTouchStart"
 							data-wp-on--touchmove="actions.onTouchMove"
 							data-wp-on--touchend="actions.onTouchEnd"
