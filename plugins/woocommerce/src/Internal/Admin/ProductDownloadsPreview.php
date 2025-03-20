@@ -58,10 +58,10 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				'default' => 'large',
 				'description' => 'Image size to display',
 			],
-			'token' => [
+			'signature' => [
 				'required' => true,
 				'type' => 'string',
-				'description' => 'Secure access token',
+				'description' => 'Secure access signature',
 			],
 		];
 
@@ -78,81 +78,81 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	}
 
 	/**
-	 * Permission check for the REST API endpoint.
+	 * Permission check for REST API endpoint.
 	 *
 	 * @since 9.9.0
-	 *
-	 * @param \WP_REST_Request $request Full details about the request.
-	 *
+	 * @param \WP_REST_Request $request Request details.
 	 * @return bool|\WP_Error
-	 *
 	 */
 	public function get_preview_permissions_check( $request ) {
-		$token = $request->get_param( 'token' );
+		$signature = $request->get_param( 'signature' );
 
-		if ( empty( $token ) ) {
+		if ( empty( $signature ) ) {
 			return new WP_Error(
-				'woocommerce_rest_missing_token',
-				__( 'Missing access token.', 'woocommerce' ),
+				'woocommerce_rest_missing_signature',
+				__( 'Missing signature.', 'woocommerce' ),
 				array( 'status' => 401 )
 			);
 		}
 
-		// Check if token exists in transient.
-		$transient_key = 'wc_preview_token_' . $token;
-		$stored = get_transient( $transient_key );
+		$attachment_id = $request->get_param( 'attachment_id' );
+		$product_id = $request->get_param( 'product_id' );
+		$size = $request->get_param( 'size' ) ?? 'large';
 
-		if ( ! $stored ) {
-			return new WP_Error(
-				'woocommerce_rest_invalid_token',
-				__( 'Invalid or expired access token.', 'woocommerce' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		// Verify token is for the right attachment and product.
-		if ( $stored['attachment_id'] != $request->get_param( 'attachment_id' ) ||
-			$stored['product_id'] != $request->get_param( 'product_id' ) ) {
-			return new WP_Error(
-				'woocommerce_rest_token_mismatch',
-				__( 'Token does not match requested resource.', 'woocommerce' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		// Verify token was created by an admin user, not externally
-		if ( empty( $stored['admin_verified'] ) || empty( $stored['signature'] ) ) {
-			return new WP_Error(
-				'woocommerce_rest_unauthorized_token',
-				__( 'Unauthorized token source.', 'woocommerce' ),
-				array( 'status' => 403 )
-			);
-		}
-		
-		// Verify the cryptographic signature to ensure token was created through our admin function
-		$data_to_verify = $stored['attachment_id'] . '|' . $stored['product_id'];
+		// Verify signature
+		$data_to_verify = $attachment_id . '|' . $product_id;
 		$expected_signature = hash_hmac('sha256', $data_to_verify, AUTH_KEY . SECURE_AUTH_SALT);
 		
-		if ( ! hash_equals( $expected_signature, $stored['signature'] ) ) {
+		if ( ! hash_equals( $expected_signature, $signature ) ) {
 			return new WP_Error(
 				'woocommerce_rest_invalid_signature',
-				__( 'Invalid token signature.', 'woocommerce' ),
+				__( 'Invalid signature.', 'woocommerce' ),
 				array( 'status' => 403 )
 			);
 		}
+			
+		// Check for cached entry
+		$cache_key = "wc_preview_{$product_id}_{$attachment_id}_{$size}";
+		$stored = wp_cache_get( $cache_key, 'wc_preview_tokens' );
 
-		// Delete the transient to prevent reuse.
-		delete_transient( $transient_key );
+		if ( ! $stored ) {
+			// Create cache entry if not exists
+			$token_data = [
+				'attachment_id' => $attachment_id,
+				'product_id' => $product_id,
+				'size' => $size,
+				'admin_verified' => true,
+			];
+			
+			wp_cache_add( $cache_key, $token_data, 'wc_preview_tokens', 5 * MINUTE_IN_SECONDS );
+		} else {
+			// Verify stored data matches request
+			if ( $stored['attachment_id'] != $request->get_param( 'attachment_id' ) ||
+				$stored['product_id'] != $request->get_param( 'product_id' ) ) {
+				return new WP_Error(
+					'woocommerce_rest_resource_mismatch',
+					__( 'Request does not match resource.', 'woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+
+			if ( empty( $stored['admin_verified'] ) ) {
+				return new WP_Error(
+					'woocommerce_rest_unauthorized',
+					__( 'Unauthorized access.', 'woocommerce' ),
+					array( 'status' => 403 )
+				);
+			}
+		}
 
 		return true;
 	}
 
 	/**
-	 * REST API endpoint callback to serve the preview image.
+	 * Serve the preview image
 	 *
 	 * @since 9.9.0
-	 *
-	 * @param \WP_REST_Request $request Full details about the request.
+	 * @param \WP_REST_Request $request Request details
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_preview( $request ) {
@@ -160,7 +160,6 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		$product_id = $request['product_id'];
 		$requested_size = $request['size'] ?? 'large';
 
-		// Get file path.
 		$file_path = get_attached_file( $attachment_id );
 		if ( ! $file_path || ! is_readable( $file_path ) ) {
 			return new WP_Error(
@@ -170,7 +169,6 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			);
 		}
 
-		// Only allow image mime types.
 		$mime_type = get_post_mime_type( $attachment_id );
 		$allowed_mime_types = array(
 			'image/jpeg',
@@ -188,7 +186,6 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			);
 		}
 
-		// Handle image size requests - use 'large' as maximum size, 'full' can be too large.
 		$size = $requested_size === 'full' ? 'large' : $requested_size;
 
 		$resized = image_get_intermediate_size( $attachment_id, $size );
@@ -200,10 +197,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			}
 		}
 
-		// Serve the file with appropriate headers.
 		$this->clean_buffers();
-
-		// We need to manually build the response to send proper binary data.
 		nocache_headers();
 		header( 'Content-Type: ' . $mime_type );
 		header( 'Content-Length: ' . filesize( $file_path ) );
@@ -214,51 +208,40 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	}
 
 	/**
-	 * Get secure URL for admin image that works with image src attributes
+	 * Get secure URL for admin image
 	 *
 	 * @since 9.9.0
-	 *
 	 * @param int    $product_id    Product ID.
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $size          Image size.
 	 * @return string Secure admin image URL.
-	 *
 	 */
 	public function get_admin_image_src_url( $product_id, $attachment_id, $size ) {
-		// Exit early if not an admin
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return '';
 		}
 
-		// Record that an admin with proper permissions generated this token
-		
-		// Generate a secure token.
-		$token = wp_generate_password( 32, false );
-
-		// We're creating a token with a signature that can only be verified 
-		// with access to this WordPress installation's secure keys
-
-		// Create a signature using WordPress site keys and resource identifiers
+		// Generate signature based on product and attachment IDs
 		$data_to_sign = $attachment_id . '|' . $product_id;
 		$signature = hash_hmac('sha256', $data_to_sign, AUTH_KEY . SECURE_AUTH_SALT);
-		
-		// Store token in transient with 5-minute expiration
-		$transient_key = 'wc_preview_token_' . $token;
+
+		// Store metadata in cache with simple key (no signature in key)
+		$cache_key = "wc_preview_{$product_id}_{$attachment_id}_{$size}";
 		$token_data = [
 			'attachment_id' => $attachment_id,
 			'product_id' => $product_id,
-			'admin_verified' => true,    // Indicates token was created through our admin function
-			'signature' => $signature,   // Cryptographic signature for verification
+			'size' => $size,
+			'admin_verified' => true,
 		];
 
-		set_transient( $transient_key, $token_data, 5 * MINUTE_IN_SECONDS );
+		wp_cache_add( $cache_key, $token_data, 'wc_preview_tokens', 5 * MINUTE_IN_SECONDS );
 
-		// Generate URL with token.
+		// Use signature as query parameter for verification
 		$url = rest_url( "wc/v3/admin/product-downloads-preview/{$product_id}/{$attachment_id}" );
 		$url = add_query_arg(
 			[
 				'size' => $size,
-				'token' => $token,
+				'signature' => $signature,
 			],
 			$url
 		);
