@@ -160,7 +160,7 @@ class OnboardingPlugins extends WC_REST_Data_Controller {
 			'woocommerce_plugins_install_and_activate_async_callback',
 			array( $plugins, $job_id ),
 			'',
-			ActionQueuePriority::HIGH
+			ActionQueuePriority::URGENT
 		);
 
 		$plugin_status = array();
