@@ -46,8 +46,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param int    $priority Priority, if supported by the queue. See \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
 	 * @return int The action ID.
 	 */
-	public function add($hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL)
-	{
+	public function add( $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
 			? $this->queue_with_priorities_instance->add( $hook, $args, $group, $priority  )
 			: $this->queue_fifo_instance->add( $hook, $args, $group );
@@ -63,8 +62,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param int    $priority  Priority, if supported by the queue. See \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
 	 * @return int The action ID.
 	 */
-	public function schedule_single($timestamp, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL)
-	{
+	public function schedule_single( $timestamp, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
 			? $this->queue_with_priorities_instance->schedule_single( $timestamp, $hook, $args, $group, $priority )
 			: $this->queue_fifo_instance->schedule_single( $timestamp, $hook, $args, $group );
@@ -81,8 +79,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param int    $priority            Priority, if supported by the queue. See \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
 	 * @return int The action ID.
 	 */
-	public function schedule_recurring($timestamp, $interval_in_seconds, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL)
-	{
+	public function schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
 			? $this->queue_with_priorities_instance->schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args, $group, $priority  )
 			: $this->queue_fifo_instance->schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args, $group );
@@ -99,8 +96,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param int    $priority      Priority, if supported by the queue. See \Automattic\WooCommerce\Enums\ActionQueuePriority for possible options.
 	 * @return int The action ID
 	 */
-	public function schedule_cron($timestamp, $cron_schedule, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL)
-	{
+	public function schedule_cron( $timestamp, $cron_schedule, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
 			? $this->queue_with_priorities_instance->schedule_cron( $timestamp, $cron_schedule, $hook, $args, $group, $priority )
 			: $this->queue_fifo_instance->schedule_cron( $timestamp, $cron_schedule, $hook, $args, $group );
@@ -122,8 +118,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param array  $args  Args that would have been passed to the job.
 	 * @param string $group The group the job is assigned to (if any).
 	 */
-	public function cancel($hook, $args = array(), $group = '')
-	{
+	public function cancel( $hook, $args = array(), $group = '' ) {
 		( $this->queue_with_priorities_instance ?? $this->queue_fifo_instance )->cancel( $hook, $args, $group );
 	}
 
@@ -134,8 +129,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param array  $args  Args that would have been passed to the job.
 	 * @param string $group The group the job is assigned to (if any).
 	 */
-	public function cancel_all($hook, $args = array(), $group = '')
-	{
+	public function cancel_all( $hook, $args = array(), $group = '' ) {
 		( $this->queue_with_priorities_instance ?? $this->queue_fifo_instance )->cancel_all( $hook, $args, $group );
 	}
 
@@ -148,8 +142,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param string $group Filter to only actions assigned to a specific group.
 	 * @return \WC_DateTime|null The date and time for the next occurrence, or null if there is no pending, scheduled action for the given hook.
 	 */
-	public function get_next($hook, $args = null, $group = '')
-	{
+	public function get_next( $hook, $args = null, $group = '' ) {
 		return ( $this->queue_with_priorities_instance ?? $this->queue_fifo_instance )->get_next( $hook, $args, $group );
 	}
 
@@ -174,8 +167,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 * @param string $return_format OBJECT, ARRAY_A, or ids.
 	 * @return array
 	 */
-	public function search($args = array(), $return_format = OBJECT)
-	{
+	public function search( $args = array(), $return_format = OBJECT ) {
 		return ( $this->queue_with_priorities_instance ?? $this->queue_fifo_instance )->search( $args, $return_format );
 	}
 }
