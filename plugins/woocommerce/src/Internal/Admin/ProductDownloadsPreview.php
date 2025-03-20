@@ -58,11 +58,6 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				'default'     => 'large',
 				'description' => 'Image size to display',
 			),
-			'signature'     => array(
-				'required'    => true,
-				'type'        => 'string',
-				'description' => 'Secure access signature',
-			),
 		);
 
 		register_rest_route(
@@ -85,81 +80,13 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @return bool|\WP_Error
 	 */
 	public function get_preview_permissions_check( $request ) {
-		$signature = $request->get_param( 'signature' );
-
-		if ( empty( $signature ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return new WP_Error(
-				'woocommerce_rest_missing_signature',
-				__( 'Missing signature.', 'woocommerce' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		$attachment_id = $request->get_param( 'attachment_id' );
-		$product_id    = $request->get_param( 'product_id' );
-		$size          = $request->get_param( 'size' ) ?? 'large';
-
-		// Check if this signature has been used before.
-		$used_signatures_key = 'wc_preview_used_signatures';
-		$used_signatures     = wp_cache_get( $used_signatures_key, 'wc_preview_tokens' ) ? wp_cache_get( $used_signatures_key, 'wc_preview_tokens' ) : array();
-
-		if ( in_array( $signature, $used_signatures, true ) ) {
-			return new WP_Error(
-				'woocommerce_rest_signature_already_used',
-				__( 'This signature has already been used.', 'woocommerce' ),
+				'woocommerce_rest_unauthorized',
+				__( 'Unauthorized access.', 'woocommerce' ),
 				array( 'status' => 403 )
 			);
 		}
-
-		// Verify signature.
-		$data_to_verify     = $attachment_id . '|' . $product_id;
-		$expected_signature = hash_hmac( 'sha256', $data_to_verify, AUTH_KEY . SECURE_AUTH_SALT );
-
-		if ( ! hash_equals( $expected_signature, $signature ) ) {
-			return new WP_Error(
-				'woocommerce_rest_invalid_signature',
-				__( 'Invalid signature.', 'woocommerce' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		// Check for cached entry.
-		$cache_key = "wc_preview_{$product_id}_{$attachment_id}_{$size}";
-		$stored    = wp_cache_get( $cache_key, 'wc_preview_tokens' );
-
-		if ( ! $stored ) {
-			// Create cache entry if not exists.
-			$token_data = array(
-				'attachment_id'  => $attachment_id,
-				'product_id'     => $product_id,
-				'size'           => $size,
-				'admin_verified' => true,
-			);
-
-			wp_cache_add( $cache_key, $token_data, 'wc_preview_tokens', 5 * MINUTE_IN_SECONDS );
-		} else {
-			// Verify stored data matches request.
-			if ( $stored['attachment_id'] !== $request->get_param( 'attachment_id' ) ||
-				$stored['product_id'] !== $request->get_param( 'product_id' ) ) {
-				return new WP_Error(
-					'woocommerce_rest_resource_mismatch',
-					__( 'Request does not match resource.', 'woocommerce' ),
-					array( 'status' => 403 )
-				);
-			}
-
-			if ( empty( $stored['admin_verified'] ) ) {
-				return new WP_Error(
-					'woocommerce_rest_unauthorized',
-					__( 'Unauthorized access.', 'woocommerce' ),
-					array( 'status' => 403 )
-				);
-			}
-		}
-
-		// Mark this signature as used - store it for a day to prevent reuse.
-		$used_signatures[] = $signature;
-		wp_cache_set( $used_signatures_key, $used_signatures, 'wc_preview_tokens', DAY_IN_SECONDS );
 
 		return true;
 	}
@@ -241,27 +168,11 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			return '';
 		}
 
-		// Generate signature based on product and attachment IDs.
-		$data_to_sign = $attachment_id . '|' . $product_id;
-		$signature    = hash_hmac( 'sha256', $data_to_sign, AUTH_KEY . SECURE_AUTH_SALT );
-
-		// Store metadata in cache with simple key (no signature in key).
-		$cache_key  = "wc_preview_{$product_id}_{$attachment_id}_{$size}";
-		$token_data = array(
-			'attachment_id'  => $attachment_id,
-			'product_id'     => $product_id,
-			'size'           => $size,
-			'admin_verified' => true,
-		);
-
-		wp_cache_add( $cache_key, $token_data, 'wc_preview_tokens', 5 * MINUTE_IN_SECONDS );
-
-		// Use signature as query parameter for verification.
 		$url = rest_url( "wc/v3/admin/product-downloads-preview/{$product_id}/{$attachment_id}" );
 		$url = add_query_arg(
 			array(
-				'size'      => $size,
-				'signature' => $signature,
+				'size'     => $size,
+				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
 			),
 			$url
 		);
