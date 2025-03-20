@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Admin\PluginsHelper;
 use Automattic\WooCommerce\Admin\PluginsInstallLoggers\AsynPluginsInstallLogger;
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
 use WC_REST_Data_Controller;
 use WP_Error;
 use WP_REST_Request;
@@ -155,7 +156,12 @@ class OnboardingPlugins extends WC_REST_Data_Controller {
 		$plugins = $request->get_param( 'plugins' );
 		$job_id  = uniqid();
 
-		WC()->queue()->add( 'woocommerce_plugins_install_and_activate_async_callback', array( $plugins, $job_id ) );
+		WC()->queue()->add(
+			'woocommerce_plugins_install_and_activate_async_callback',
+			array( $plugins, $job_id ),
+			'',
+			ActionQueuePriority::HIGH
+		);
 
 		$plugin_status = array();
 		foreach ( $plugins as $plugin ) {

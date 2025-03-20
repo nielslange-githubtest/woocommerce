@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\WooCommerce\Admin\Notes\Notes;
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\Internal\TransientFiles\TransientFilesEngine;
 use Automattic\WooCommerce\Internal\DataStores\Orders\{ CustomOrdersTableController, DataSynchronizer, OrdersTableDataStore };
@@ -451,7 +452,8 @@ class WC_Install {
 				array(
 					'update_callback' => $callback,
 				),
-				'woocommerce-db-updates'
+				'woocommerce-db-updates',
+				ActionQueuePriority::HIGH
 			);
 		}
 	}
@@ -748,7 +750,8 @@ class WC_Install {
 						array(
 							'update_callback' => $update_callback,
 						),
-						'woocommerce-db-updates'
+						'woocommerce-db-updates',
+						ActionQueuePriority::HIGH
 					);
 					++$loop;
 				}
@@ -765,7 +768,8 @@ class WC_Install {
 				array(
 					'version' => $current_wc_version,
 				),
-				'woocommerce-db-updates'
+				'woocommerce-db-updates',
+				ActionQueuePriority::HIGH
 			);
 		}
 	}
