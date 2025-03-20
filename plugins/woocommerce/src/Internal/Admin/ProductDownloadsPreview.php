@@ -25,6 +25,8 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 
 	/**
 	 * Register hooks.
+	 *
+	 * @since 9.9.0
 	 */
 	public function register() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -32,6 +34,8 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 
 	/**
 	 * Register REST API routes for admin product downloads preview.
+	 *
+	 * @since 9.9.0
 	 */
 	public function register_rest_routes() {
 		$namespace = 'wc/v3';
@@ -76,12 +80,16 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	/**
 	 * Permission check for the REST API endpoint.
 	 *
+	 * @since 9.9.0
+	 *
 	 * @param \WP_REST_Request $request Full details about the request.
+	 *
 	 * @return bool|\WP_Error
+	 *
 	 */
 	public function get_preview_permissions_check( $request ) {
 		$token = $request->get_param( 'token' );
-		
+
 		if ( empty( $token ) ) {
 			return new WP_Error(
 				'woocommerce_rest_missing_token',
@@ -89,11 +97,11 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				array( 'status' => 401 )
 			);
 		}
-		
+
 		// Check if token exists in transient.
 		$transient_key = 'wc_preview_token_' . $token;
 		$stored = get_transient( $transient_key );
-		
+
 		if ( ! $stored ) {
 			return new WP_Error(
 				'woocommerce_rest_invalid_token',
@@ -101,7 +109,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				array( 'status' => 401 )
 			);
 		}
-		
+
 		// Verify token is for the right attachment and product.
 		if ( $stored['attachment_id'] != $request->get_param( 'attachment_id' ) ||
 			$stored['product_id'] != $request->get_param( 'product_id' ) ) {
@@ -111,15 +119,38 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				array( 'status' => 403 )
 			);
 		}
+
+		// Verify token was created by an admin user, not externally
+		if ( empty( $stored['admin_verified'] ) || empty( $stored['signature'] ) ) {
+			return new WP_Error(
+				'woocommerce_rest_unauthorized_token',
+				__( 'Unauthorized token source.', 'woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
 		
+		// Verify the cryptographic signature to ensure token was created through our admin function
+		$data_to_verify = $stored['attachment_id'] . '|' . $stored['product_id'];
+		$expected_signature = hash_hmac('sha256', $data_to_verify, AUTH_KEY . SECURE_AUTH_SALT);
+		
+		if ( ! hash_equals( $expected_signature, $stored['signature'] ) ) {
+			return new WP_Error(
+				'woocommerce_rest_invalid_signature',
+				__( 'Invalid token signature.', 'woocommerce' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		// Delete the transient to prevent reuse.
 		delete_transient( $transient_key );
-		
+
 		return true;
 	}
 
 	/**
 	 * REST API endpoint callback to serve the preview image.
+	 *
+	 * @since 9.9.0
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -185,30 +216,43 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	/**
 	 * Get secure URL for admin image that works with image src attributes
 	 *
+	 * @since 9.9.0
+	 *
 	 * @param int    $product_id    Product ID.
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $size          Image size.
 	 * @return string Secure admin image URL.
 	 *
-	 * @since 9.9.0
 	 */
 	public function get_admin_image_src_url( $product_id, $attachment_id, $size ) {
+		// Exit early if not an admin
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return '';
 		}
 
+		// Record that an admin with proper permissions generated this token
+		
 		// Generate a secure token.
 		$token = wp_generate_password( 32, false );
+
+		// We're creating a token with a signature that can only be verified 
+		// with access to this WordPress installation's secure keys
+
+		// Create a signature using WordPress site keys and resource identifiers
+		$data_to_sign = $attachment_id . '|' . $product_id;
+		$signature = hash_hmac('sha256', $data_to_sign, AUTH_KEY . SECURE_AUTH_SALT);
 		
-		// Store token in transient with 15-minute expiration.
+		// Store token in transient with 5-minute expiration
 		$transient_key = 'wc_preview_token_' . $token;
 		$token_data = [
 			'attachment_id' => $attachment_id,
 			'product_id' => $product_id,
+			'admin_verified' => true,    // Indicates token was created through our admin function
+			'signature' => $signature,   // Cryptographic signature for verification
 		];
-		
-		set_transient( $transient_key, $token_data, 15 * MINUTE_IN_SECONDS );
-		
+
+		set_transient( $transient_key, $token_data, 5 * MINUTE_IN_SECONDS );
+
 		// Generate URL with token.
 		$url = rest_url( "wc/v3/admin/product-downloads-preview/{$product_id}/{$attachment_id}" );
 		$url = add_query_arg(
@@ -218,12 +262,14 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			],
 			$url
 		);
-		
+
 		return $url;
 	}
 
 	/**
 	 * Clean all output buffers.
+	 *
+	 * @since 9.9.0
 	 *
 	 * Can prevent errors, for example: transfer closed with 3 bytes remaining to read.
 	 */

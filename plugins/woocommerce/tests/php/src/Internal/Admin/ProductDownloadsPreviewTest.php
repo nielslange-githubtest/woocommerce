@@ -139,9 +139,9 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	public function test_get_preview_permissions_check_fails_with_empty_token() {
 		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
 		$request->set_param( 'token', '' );
-		
+
 		$response = $this->preview->get_preview_permissions_check( $request );
-		
+
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_missing_token', $response->get_error_code() );
 	}
@@ -152,9 +152,9 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	public function test_get_preview_permissions_check_fails_with_invalid_token() {
 		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
 		$request->set_param( 'token', 'invalid_token' );
-		
+
 		$response = $this->preview->get_preview_permissions_check( $request );
-		
+
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_invalid_token', $response->get_error_code() );
 	}
@@ -178,14 +178,14 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 			),
 			60
 		);
-		
+
 		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
 		$request->set_param( 'token', $token );
 		$request->set_param( 'product_id', $this->product_id );
 		$request->set_param( 'attachment_id', $this->attachment_id );
-		
+
 		$response = $this->preview->get_preview_permissions_check( $request );
-		
+
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_token_mismatch', $response->get_error_code() );
 	}
@@ -198,27 +198,88 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
+		// Create signature the same way the class would
+		$data_to_sign = $this->attachment_id . '|' . $this->product_id;
+		$signature = hash_hmac('sha256', $data_to_sign, AUTH_KEY . SECURE_AUTH_SALT);
+		
 		$token = wp_generate_password( 32, false );
 		set_transient(
 			'wc_preview_token_' . $token,
 			array(
 				'attachment_id' => $this->attachment_id,
 				'product_id'    => $this->product_id,
+				'admin_verified' => true,
+				'signature'     => $signature,
 			),
 			60
 		);
-		
+
 		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
 		$request->set_param( 'token', $token );
 		$request->set_param( 'product_id', $this->product_id );
 		$request->set_param( 'attachment_id', $this->attachment_id );
-		
+
 		$response = $this->preview->get_preview_permissions_check( $request );
-		
+
 		$this->assertTrue( $response );
-		
+
 		// Verify token was deleted after use
 		$this->assertFalse( get_transient( 'wc_preview_token_' . $token ) );
+	}
+
+	/**
+	 * Test permissions check fails with externally created token (missing admin_verified flag)
+	 */
+	public function test_get_preview_permissions_check_fails_with_externally_created_token() {
+		// Create a token externally (without using the class method, simulating an attack)
+		$token = wp_generate_password( 32, false );
+		set_transient(
+			'wc_preview_token_' . $token,
+			array(
+				'attachment_id' => $this->attachment_id,
+				'product_id'    => $this->product_id,
+				// Note: admin_verified flag is deliberately missing
+			),
+			60
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', $this->attachment_id );
+
+		$response = $this->preview->get_preview_permissions_check( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_unauthorized_token', $response->get_error_code() );
+	}
+
+	/**
+	 * Test permissions check fails with invalid signature
+	 */
+	public function test_get_preview_permissions_check_fails_with_invalid_signature() {
+		// Create a token with invalid signature
+		$token = wp_generate_password( 32, false );
+		set_transient(
+			'wc_preview_token_' . $token,
+			array(
+				'attachment_id' => $this->attachment_id,
+				'product_id'    => $this->product_id,
+				'admin_verified' => true,
+				'signature'     => 'invalid_signature_value',
+			),
+			60
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', $this->attachment_id );
+
+		$response = $this->preview->get_preview_permissions_check( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $response );
+		$this->assertEquals( 'woocommerce_rest_invalid_signature', $response->get_error_code() );
 	}
 
 	/**
@@ -228,9 +289,9 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/99999' );
 		$request->set_param( 'product_id', $this->product_id );
 		$request->set_param( 'attachment_id', 99999 ); // Non-existent attachment ID
-		
+
 		$response = $this->preview->get_preview( $request );
-		
+
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_file_not_found', $response->get_error_code() );
 	}

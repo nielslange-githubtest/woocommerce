@@ -633,9 +633,9 @@ function wc_get_attachment_image_attributes( $attr, $attachment, $size ) {
     $admin_preview = wc_get_container()->get( ProductDownloadsPreview::class );
     $attr['src'] = $admin_preview->get_admin_image_src_url( $attachment->post_parent, $attachment->ID, $size );
 
-
     return $attr;
 }
+
 add_filter( 'wp_get_attachment_image_attributes', 'wc_get_attachment_image_attributes', 10, 3 );
 
 /**
@@ -1913,4 +1913,5 @@ function wc_product_attach_featured_image( $attachment_id, $product = null, $sav
 		);
 	}
 }
+
 add_action( 'add_attachment', 'wc_product_attach_featured_image' );
