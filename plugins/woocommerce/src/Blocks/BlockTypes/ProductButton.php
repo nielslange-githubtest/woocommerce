@@ -154,27 +154,34 @@ class ProductButton extends AbstractBlock {
 			)
 		);
 
+		$is_descendent_of_add_to_cart_form = isset( $block->context['woocommerce/isDescendantOfAddToCartWithOptions'] ) ? $block->context['woocommerce/isDescendantOfAddToCartWithOptions'] : false;
+		
 		$default_quantity = 1;
-		/**
-		* Filters the change the quantity to add to cart.
-		*
-		* @since 10.9.0
-		* @param number $default_quantity The default quantity.
-		* @param number $product_id The product id.
-		*/
-		$quantity_to_add = apply_filters( 'woocommerce_add_to_cart_quantity', $default_quantity, $product->get_id() );
+
+		if ( ! $is_descendent_of_add_to_cart_form ) {
+			/**
+			 * Filters the change the quantity to add to cart.
+			 *
+			 * @since 10.9.0
+			 * @param number $default_quantity The default quantity.
+			 * @param number $product_id The product id.
+			 */
+			$default_quantity = apply_filters( 'woocommerce_add_to_cart_quantity', $default_quantity, $product->get_id() );
+		}
 
 		$add_to_cart_text = null !== $product->add_to_cart_text() ? $product->add_to_cart_text() : __( 'Add to cart', 'woocommerce' );
+
 		if ( $is_descendent_of_add_to_cart_form && null !== $product->single_add_to_cart_text() ) {
 			$add_to_cart_text = $product->single_add_to_cart_text();
 		}
 
 		$context = array(
-			'quantityToAdd'   => $quantity_to_add,
-			'productId'       => $product->get_id(),
-			'addToCartText'   => $add_to_cart_text,
-			'tempQuantity'    => $number_of_items_in_cart,
-			'animationStatus' => 'IDLE',
+			'quantityToAdd'                      => $default_quantity,
+			'productId'                          => $product->get_id(),
+			'addToCartText'                      => $add_to_cart_text,
+			'tempQuantity'                       => $number_of_items_in_cart,
+			'animationStatus'                    => 'IDLE',
+			'isDescendantOfAddToCartWithOptions' => $is_descendent_of_add_to_cart_form,
 		);
 
 		/**

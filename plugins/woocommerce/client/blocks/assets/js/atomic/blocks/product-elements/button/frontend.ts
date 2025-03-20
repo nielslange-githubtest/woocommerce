@@ -6,6 +6,7 @@ import {
 	getContext as getContextFn,
 	useLayoutEffect,
 } from '@wordpress/interactivity';
+import type { AddToCartWithOptionsStore } from '@woocommerce/blocks/add-to-cart-with-options/frontend';
 import type { Store as WooCommerce } from '@woocommerce/stores/woocommerce/cart';
 
 // Stores are locked to prevent 3PD usage until the API is stable.
@@ -19,6 +20,7 @@ interface Context {
 	quantityToAdd: number;
 	tempQuantity: number;
 	animationStatus: AnimationStatus;
+	isDescendantOfAddToCartWithOptions: boolean;
 }
 
 enum AnimationStatus {
@@ -55,15 +57,6 @@ const { state: wooState } = store< WooCommerce >(
 	'woocommerce',
 	{},
 	{ lock: universalLock }
-);
-
-const { state: wooAddToCartWithOptions } = store(
-	'woocommerce/add-to-cart-with-options',
-	{},
-	{
-		// Stores are locked to prevent 3PD usage until the API is stable.
-		lock: 'I acknowledge that using a private store means my plugin will inevitably break on the next store release.',
-	}
 );
 
 const { state } = store< Store >(
@@ -116,22 +109,37 @@ const { state } = store< Store >(
 				event.preventDefault();
 
 				const context = getContext();
-				const { productId, quantityToAdd } = context;
+				const {
+					productId,
+					quantityToAdd,
+					isDescendantOfAddToCartWithOptions,
+				} = context;
 
-				// Todo: Use the module exports instead of `store()` once the
-				// woocommerce store is public.
-				yield import( '@woocommerce/stores/woocommerce/cart' );
-				const { actions } = store< WooCommerce >(
-					'woocommerce',
-					{},
-					{ lock: universalLock }
-				);
+				if ( isDescendantOfAddToCartWithOptions ) {
+					const wooAddToCartWithOptions =
+						store< AddToCartWithOptionsStore >(
+							'woocommerce/add-to-cart-with-options',
+							{},
+							{ lock: universalLock }
+						);
 
-				yield actions.addCartItem( {
-					id: productId,
-					quantity: state.quantity + quantityToAdd,
-					variation: wooAddToCartWithOptions.variation ?? [],
-				} );
+					yield wooAddToCartWithOptions.actions.addToCart();
+				} else {
+					// Todo: Use the module exports instead of `store()` once the
+					// woocommerce store is public.
+					yield import( '@woocommerce/stores/woocommerce/cart' );
+
+					const { actions } = store< WooCommerce >(
+						'woocommerce',
+						{},
+						{ lock: universalLock }
+					);
+
+					yield actions.addCartItem( {
+						id: productId,
+						quantity: state.quantity + quantityToAdd,
+					} );
+				}
 
 				context.displayViewCart = true;
 			},
