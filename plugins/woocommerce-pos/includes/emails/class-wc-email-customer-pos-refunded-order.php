@@ -1,11 +1,10 @@
 <?php
 /**
- * Class WC_Email_Customer_POS_Completed_Order file.
+ * Class WC_Email_Customer_POS_Refunded_Order file.
  *
  * @package WooCommerce\POS\Emails
  */
 
-use Automattic\WooCommerce\Enums\OrderStatus;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,44 +22,48 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) {
 }
 
 // Only define this class if the base class exists and we haven't defined it yet
-if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Customer_POS_Completed_Order', false ) ) :
+if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Customer_POS_Refunded_Order', false ) ) :
 
 	/**
-	 * POS Order completed email.
+	 * POS Order refunded email.
 	 *
-	 * An email sent to the customer when a POS order is completed.
+	 * An email sent to the customer when a POS order is refunded.
 	 *
-	 * @class       WC_Email_Customer_POS_Completed_Order
+	 * @class       WC_Email_Customer_POS_Refunded_Order
 	 * @version     1.0.0
 	 * @package     WooCommerce\POS\Emails
 	 * @extends     WC_Email_POS_Base
 	 */
-	class WC_Email_Customer_POS_Completed_Order extends WC_Email_POS_Base {
+	class WC_Email_Customer_POS_Refunded_Order extends WC_Email_POS_Base {
+
+		/**
+		 * Refund order.
+		 *
+		 * @var WC_Order|bool
+		 */
+		public $refund;
+
+		/**
+		 * Is the order partial refunded?
+		 *
+		 * @var bool
+		 */
+		public $partial_refund;
 
 		/**
 		 * Constructor.
 		 */
 		public function __construct() {
-			$this->id             = 'pos_customer_completed_order';
+			$this->id             = 'pos_customer_refunded_order';
 			$this->customer_email = true;
-			$this->title          = __( 'POS Completed order', 'woocommerce-pos' );
-			$this->description    = __( 'Order complete emails can be sent to customers when their orders are marked completed in POS.', 'woocommerce-pos' );
-			$this->template_html  = 'emails/customer-pos-completed-order.php';
-			$this->template_plain = 'emails/plain/customer-pos-completed-order.php';
+			$this->title          = __( 'POS Refunded order', 'woocommerce-pos' );
+			$this->description    = __( 'Refund emails can be sent to customers when their orders are refunded in POS.', 'woocommerce-pos' );
+			$this->template_html  = 'emails/customer-pos-refunded-order.php';
+			$this->template_plain = 'emails/plain/customer-pos-refunded-order.php';
 			$this->placeholders   = array(
 				'{order_date}'   => '',
 				'{order_number}' => '',
 			);
-
-			$refund_page_id = get_option( 'woocommerce_refund_returns_page_id' );
-			$refund_page    = $refund_page_id ? get_post( $refund_page_id ) : null;
-
-			if ( $refund_page && 'publish' === $refund_page->post_status ) {
-				$refund_page_url = get_permalink( $refund_page_id );
-				if ( $refund_page_url ) {
-					$this->placeholders['{refund_returns_policy_url}'] = $refund_page_url;
-				}
-			}
 
 			// Hook into the REST API action to send this email when requested.
 			add_action( 'woocommerce_rest_order_actions_email_send', array( $this, 'maybe_trigger_from_api' ), 10, 2 );
@@ -73,10 +76,8 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 
 			// Must be after parent's constructor which sets `email_improvements_enabled` property.
 			$this->description = $this->email_improvements_enabled
-				? __( 'Send an email to customers when their POS order is completed.', 'woocommerce-pos' )
-				: __( 'POS order completed emails are sent to customers when their in-store orders are marked as completed.', 'woocommerce-pos' );
-
-			$this->manual = true;
+				? __( 'Send an email to customers when their POS order is refunded.', 'woocommerce-pos' )
+				: __( 'POS order refunded emails are sent to customers when their in-store orders are refunded.', 'woocommerce-pos' );
 		}
 
 		/**
@@ -89,19 +90,43 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 			if ( $this->id === $template_id ) {
 				$order = wc_get_order( $order_id );
 				if ( $order ) {
-					$this->trigger( $order_id, $order );
+					$this->trigger( $order_id, false, $order );
 				}
 			}
+		}
+
+		/**
+		 * Full refund notification.
+		 *
+		 * @param int $order_id Order ID.
+		 * @param int $refund_id Refund ID.
+		 */
+		public function trigger_full( $order_id, $refund_id = null ) {
+			$this->trigger( $order_id, false, null, $refund_id );
+		}
+
+		/**
+		 * Partial refund notification.
+		 *
+		 * @param int $order_id Order ID.
+		 * @param int $refund_id Refund ID.
+		 */
+		public function trigger_partial( $order_id, $refund_id = null ) {
+			$this->trigger( $order_id, true, null, $refund_id );
 		}
 
 		/**
 		 * Trigger the sending of this email.
 		 *
 		 * @param int            $order_id The order ID.
+		 * @param bool           $partial_refund Whether it is a partial refund or a full refund.
 		 * @param WC_Order|false $order Order object.
+		 * @param int            $refund_id Refund ID.
 		 */
-		public function trigger( $order_id, $order = false ) {
+		public function trigger( $order_id, $partial_refund = false, $order = false, $refund_id = null ) {
 			$this->setup_locale();
+			$this->partial_refund = $partial_refund;
+			$this->id             = $this->partial_refund ? 'pos_customer_partially_refunded_order' : 'pos_customer_refunded_order';
 
 			if ( $order_id && ! is_a( $order, 'WC_Order' ) ) {
 				$order = wc_get_order( $order_id );
@@ -114,6 +139,12 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 				$this->placeholders['{order_number}'] = $this->object->get_order_number();
 			}
 
+			if ( ! empty( $refund_id ) ) {
+				$this->refund = wc_get_order( $refund_id );
+			} else {
+				$this->refund = false;
+			}
+
 			if ( $this->get_recipient() ) {
 				$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 			}
@@ -124,23 +155,35 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		/**
 		 * Get email subject.
 		 *
-		 * @param bool $paid Whether the order has been paid or not.
+		 * @param bool $partial Whether it is a partial refund or a full refund.
 		 * @since  1.0.0
 		 * @return string
 		 */
-		public function get_default_subject( $paid = false ) {
-			return __( 'Your in-store purchase #{order_number} on {site_title}', 'woocommerce-pos' );
+		public function get_default_subject( $partial = false ) {
+			if ( $partial ) {
+				return __( 'Your in-store purchase #{order_number} on {site_title} has been partially refunded', 'woocommerce-pos' );
+			} else {
+				return __( 'Your in-store purchase #{order_number} on {site_title} has been refunded', 'woocommerce-pos' );
+			}
 		}
 
 		/**
 		 * Get email heading.
 		 *
-		 * @param bool $paid Whether the order has been paid or not.
+		 * @param bool $partial Whether it is a partial refund or a full refund.
 		 * @since  1.0.0
 		 * @return string
 		 */
-		public function get_default_heading( $paid = false ) {
-			return __( 'Thank you for your in-store purchase', 'woocommerce-pos' );
+		public function get_default_heading( $partial = false ) {
+			if ( $partial ) {
+				return $this->email_improvements_enabled
+					? __( 'Partial refund: Order {order_number}', 'woocommerce-pos' )
+					: __( 'Partial Refund: Order {order_number}', 'woocommerce-pos' );
+			} else {
+				return $this->email_improvements_enabled
+					? __( 'Order refunded: {order_number}', 'woocommerce-pos' )
+					: __( 'Order Refunded: {order_number}', 'woocommerce-pos' );
+			}
 		}
 
 		/**
@@ -149,14 +192,13 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		 * @return string
 		 */
 		public function get_subject() {
-			if ( $this->object->has_status( array( OrderStatus::COMPLETED, OrderStatus::PROCESSING ) ) ) {
-				$subject = $this->get_option( 'subject_paid', $this->get_default_subject( true ) );
-
-				return apply_filters( 'woocommerce_email_subject_customer_pos_completed_order_paid', $this->format_string( $subject ), $this->object, $this );
+			if ( $this->partial_refund ) {
+				$subject = $this->get_option( 'subject_partial', $this->get_default_subject( true ) );
+				return apply_filters( 'woocommerce_email_subject_customer_pos_partially_refunded_order', $this->format_string( $subject ), $this->object, $this );
+			} else {
+				$subject = $this->get_option( 'subject_full', $this->get_default_subject() );
+				return apply_filters( 'woocommerce_email_subject_customer_pos_refunded_order', $this->format_string( $subject ), $this->object, $this );
 			}
-
-			$subject = $this->get_option( 'subject', $this->get_default_subject() );
-			return apply_filters( 'woocommerce_email_subject_customer_pos_completed_order', $this->format_string( $subject ), $this->object, $this );
 		}
 
 		/**
@@ -165,13 +207,13 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		 * @return string
 		 */
 		public function get_heading() {
-			if ( $this->object->has_status( wc_get_is_paid_statuses() ) ) {
-				$heading = $this->get_option( 'heading_paid', $this->get_default_heading( true ) );
-				return apply_filters( 'woocommerce_email_heading_customer_pos_completed_order_paid', $this->format_string( $heading ), $this->object, $this );
+			if ( $this->partial_refund ) {
+				$heading = $this->get_option( 'heading_partial', $this->get_default_heading( true ) );
+				return apply_filters( 'woocommerce_email_heading_customer_pos_partially_refunded_order', $this->format_string( $heading ), $this->object, $this );
+			} else {
+				$heading = $this->get_option( 'heading_full', $this->get_default_heading() );
+				return apply_filters( 'woocommerce_email_heading_customer_pos_refunded_order', $this->format_string( $heading ), $this->object, $this );
 			}
-
-			$heading = $this->get_option( 'heading', $this->get_default_heading() );
-			return apply_filters( 'woocommerce_email_heading_customer_pos_completed_order', $this->format_string( $heading ), $this->object, $this );
 		}
 
 		/**
@@ -182,8 +224,8 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		 */
 		public function get_default_additional_content() {
 			return $this->email_improvements_enabled
-				? __( 'Thanks for shopping with us in-store! If you need any help with your purchase, please contact us at {store_email}.', 'woocommerce-pos' )
-				: __( 'Thanks for shopping with us in-store!', 'woocommerce-pos' );
+				? __( 'If you need any help with your refund, please contact us at {store_email}.', 'woocommerce-pos' )
+				: __( 'We hope to see you again soon.', 'woocommerce-pos' );
 		}
 
 		/**
@@ -193,32 +235,32 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 			/* translators: %s: list of placeholders */
 			$placeholder_text  = sprintf( __( 'Available placeholders: %s', 'woocommerce-pos' ), '<code>' . esc_html( implode( '</code>, <code>', array_keys( $this->placeholders ) ) ) . '</code>' );
 			$this->form_fields = array(
-				'subject'               => array(
-					'title'       => __( 'Subject', 'woocommerce-pos' ),
+				'subject_full'          => array(
+					'title'       => __( 'Subject (full refund)', 'woocommerce-pos' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
 					'description' => $placeholder_text,
 					'placeholder' => $this->get_default_subject(),
 					'default'     => '',
 				),
-				'heading'               => array(
-					'title'       => __( 'Email heading', 'woocommerce-pos' ),
+				'heading_full'          => array(
+					'title'       => __( 'Email heading (full refund)', 'woocommerce-pos' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
 					'description' => $placeholder_text,
 					'placeholder' => $this->get_default_heading(),
 					'default'     => '',
 				),
-				'subject_paid'          => array(
-					'title'       => __( 'Subject (paid)', 'woocommerce-pos' ),
+				'subject_partial'       => array(
+					'title'       => __( 'Subject (partial refund)', 'woocommerce-pos' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
 					'description' => $placeholder_text,
 					'placeholder' => $this->get_default_subject( true ),
 					'default'     => '',
 				),
-				'heading_paid'          => array(
-					'title'       => __( 'Email heading (paid)', 'woocommerce-pos' ),
+				'heading_partial'       => array(
+					'title'       => __( 'Email heading (partial refund)', 'woocommerce-pos' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
 					'description' => $placeholder_text,
@@ -296,8 +338,17 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 			$valid_template_classes[] = get_class( $this );
 			return $valid_template_classes;
 		}
+
+		/**
+		 * Check if this order was created from a POS (Point of Sale) system.
+		 *
+		 * @return bool True if this is a POS order, false otherwise.
+		 */
+		private function is_pos_order($order): bool {
+			return 'pos' === $order->get_meta( '_wc_order_attribution_source_type' );
+		}
 	}
 
 endif;
 
-return new WC_Email_Customer_POS_Completed_Order();
+return new WC_Email_Customer_POS_Refunded_Order();

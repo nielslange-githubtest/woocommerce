@@ -42,7 +42,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 *
 		 * @return string
 		 */
-		private function get_pos_store_email() {
+		protected function get_pos_store_email() {
 			$email_text = $this->get_option( 'pos_store_email', '' );
 			return $this->format_string( $email_text );
 		}
@@ -52,7 +52,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 *
 		 * @return string
 		 */
-		private function get_pos_store_phone_number() {
+		protected function get_pos_store_phone_number() {
 			$phone_number_text = $this->get_option( 'pos_store_phone_number', '' );
 			return $this->format_string( $phone_number_text );
 		}
@@ -62,7 +62,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 *
 		 * @return string
 		 */
-		private function get_pos_store_address() {
+		protected function get_pos_store_address() {
 			$address_text = $this->get_option( 'pos_store_address', '' );
 			return $this->format_string( $address_text );
 		}
@@ -82,7 +82,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 *
 		 * @return string
 		 */
-		private function get_refund_returns_policy() {
+		protected function get_refund_returns_policy() {
 			$policy_text = $this->get_option( 'refund_returns_policy', '' );
 			return $this->format_string( $policy_text );
 		}

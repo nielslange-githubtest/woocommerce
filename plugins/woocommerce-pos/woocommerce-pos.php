@@ -111,6 +111,7 @@ class WC_POS {
 	 */
 	public function register_emails( $email_classes ) {
 		$email_classes['WC_Email_Customer_POS_Completed_Order'] = include WC_POS_PLUGIN_DIR . 'includes/emails/class-wc-email-customer-pos-completed-order.php';
+		$email_classes['WC_Email_Customer_POS_Refunded_Order'] = include WC_POS_PLUGIN_DIR . 'includes/emails/class-wc-email-customer-pos-refunded-order.php';
 		return $email_classes;
 	}
 
