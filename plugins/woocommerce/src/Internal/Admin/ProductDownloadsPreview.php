@@ -102,7 +102,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		// Verify signature
 		$data_to_verify = $attachment_id . '|' . $product_id;
 		$expected_signature = hash_hmac('sha256', $data_to_verify, AUTH_KEY . SECURE_AUTH_SALT);
-		
+
 		if ( ! hash_equals( $expected_signature, $signature ) ) {
 			return new WP_Error(
 				'woocommerce_rest_invalid_signature',
@@ -110,7 +110,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				array( 'status' => 403 )
 			);
 		}
-			
+
 		// Check for cached entry
 		$cache_key = "wc_preview_{$product_id}_{$attachment_id}_{$size}";
 		$stored = wp_cache_get( $cache_key, 'wc_preview_tokens' );
@@ -123,7 +123,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 				'size' => $size,
 				'admin_verified' => true,
 			];
-			
+
 			wp_cache_add( $cache_key, $token_data, 'wc_preview_tokens', 5 * MINUTE_IN_SECONDS );
 		} else {
 			// Verify stored data matches request
@@ -197,7 +197,9 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			}
 		}
 
-		$this->clean_buffers();
+		// Clean any existing output
+		ob_clean();
+
 		nocache_headers();
 		header( 'Content-Type: ' . $mime_type );
 		header( 'Content-Length: ' . filesize( $file_path ) );
@@ -247,23 +249,5 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		);
 
 		return $url;
-	}
-
-	/**
-	 * Clean all output buffers.
-	 *
-	 * @since 9.9.0
-	 *
-	 * Can prevent errors, for example: transfer closed with 3 bytes remaining to read.
-	 */
-	private function clean_buffers() {
-		if ( ob_get_level() ) {
-			$levels = ob_get_level();
-			for ( $i = 0; $i < $levels; $i++ ) {
-				@ob_end_clean(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			}
-		} else {
-			@ob_end_clean(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		}
 	}
 }
