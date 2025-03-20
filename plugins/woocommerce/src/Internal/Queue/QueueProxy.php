@@ -26,10 +26,12 @@ final class QueueProxy implements QueueWithPrioritiesInterface {
 	 * Queue instance holder: queue supporting priorities.
 	 *
 	 * @var DefaultQueueWithPriorities|null
-     */
+	 */
 	private $queue_with_priorities_instance;
 
 	/**
+	 * Constructor.
+	 *
 	 * @param \WC_Queue_Interface $queue_instance The queue instance.
 	 */
 	public function __construct( $queue_instance ) {
