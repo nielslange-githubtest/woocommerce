@@ -49,7 +49,7 @@ interface StoreActions {
 interface StoreCallbacks {
 	watchForChangesOnAddToCartForm: () => void;
 	dialogStateChange: () => void;
-	toggleImageActiveClass: () => void;
+	toggleActiveImageAtrributes: () => void;
 }
 
 interface ProductGalleryStore {
@@ -383,7 +383,7 @@ const productGallery: ProductGalleryStore = {
 				}
 			}
 		},
-		toggleImageActiveClass: () => {
+		toggleActiveImageAtrributes: () => {
 			const element = getElement()?.ref as HTMLElement;
 			if ( ! element ) return false;
 
@@ -393,8 +393,9 @@ const productGallery: ProductGalleryStore = {
 			const imageId = parseInt( imageIdValue, 10 );
 			if ( state.selectedImageId === imageId ) {
 				element.classList.add( 'is-active' );
+				element.setAttribute( 'tabIndex', '0' );
 			} else {
-				element.classList.remove( 'is-active' );
+				element.setAttribute( 'tabIndex', '-1' );
 			}
 		},
 	},
