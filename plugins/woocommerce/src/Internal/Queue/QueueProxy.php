@@ -7,30 +7,33 @@ namespace Automattic\WooCommerce\Internal\Queue;
 use Automattic\WooCommerce\Enums\ActionQueuePriority;
 
 /**
- * This class aggregates the queue instance and allows iteracting with queues in backward-compatible way.
+ * This class aggregates the queue instance and allows interacting with queues in backward-compatible way.
  *
  * Supported instances:
  * - customized instances (see `woocommerce_queue_class` filter)
  * - previous default queue operating in FIFO mode (see `\WC_Action_Queue`)
  * - currently used default queue supporting priorities (see `DefaultQueueWithPriorities`)
  */
-final class QueueProxy implements QueueWithPrioritiesInterface
-{
+final class QueueProxy implements QueueWithPrioritiesInterface {
 	/**
+	 * Queue instance holder: FIFO or custom queue.
+	 *
 	 * @var DefaultQueueFifo|null
 	 */
 	private $queue_fifo_instance;
 
 	/**
+	 * Queue instance holder: queue supporting priorities.
+	 *
 	 * @var DefaultQueueWithPriorities|null
      */
 	private $queue_with_priorities_instance;
 
 	/**
-	 * @param \WC_Queue_Interface $queue_instance
+	 * @param \WC_Queue_Interface $queue_instance The queue instance.
 	 */
 	public function __construct( $queue_instance ) {
-		if ( $queue_instance instanceof QueueWithPrioritiesInterface) {
+		if ( $queue_instance instanceof QueueWithPrioritiesInterface ) {
 			$this->queue_with_priorities_instance = $queue_instance;
 		} else {
 			$this->queue_fifo_instance = $queue_instance;
@@ -48,7 +51,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 */
 	public function add( $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
-			? $this->queue_with_priorities_instance->add( $hook, $args, $group, $priority  )
+			? $this->queue_with_priorities_instance->add( $hook, $args, $group, $priority )
 			: $this->queue_fifo_instance->add( $hook, $args, $group );
 	}
 
@@ -81,7 +84,7 @@ final class QueueProxy implements QueueWithPrioritiesInterface
 	 */
 	public function schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
 		return $this->queue_with_priorities_instance
-			? $this->queue_with_priorities_instance->schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args, $group, $priority  )
+			? $this->queue_with_priorities_instance->schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args, $group, $priority )
 			: $this->queue_fifo_instance->schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args, $group );
 	}
 
