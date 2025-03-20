@@ -6,6 +6,8 @@
  * @package WooCommerce\Interface
  */
 
+use Automattic\WooCommerce\Internal\Queue\DefaultQueueWithPriorities;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -31,7 +33,7 @@ class WC_Queue {
 	 *
 	 * @var class-string<WC_Queue_Interface>
 	 */
-	protected static $default_cass = WC_Action_Queue::class;
+	protected static $default_cass = DefaultQueueWithPriorities::class;
 
 	/**
 	 * Single instance of WC_Queue_Interface
