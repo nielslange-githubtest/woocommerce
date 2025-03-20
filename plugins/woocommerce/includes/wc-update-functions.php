@@ -3022,8 +3022,17 @@ function wc_update_990_remove_email_notes() {
 	$wpdb->delete(
 		$wpdb->prefix . 'wc_admin_notes',
 		array(
-			'type' => 'email'
+			'type' => 'email',
 		),
 		array( '%s' )
 	);
+}
+
+/**
+ * Disable AJAX add to cart on product pages.
+ *
+ * @return void
+ */
+function wc_update_990_disable_ajax_add_to_cart_on_product_pages() {
+	update_option( 'woocommerce_enable_ajax_add_to_cart_product_pages', 'no' );
 }
