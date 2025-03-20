@@ -651,7 +651,7 @@ function wc_prepare_attachment_for_js( $response ) {
 
 	// If not a WooCommerce manager, return placeholder for all image sizse.
 	if ( ! current_user_can( 'manage_woocommerce' ) ) {
-		$response['full']['url'] = wc_placeholder_img_src( $size );
+		$response['full']['url'] = wc_placeholder_img_src();
 		if ( isset( $response['sizes'] ) ) {
 			foreach ( $response['sizes'] as $size => $value ) {
 				$response['sizes'][ $size ]['url'] = wc_placeholder_img_src( $size );
