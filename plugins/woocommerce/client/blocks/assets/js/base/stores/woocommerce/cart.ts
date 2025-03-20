@@ -2,7 +2,12 @@
  * External dependencies
  */
 import { store } from '@wordpress/interactivity';
-import type { Cart, CartItem, ApiErrorResponse } from '@woocommerce/types';
+import type {
+	Cart,
+	CartItem,
+	CartVariationItem,
+	ApiErrorResponse,
+} from '@woocommerce/types';
 import type { Store as StoreNotices } from '@woocommerce/stores/store-notices';
 
 /**
@@ -10,16 +15,11 @@ import type { Store as StoreNotices } from '@woocommerce/stores/store-notices';
  */
 import { triggerAddedToCartEvent } from './legacy-events';
 
-type VariationAttribute = {
-	attribute: string;
-	value: string;
-};
-
-type OptimisticCartItem = {
+export type OptimisticCartItem = {
 	key?: string;
 	id: number;
 	quantity: number;
-	variation?: VariationAttribute[];
+	variation?: CartVariationItem[];
 };
 
 export type Store = {
@@ -31,7 +31,7 @@ export type Store = {
 		};
 	};
 	actions: {
-		addCartItem: ( args: Omit< OptimisticCartItem, 'key' > ) => void;
+		addCartItem: ( args: OptimisticCartItem ) => void;
 		// Todo: Check why if I switch to an async function here the types of the store stop working.
 		refreshCartItems: () => void;
 		showNoticeError: ( error: Error | ApiErrorResponse ) => void;
@@ -80,11 +80,7 @@ const { state, actions } = store< Store >(
 	'woocommerce',
 	{
 		actions: {
-			*addCartItem( {
-				id,
-				quantity,
-				variation,
-			}: Omit< OptimisticCartItem, 'key' > ) {
+			*addCartItem( { id, quantity, variation }: OptimisticCartItem ) {
 				let item = state.cart.items.find(
 					( { id: productId } ) => id === productId
 				);
