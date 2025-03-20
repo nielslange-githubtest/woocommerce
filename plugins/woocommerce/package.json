@@ -2,7 +2,7 @@
 	"name": "@woocommerce/plugin-woocommerce",
 	"private": true,
 	"title": "WooCommerce",
-	"version": "9.8.0",
+	"version": "9.9.0",
 	"homepage": "https://woocommerce.com/",
 	"repository": {
 		"type": "git",
@@ -18,8 +18,8 @@
 		"build:project": "pnpm --if-present '/^build:project:.*$/'",
 		"build:project:copy-assets:legacy": "rsync -avhW --checksum --delete --quiet client/legacy/build/css/ assets/css && rsync -avhW --checksum --delete --quiet client/legacy/build/js/ assets/js",
 		"build:project:copy-assets:admin": "rsync -avhW --checksum --delete --quiet client/admin/build/ assets/client/admin && pnpm email-editor:build:project:copy-assets",
-		"build:project:copy-assets:blocks": "rsync -avhW --checksum --delete --quiet ../woocommerce-blocks/build/ assets/client/blocks && rsync -avhW --checksum --quiet ../woocommerce-blocks/blocks.ini blocks.ini && wp-scripts build-blocks-manifest --input=assets/client/blocks --output=assets/client/blocks/blocks-json.php",
-		"email-editor:build:project:copy-assets": "rsync -avhW --checksum --delete --quiet client/admin/node_modules/@woocommerce/email-editor/build/ assets/client/admin/email-editor && rsync -avhW --checksum --quiet client/admin/node_modules/@woocommerce/email-editor/assets/ assets/client/admin/email-editor",
+		"build:project:copy-assets:blocks": "rsync -avhW --checksum --delete --quiet client/blocks/build/ assets/client/blocks && rsync -avhW --checksum --quiet client/blocks/blocks.ini blocks.ini && wp-scripts build-blocks-manifest --input=assets/client/blocks --output=assets/client/blocks/blocks-json.php",
+		"email-editor:build:project:copy-assets": "rsync -avhW --checksum --delete --quiet client/admin/node_modules/@woocommerce/email-editor/build/ assets/client/admin/email-editor",
 		"build:project:actualize-translation-domains": "wireit",
 		"changelog": "XDEBUG_MODE=off composer install --quiet && composer exec -- changelogger",
 		"env:destroy": "pnpm wp-env destroy",
@@ -33,7 +33,7 @@
 		"env:test": "pnpm env:dev",
 		"env:perf": "pnpm env:dev && pnpm env:performance-init",
 		"preinstall": "npx only-allow pnpm",
-		"postinstall": "rimraf -g vendor/woocommerce && XDEBUG_MODE=off composer install --quiet",
+		"postinstall": "rimraf -g vendor/woocommerce packages/email-editor && XDEBUG_MODE=off composer install --quiet",
 		"lint": "pnpm --if-present '/^lint:lang:.*$/'",
 		"lint:changes:branch": "pnpm '/^lint:changes:branch:.*$/'",
 		"lint:fix": "pnpm --if-present '/^lint:fix:lang:.*$/'",
@@ -258,8 +258,14 @@
 						"--shard=3/4",
 						"--shard=4/4"
 					],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-gutenberg"
@@ -283,8 +289,14 @@
 						"--shard=3/4",
 						"--shard=4/4"
 					],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-gutenberg"
@@ -299,75 +311,18 @@
 					}
 				},
 				{
-					"name": "Core e2e tests - Woocommerce Payments",
-					"testType": "e2e",
-					"command": "test:e2e:with-env woocommerce-payments",
-					"shardingArguments": [],
-					"changes": [],
-					"events": [
-						"daily-checks",
-						"release-checks",
-						"core-e2e-woocommerce-payments"
-					],
-					"testEnv": {
-						"start": "env:test"
-					},
-					"report": {
-						"resultsBlobName": "wcpayments-e2e-report",
-						"resultsPath": "tests/e2e-pw/test-results",
-						"allure": true
-					}
-				},
-				{
-					"name": "Core e2e tests - Woocommerce Paypal Payments",
-					"testType": "e2e",
-					"command": "test:e2e:with-env woocommerce-paypal-payments",
-					"shardingArguments": [],
-					"changes": [],
-					"events": [
-						"daily-checks",
-						"release-checks",
-						"core-e2e-woocommerce-paypal-payments"
-					],
-					"testEnv": {
-						"start": "env:test"
-					},
-					"report": {
-						"resultsBlobName": "wc-paypal-payments-e2e-report",
-						"resultsPath": "tests/e2e-pw/test-results",
-						"allure": true
-					}
-				},
-				{
-					"name": "Core e2e tests - WooCommerce Shipping & Tax",
-					"testType": "e2e",
-					"command": "test:e2e:with-env woocommerce-services",
-					"shardingArguments": [
-						"--shard=1/2",
-						"--shard=2/2"
-					],
-					"changes": [],
-					"events": [
-						"daily-checks",
-						"release-checks",
-						"core-e2e-woocommerce-services"
-					],
-					"testEnv": {
-						"start": "env:test"
-					},
-					"report": {
-						"resultsBlobName": "wc-services-e2e-report",
-						"resultsPath": "tests/e2e-pw/test-results",
-						"allure": true
-					}
-				},
-				{
 					"name": "Core e2e tests - HPOS disabled",
 					"testType": "e2e",
 					"command": "test:e2e:hpos",
 					"shardingArguments": [],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-hpos-disabled"
@@ -392,7 +347,12 @@
 						"--shard=4/5",
 						"--shard=5/5"
 					],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"testEnv": {
 						"start": "env:test",
 						"config": {
@@ -400,6 +360,7 @@
 						}
 					},
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-php-8.1"
@@ -421,7 +382,12 @@
 						"--shard=4/5",
 						"--shard=5/5"
 					],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"testEnv": {
 						"start": "env:test",
 						"config": {
@@ -429,6 +395,7 @@
 						}
 					},
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-wp-latest-1"
@@ -450,7 +417,12 @@
 						"--shard=4/5",
 						"--shard=5/5"
 					],
-					"changes": [],
+					"changes": [
+						"tests/e2e-pw/**"
+					],
+					"onlyForDependencies": [
+						"@woocommerce/e2e-utils-playwright"
+					],
 					"testEnv": {
 						"start": "env:test",
 						"config": {
@@ -458,6 +430,7 @@
 						}
 					},
 					"events": [
+						"pull_request",
 						"daily-checks",
 						"release-checks",
 						"core-e2e-wp-pre-release"
@@ -543,10 +516,12 @@
 					"changes": [
 						"tests/performance/**"
 					],
+					"onlyForDependencies": [],
 					"testEnv": {
 						"start": "test:perf:ci-setup"
 					},
 					"events": [
+						"pull_request",
 						"push",
 						"core-k6"
 					]
@@ -614,7 +589,7 @@
 					],
 					"report": {
 						"resultsBlobName": "blocks-e2e-report",
-						"resultsPath": "../woocommerce-blocks/tests/e2e/artifacts/test-results",
+						"resultsPath": "./client/blocks/tests/e2e/artifacts/test-results",
 						"allure": true
 					}
 				},
@@ -652,7 +627,7 @@
 					],
 					"report": {
 						"resultsBlobName": "blocks-e2e-report-wp-pre-release",
-						"resultsPath": "../woocommerce-blocks/tests/e2e/artifacts/test-results",
+						"resultsPath": "./client/blocks/tests/e2e/artifacts/test-results",
 						"allure": true
 					}
 				},
@@ -686,7 +661,7 @@
 					],
 					"report": {
 						"resultsBlobName": "blocks-e2e-report-wp-latest-1",
-						"resultsPath": "../woocommerce-blocks/tests/e2e/artifacts/test-results",
+						"resultsPath": "./client/blocks/tests/e2e/artifacts/test-results",
 						"allure": true
 					}
 				},
@@ -740,10 +715,7 @@
 		"@woocommerce/api": "workspace:*",
 		"@woocommerce/e2e-utils-playwright": "workspace:*",
 		"@woocommerce/eslint-plugin": "workspace:*",
-		"@woocommerce/woocommerce-rest-api": "^1.0.1",
-		"@wordpress/babel-plugin-import-jsx-pragma": "1.1.3",
-		"@wordpress/babel-preset-default": "3.0.2",
-		"@wordpress/e2e-test-utils-playwright": "^1.15.0",
+		"@wordpress/e2e-test-utils-playwright": "wp-6.8",
 		"@wordpress/env": "10.17.0",
 		"@wordpress/scripts": "30.6.0",
 		"@wordpress/stylelint-config": "^21.36.0",
@@ -753,8 +725,6 @@
 		"axios": "^0.24.0",
 		"babel-eslint": "10.1.0",
 		"buildkite-test-collector": "^1.7.1",
-		"chai": "4.2.0",
-		"chai-as-promised": "7.1.1",
 		"config": "3.3.7",
 		"cross-env": "6.0.3",
 		"dotenv": "^10.0.0",
@@ -786,7 +756,7 @@
 		"@woocommerce/admin-library": "workspace:*",
 		"@woocommerce/block-library": "workspace:*",
 		"@woocommerce/classic-assets": "workspace:*",
-		"@wordpress/browserslist-config": "wp-6.6"
+		"@wordpress/browserslist-config": "next"
 	},
 	"nodemonConfig": {
 		"delay": 2500,
@@ -794,7 +764,8 @@
 			"node_modules/@woocommerce/block-library/build",
 			"node_modules/@woocommerce/block-library/blocks.ini",
 			"node_modules/@woocommerce/classic-assets/build",
-			"node_modules/@woocommerce/admin-library/build"
+			"node_modules/@woocommerce/admin-library/build",
+			"client/admin/node_modules/@woocommerce/email-editor/build/"
 		],
 		"ext": "js,css,php,json",
 		"ignoreRoot": []

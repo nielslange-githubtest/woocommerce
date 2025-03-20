@@ -5,6 +5,7 @@
  * @package WooCommerce\Emails
  */
 
+use Automattic\WooCommerce\Internal\EmailEditor\BlockEmailRenderer;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Pelago\Emogrifier\CssInliner;
 use Pelago\Emogrifier\HtmlProcessor\CssToAttributeConverter;
@@ -258,10 +259,18 @@ class WC_Email extends WC_Settings_API {
 	public $email_improvements_enabled;
 
 	/**
+	 * Whether email block editor feature is enabled.
+	 *
+	 * @var bool
+	 */
+	public $block_email_editor_enabled;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->email_improvements_enabled = FeaturesUtil::feature_is_enabled( 'email_improvements' );
+		$this->block_email_editor_enabled = FeaturesUtil::feature_is_enabled( 'block_email_editor' );
 
 		// Find/replace.
 		$this->placeholders = array_merge(
@@ -706,6 +715,12 @@ class WC_Email extends WC_Settings_API {
 	 */
 	public function get_content() {
 		$this->sending = true;
+
+		$block_email_content = $this->get_block_email_html_content();
+		if ( $block_email_content ) {
+			$this->email_type = 'plain' === $this->email_type ? 'html' : $this->email_type;
+			return $block_email_content;
+		}
 
 		if ( 'plain' === $this->get_email_type() ) {
 			$email_content = wordwrap( preg_replace( $this->plain_search, $this->plain_replace, wp_strip_all_tags( $this->get_content_plain() ) ), 70 );
@@ -1388,5 +1403,21 @@ class WC_Email extends WC_Settings_API {
 		}
 
 		return $option;
+	}
+
+	/**
+	 * Gerenerates the HTML content for the email from a block based email.
+	 * and if so, it renders the block email content.
+	 *
+	 * @return string|null
+	 */
+	private function get_block_email_html_content(): ?string {
+		if ( ! $this->block_email_editor_enabled ) {
+			return null;
+		}
+
+		/** Service for rendering emails from block content @var BlockEmailRenderer $renderer */
+		$renderer = wc_get_container()->get( BlockEmailRenderer::class );
+		return $renderer->maybe_render_block_email( $this );
 	}
 }

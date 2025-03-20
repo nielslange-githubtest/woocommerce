@@ -29,22 +29,15 @@
 				"@testing-library/*",
 				"@types/*",
 				"@typescript-eslint/*",
-				"@woocommerce/*",
 				"@wordpress/api-fetch",
 				"@wordpress/autop",
-				"@wordpress/babel-preset-default",
 				"@wordpress/base-styles",
-				"@wordpress/block-editor",
-				"@wordpress/blocks",
-				"@wordpress/browserslist-config",
 				"@wordpress/components",
 				"@wordpress/compose",
 				"@wordpress/core-data",
-				"@wordpress/data",
 				"@wordpress/data-controls",
 				"@wordpress/date",
 				"@wordpress/editor",
-				"@wordpress/dependency-extraction-webpack-plugin",
 				"@wordpress/deprecated",
 				"@wordpress/dom",
 				"@wordpress/dom-ready",
@@ -54,6 +47,8 @@
 				"@wordpress/html-entities",
 				"@wordpress/i18n",
 				"@wordpress/icons",
+				"@wordpress/interactivity",
+				"@wordpress/interactivity-router",
 				"@wordpress/is-shallow-equal",
 				"@wordpress/notices",
 				"@wordpress/plugins",
@@ -70,7 +65,6 @@
 				"@wordpress/wordcount",
 				"babel*",
 				"eslint*",
-				"glob*",
 				"postcss*",
 				"webpack*"
 			],
@@ -125,21 +119,7 @@
 			]
 		},
 		{
-			"label": "React-related dependencies: @woocommerce/blocks-library",
-			"dependencies": [
-				"react",
-				"react-dom",
-				"@types/react-dom",
-				"@types/react"
-			],
-			"pinVersion": "18.3.x",
-			"packages": [
-				"@woocommerce/block-library",
-				"@woocommerce/storybook"
-			]
-		},
-		{
-			"label": "React-related dependencies: Everything else",
+			"label": "React-related dependencies: React 18",
 			"dependencies": [
 				"react",
 				"react-dom",
@@ -226,12 +206,9 @@
 		},
 		{
 			"dependencies": [
-				"@wordpress/babel-plugin-import-jsx-pragma",
-				"@wordpress/babel-preset-default",
 				"@wordpress/stylelint-config",
 				"@wordpress/scripts",
 				"@wordpress/jest-console",
-				"@wordpress/dependency-extraction-webpack-plugin",
 				"@wordpress/e2e-test-utils",
 				"@wordpress/jest-preset-default",
 				"@wordpress/postcss-plugins-preset",
@@ -245,7 +222,6 @@
 		},
 		{
 			"dependencies": [
-				"@wordpress/block**",
 				"@wordpress/interface",
 				"@wordpress/router",
 				"@wordpress/edit-site",
@@ -254,11 +230,9 @@
 				"@wordpress/icons"
 			],
 			"packages": [
-				"@woocommerce/block-templates",
 				"@woocommerce/product-editor",
 				"@woocommerce/settings-editor",
 				"@woocommerce/admin-library",
-				"@woocommerce/components"
 			],
 			"isIgnored": true
 		},
@@ -294,7 +268,6 @@
 				"@wordpress/env"
 			],
 			"packages": [
-				"@woocommerce/block-library",
 				"**"
 			],
 			"pinVersion": "10.17.0"
@@ -306,9 +279,47 @@
 			"packages": [
 				"**"
 			],
-			"pinVersion": "^1.15.0"
+			"pinVersion": "wp-6.8"
 		},
 		{
+			"label": "Ensure @woocommerce/* dependencies are locked to the monorepo itself - except certain dependencies (migration pending).",
+			"dependencies": [
+				"@woocommerce/settings"
+			],
+			"packages": [
+				"**"
+			],
+			"pinVersion": "1.0.0"
+		},
+		{
+			"label": "Ensure @woocommerce/* dependencies are locked to the monorepo itself (except peer-deps for now).",
+			"dependencyTypes": [
+				"prod",
+				"dev"
+			],
+			"dependencies": [
+				"@woocommerce/*"
+			],
+			"packages": [
+				"**"
+			],
+			"pinVersion": "workspace:*"
+		},
+		{
+			"label": "@wordpress/* build-dependencies (always ahead of runtime-dependencies)",
+			"dependencies": [
+				"@wordpress/babel-plugin-import-jsx-pragma",
+				"@wordpress/babel-preset-default",
+				"@wordpress/browserslist-config",
+				"@wordpress/dependency-extraction-webpack-plugin"
+			],
+			"packages": [
+				"**"
+			],
+			"pinVersion": "next"
+		},
+		{
+			"label": "@wordpress/* runtime-dependencies",
 			"dependencies": [
 				"@wordpress/**"
 			],
@@ -493,10 +504,8 @@
 			"label": "Only manage versions for these dependencies",
 			"dependencies": [
 				"@automattic/color-studio",
-				"@types/node",
 				"@types/wordpress__components",
 				"@typescript-eslint/**",
-				"@wordpress/**",
 				"config",
 				"eslint",
 				"node",
