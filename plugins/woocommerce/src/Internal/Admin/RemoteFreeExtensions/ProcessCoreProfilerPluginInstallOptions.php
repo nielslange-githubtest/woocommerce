@@ -101,6 +101,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 * @return void
 	 */
 	protected function add_option( string $name, $value, $autoload = null ) {
+		// phpcs:ignore WordPress.WP.DeprecatedParameters.Add_optionParam3Found
 		add_option( $name, $value, $autoload );
 	}
 
