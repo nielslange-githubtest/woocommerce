@@ -149,6 +149,11 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 				$this->refund = false;
 			}
 
+			if ( ! $this->is_pos_order( $order ) ) {
+				$this->restore_locale();
+				return;
+			}
+
 			if ( $this->get_recipient() ) {
 				$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
 			}
