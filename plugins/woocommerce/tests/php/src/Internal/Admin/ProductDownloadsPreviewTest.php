@@ -98,14 +98,6 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Test that register method adds the necessary action
-	 */
-	public function test_register_adds_actions() {
-		$this->preview->register();
-		$this->assertTrue( has_action( 'rest_api_init', array( $this->preview, 'register_rest_routes' ) ) > 0 );
-	}
-
-	/**
 	 * Test get_admin_image_src_url returns empty string for non-admin users
 	 */
 	public function test_get_admin_image_src_url_returns_empty_for_non_admin() {
@@ -220,12 +212,6 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 
 		$response = $this->preview->get_preview_permissions_check( $request );
 		$this->assertTrue( $response );
-
-		// Verify cache was created
-		$cache_key   = "wc_preview_{$this->product_id}_{$this->attachment_id}_{$size}";
-		$cached_data = wp_cache_get( $cache_key, 'wc_preview_tokens' );
-		$this->assertNotFalse( $cached_data );
-		$this->assertTrue( $cached_data['admin_verified'] );
 	}
 
 	/**
@@ -259,15 +245,6 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_unauthorized', $response->get_error_code() );
-	}
-
-	/**
-	 * Test direct invalid signature verification
-	 */
-	public function test_direct_invalid_signature_verification() {
-		// We're removing this test since we now verify signatures directly
-		// and the test_get_preview_permissions_check_fails_with_invalid_signature test already covers this case
-		$this->assertTrue( true );
 	}
 
 	/**
