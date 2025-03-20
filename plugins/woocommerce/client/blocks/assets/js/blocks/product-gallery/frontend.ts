@@ -79,15 +79,6 @@ const productGallery: ProductGalleryStore = {
 			const { selectedImageId } = getContext();
 			return getSelectedImageNumber( state.allImageIds, selectedImageId );
 		},
-		/**
-		 * The subset of processedImageData that is displayed in the thumbnails block.
-		 *
-		 * @return Array The subset of processed image data.
-		 */
-		thumbnails: (): ImageDataItem[] | undefined => {
-			const { numberOfThumbnails } = getConfig();
-			return state.imageData?.slice( 0, numberOfThumbnails );
-		},
 	},
 	actions: {
 		selectImage: ( newImageNumber: number ) => {
