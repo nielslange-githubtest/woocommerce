@@ -48,7 +48,7 @@ class WC_Queue {
 			self::$instance = self::validate_instance( self::$instance );
 		}
 
-		return new QueueProxy ( self::$instance );
+		return new QueueProxy( self::$instance );
 	}
 
 	/**
