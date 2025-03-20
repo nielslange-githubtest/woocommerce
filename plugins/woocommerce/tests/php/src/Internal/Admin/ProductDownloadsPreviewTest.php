@@ -120,8 +120,8 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$result = $this->preview->get_admin_image_src_url( $this->product_id, $this->attachment_id, 'thumbnail' );
 
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( $this->product_id, $result );
-		$this->assertStringContainsString( $this->attachment_id, $result );
+		$this->assertStringContainsString( (string) $this->product_id, $result );
+		$this->assertStringContainsString( (string) $this->attachment_id, $result );
 		$this->assertStringContainsString( 'size=thumbnail', $result );
 		$this->assertStringContainsString( 'signature=', $result );
 	}
