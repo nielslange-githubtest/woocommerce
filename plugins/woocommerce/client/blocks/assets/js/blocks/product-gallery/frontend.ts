@@ -60,6 +60,11 @@ const productGallery: ProductGalleryStore = {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore - State properties are initialized via PHP's wp_interactivity_state
 	state: {
+		/**
+		 * The IDs of all images.
+		 *
+		 * @return {number[]} The IDs of all images.
+		 */
 		get allImageIds(): number[] {
 			return ( state.imageData || [] ).map(
 				( image: ImageDataItem ) => image.id
