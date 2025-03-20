@@ -11,11 +11,13 @@ import {
 /**
  * Internal dependencies
  */
-import type { ProductGalleryContext } from './types';
-import { checkOverflow } from './utils';
+import type {
+	ProductGalleryState,
+	ImageDataItem,
+	ProductGalleryStore,
+} from './types';
 
-const getContext = ( ns?: string ) =>
-	getContextFn< ProductGalleryContext >( ns );
+const getContext = ( ns?: string ) => getContextFn< ProductGalleryState >( ns );
 
 const getArrowsState = ( imageId: number ) => ( {
 	disableLeft: imageId === state.allImageIds[ 0 ],
