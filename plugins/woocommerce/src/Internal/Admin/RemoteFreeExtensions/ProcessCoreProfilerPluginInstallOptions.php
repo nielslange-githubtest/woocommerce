@@ -58,7 +58,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 		}
 
 		foreach ( $install_options as $install_option ) {
-			$this->update_install_option( $install_option );
+			$this->add_install_option( $install_option );
 		}
 	}
 
@@ -67,7 +67,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 *
 	 * @param object $install_option Install option object.
 	 */
-	protected function update_install_option( object $install_option ) {
+	protected function add_install_option( object $install_option ) {
 		$default_options = array(
 			'force_array' => false,
 			'autoload'    => false,
@@ -88,7 +88,7 @@ class ProcessCoreProfilerPluginInstallOptions {
 			}
 		}
 
-		$this->update_option( $install_option->name, $install_option->value, $options->autoload ? 'yes' : null );
+		$this->add_option( $install_option->name, $install_option->value, $options->autoload ? 'yes' : null );
 	}
 
 	/**
@@ -100,8 +100,8 @@ class ProcessCoreProfilerPluginInstallOptions {
 	 *
 	 * @return void
 	 */
-	protected function update_option( string $name, $value, $autoload = null ) {
-		update_option( $name, $value, $autoload );
+	protected function add_option( string $name, $value, $autoload = null ) {
+		add_option( $name, $value, $autoload );
 	}
 
 	/**
