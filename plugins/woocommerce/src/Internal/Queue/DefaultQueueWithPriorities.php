@@ -34,7 +34,7 @@ final class DefaultQueueWithPriorities implements QueueWithPrioritiesInterface {
 	 * @return int The action ID.
 	 */
 	public function schedule_single( $timestamp, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
-		return as_schedule_single_action( $timestamp, $hook, $args, $group, $priority );
+		return as_schedule_single_action( $timestamp, $hook, $args, $group, false, $priority );
 	}
 
 	/**
@@ -49,7 +49,7 @@ final class DefaultQueueWithPriorities implements QueueWithPrioritiesInterface {
 	 * @return int The action ID.
 	 */
 	public function schedule_recurring( $timestamp, $interval_in_seconds, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
-		return as_schedule_recurring_action( $timestamp, $interval_in_seconds, $hook, $args, $group, $priority );
+		return as_schedule_recurring_action( $timestamp, $interval_in_seconds, $hook, $args, $group, false, $priority );
 	}
 
 	/**
@@ -64,7 +64,7 @@ final class DefaultQueueWithPriorities implements QueueWithPrioritiesInterface {
 	 * @return int The action ID
 	 */
 	public function schedule_cron( $timestamp, $cron_schedule, $hook, $args = array(), $group = '', int $priority = ActionQueuePriority::NORMAL ) {
-		return as_schedule_cron_action( $timestamp, $cron_schedule, $hook, $args, $group, $priority );
+		return as_schedule_cron_action( $timestamp, $cron_schedule, $hook, $args, $group, false, $priority );
 	}
 
 	/**
