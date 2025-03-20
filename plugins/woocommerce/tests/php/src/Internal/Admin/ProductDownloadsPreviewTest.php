@@ -261,4 +261,43 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$this->assertInstanceOf( 'WP_Error', $response );
 		$this->assertEquals( 'woocommerce_rest_file_not_found', $response->get_error_code() );
 	}
+
+	/**
+	 * Test that a signature cannot be used twice (one-time use)
+	 */
+	public function test_signature_can_only_be_used_once() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		// Generate a valid URL with signature
+		$url = $this->preview->get_admin_image_src_url( $this->product_id, $this->attachment_id, 'thumbnail' );
+		$parsed_url = wp_parse_url( $url );
+		parse_str( $parsed_url['query'], $query_args );
+
+		// Extract the signature from the URL
+		$signature = $query_args['signature'];
+		$size = $query_args['size'];
+
+		// First request should succeed
+		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$request->set_param( 'signature', $signature );
+		$request->set_param( 'product_id', $this->product_id );
+		$request->set_param( 'attachment_id', $this->attachment_id );
+		$request->set_param( 'size', $size );
+
+		// First use should succeed
+		$this->assertTrue( $this->preview->get_preview_permissions_check( $request ) );
+
+		// Second request with the same signature should fail with signature already used error
+		$second_request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
+		$second_request->set_param( 'signature', $signature );
+		$second_request->set_param( 'product_id', $this->product_id );
+		$second_request->set_param( 'attachment_id', $this->attachment_id );
+		$second_request->set_param( 'size', $size );
+
+		// Second attempt should fail because signature is now in the used signatures list
+		$second_response = $this->preview->get_preview_permissions_check( $second_request );
+		$this->assertInstanceOf( 'WP_Error', $second_response );
+		$this->assertEquals( 'woocommerce_rest_signature_already_used', $second_response->get_error_code() );
+	}
 }
