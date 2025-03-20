@@ -80,8 +80,9 @@ class AddToCartWithOptionsVariationSelector extends AbstractBlock {
 	 * This is needed so the ProductButton block could add a Variable Product to
 	 * the Cart without a page refresh.
 	 *
-	 * @param  bool   $supports If features are already supported or not.
-	 * @param  string $feature  The feature to check if is supported.
+	 * @param  bool        $supports If features are already supported or not.
+	 * @param  string      $feature  The feature to check if is supported.
+	 * @param  \WC_Product $product  The product to check.
 	 * @return bool True if the product supports the feature, false otherwise.
 	 * @since  9.9.0
 	 */
