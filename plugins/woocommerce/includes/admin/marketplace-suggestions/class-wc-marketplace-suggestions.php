@@ -197,10 +197,11 @@ class WC_Marketplace_Suggestions {
 
 		// If the options have never been updated, or were updated over a week ago, queue update.
 		if ( empty( $data['updated'] ) || ( time() - WEEK_IN_SECONDS ) > $data['updated'] ) {
-			$next = WC()->queue()->get_next( 'woocommerce_update_marketplace_suggestions' );
+			$queue = WC()->queue();
+			$next  = $queue->get_next( 'woocommerce_update_marketplace_suggestions' );
 			if ( ! $next ) {
-				WC()->queue()->cancel_all( 'woocommerce_update_marketplace_suggestions' );
-				WC()->queue()->add( 'woocommerce_update_marketplace_suggestions' );
+				$queue->cancel_all( 'woocommerce_update_marketplace_suggestions' );
+				$queue->add( 'woocommerce_update_marketplace_suggestions' );
 			}
 		}
 
