@@ -353,6 +353,18 @@ class Api {
 	}
 
 	/**
+	 * Returns the appropriate asset path for script module builds.
+	 *
+	 * @param   string $full_block_name  Full block name.
+	 * @param   string $filename         Filename for asset path (without extension).
+	 * @param   string $type             File type (.css or .js).
+	 * @return  string                   The generated path.
+	 */
+	public function get_script_module_asset_build_path( $full_block_name, $filename, $type = 'js' ) {
+		return "assets/client/blocks/$full_block_name/$filename.$type";
+	}
+
+	/**
 	 * Adds an inline script, once.
 	 *
 	 * @param string $handle Script handle.

@@ -64,8 +64,7 @@
 		}
 	],
 	"viewScriptModule": [ "file:./frontend.ts", "woocommerce/product-button" ],
-	"editorStyle": "woocommerce/product-button-editor",
-	"style": "woocommerce/product-button",
+	"style": "file:./style.scss",
 	"apiVersion": 3,
 	"$schema": "https://schemas.wp.org/trunk/block.json"
 }

@@ -4,12 +4,11 @@ declare( strict_types = 1 );
 namespace Automattic\WooCommerce\Blocks\BlockTypes;
 
 use Automattic\WooCommerce\Blocks\Utils\StyleAttributesUtils;
-use Automattic\WooCommerce\Blocks\Interactivity\Store;
 
 /**
  * ProductButton class.
  */
-class ProductButton extends AbstractBlock {
+class ProductButton extends AbstractInteractivityAPIBlock {
 
 	/**
 	 * Block name.
@@ -26,33 +25,10 @@ class ProductButton extends AbstractBlock {
 	 */
 	private static $cart = null;
 
-
 	/**
-	 * Disable frontend script for this block type, it's a script module.
-	 *
-	 * @param string $key Data to get, or default to everything.
-	 * @return array|string|null
+	 * Dequeue add to cart scripts.
 	 */
-	protected function get_block_type_script( $key = null ) {
-		return null;
-	}
-
-	/**
-	 * Register the context.
-	 */
-	protected function get_block_type_uses_context() {
-		return [ 'query', 'queryId', 'postId' ];
-	}
-
-	/**
-	 * Enqueue frontend assets for this block, just in time for rendering.
-	 *
-	 * @param array    $attributes  Any attributes that currently are available from the block.
-	 * @param string   $content    The block content.
-	 * @param WP_Block $block    The block object.
-	 */
-	protected function enqueue_assets( array $attributes, $content, $block ) {
-		parent::enqueue_assets( $attributes, $content, $block );
+	protected function dequeue_assets() {
 		if ( wc_current_theme_is_fse_theme() ) {
 			add_action(
 				'wp_enqueue_scripts',
@@ -95,8 +71,7 @@ class ProductButton extends AbstractBlock {
 			return '';
 		}
 
-		wp_enqueue_script_module( 'woocommerce/product-button' );
-
+		$this->dequeue_assets();
 		$this->initialize_cart_state();
 
 		wp_interactivity_state(

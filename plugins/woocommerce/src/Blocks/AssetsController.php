@@ -59,7 +59,20 @@ final class AssetsController {
 
 		foreach ( $asset_data as $handle => $data ) {
 			$handle_without_js = str_replace( '.js', '', $handle );
-			wp_register_script_module( $handle_without_js, plugins_url( $this->api->get_block_asset_build_path( $handle_without_js ), dirname( __DIR__ ) ), $data['dependencies'], $data['version'] );
+
+			// In Webpack we use entry points to generate stylesheets, which leaves redundant empty JS files in the dependencies array.
+			$dependencies_without_rendundant_style_js = array_filter(
+				$data['dependencies'],
+				function ( $dependency ) {
+					if ( is_array( $dependency ) ) {
+						return ! str_contains( $dependency['id'], '-style' );
+					}
+
+					return ! str_contains( $dependency, '-style' );
+				}
+			);
+
+			wp_register_script_module( $handle_without_js, plugins_url( $this->api->get_block_asset_build_path( $handle_without_js ), dirname( __DIR__ ) ), $dependencies_without_rendundant_style_js, $data['version'] );
 		}
 	}
 

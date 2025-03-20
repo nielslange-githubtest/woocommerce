@@ -69,11 +69,34 @@ abstract class AbstractInteractivityAPIBlock {
 		$render_callback_attributes = $this->parse_render_callback_attributes( $attributes );
 		$result                     = $this->render( $render_callback_attributes, $content, $block );
 
-		if ( is_string( $result ) && ! empty( $result ) ) {
+		if ( ! empty( $result ) ) {
 			wp_enqueue_script_module( $this->get_full_block_name() );
+			wp_enqueue_style( $this->get_frontend_style_handle() );
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get the frontend style handle for this block type.
+	 * The script modules build generates front-end stylesheets
+	 * as <block-name>-style by default.
+	 *
+	 * @return string|null
+	 */
+	protected function get_frontend_style_handle() {
+		return $this->block_name . '-style';
+	}
+
+	/**
+	 * Get the editor style handle for this block type.
+	 * The script modules build generates editor stylesheets
+	 * as <block-name>-editor-style by default.
+	 *
+	 * @return string|null
+	 */
+	protected function get_editor_style_handle() {
+		return $this->block_name . '-editor-style';
 	}
 
 	/**
@@ -82,8 +105,16 @@ abstract class AbstractInteractivityAPIBlock {
 	 * @throws \Exception When block metadata path is not set.
 	 */
 	protected function register_block_type() {
+		$frontend_style_handle = $this->get_frontend_style_handle();
+		$editor_style_handle   = $this->get_editor_style_handle();
+
+		$this->asset_api->register_style( $frontend_style_handle, $this->asset_api->get_script_module_asset_build_path( $this->get_full_block_name(), $frontend_style_handle, 'css' ), [], 'all', true );
+		$this->asset_api->register_style( $editor_style_handle, $this->asset_api->get_script_module_asset_build_path( $this->get_full_block_name(), $editor_style_handle, 'css' ), [], 'all', true );
+
 		$block_settings = [
 			'render_callback' => [ $this, 'render_callback' ],
+			'editor_style'    => $editor_style_handle,
+			'style'           => $frontend_style_handle,
 		];
 
 		$metadata_path = $this->asset_api->get_block_metadata_path( $this->block_name );

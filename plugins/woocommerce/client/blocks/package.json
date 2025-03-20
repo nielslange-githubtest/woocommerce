@@ -384,6 +384,10 @@
 				"BABEL_ENV": {
 					"external": true,
 					"default": "default"
+				},
+				"WP_EXPERIMENTAL_MODULES": {
+					"external": true,
+					"default": "true"
 				}
 			},
 			"files": [
@@ -424,7 +428,13 @@
 		},
 		"watch:build:project:bundle": {
 			"command": "webpack --watch",
-			"service": true
+			"service": true,
+			"env": {
+				"WP_EXPERIMENTAL_MODULES": {
+					"external": true,
+					"default": "true"
+				}
+			}
 		},
 		"watch:build:storybook": {
 			"command": "storybook dev  -c ./storybook -p 6006 --ci",
