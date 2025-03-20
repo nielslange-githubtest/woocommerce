@@ -6,6 +6,7 @@
 namespace Automattic\WooCommerce\Proxies;
 
 use Automattic\WooCommerce\Internal\DependencyManagement\Definition;
+use Automattic\WooCommerce\Internal\Queue\QueueProxy;
 use Automattic\WooCommerce\Utilities\StringUtil;
 use Automattic\WooCommerce\Vendor\Psr\Container\ContainerInterface;
 
@@ -65,7 +66,7 @@ class LegacyProxy {
 	/**
 	 * Get an instance of a class implementing WC_Queue_Interface.
 	 *
-	 * @return \WC_Queue_Interface The instance.
+	 * @return QueueProxy The instance.
 	 */
 	private function get_instance_of_wc_queue_interface() {
 		return \WC_Queue::instance();

@@ -7,6 +7,7 @@
  */
 
 use Automattic\WooCommerce\Internal\Queue\DefaultQueueWithPriorities;
+use Automattic\WooCommerce\Internal\Queue\QueueProxy;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -38,16 +39,16 @@ class WC_Queue {
 	/**
 	 * Single instance of WC_Queue_Interface
 	 *
-	 * @return WC_Queue_Interface
+	 * @return QueueProxy
 	 */
 	final public static function instance() {
-
 		if ( is_null( self::$instance ) ) {
 			$class          = self::get_class();
 			self::$instance = new $class();
 			self::$instance = self::validate_instance( self::$instance );
 		}
-		return self::$instance;
+
+		return new QueueProxy ( self::$instance );
 	}
 
 	/**
