@@ -1,0 +1,4 @@
+Significance: patch
+Type: performance
+
+Product Gallery ( Beta ): Improves layout shift by rendering the large image from the server and then hydrating the gallery.
