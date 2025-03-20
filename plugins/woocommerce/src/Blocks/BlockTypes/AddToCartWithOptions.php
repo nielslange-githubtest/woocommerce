@@ -111,7 +111,18 @@ class AddToCartWithOptions extends AbstractBlock {
 				)
 			);
 
+			/**
+			 * Filters the change the quantity to add to cart.
+			 *
+			 * @since 10.9.0
+			 * @param number $default_quantity The default quantity.
+			 * @param number $product_id The product id.
+			 */
+			$default_quantity = apply_filters( 'woocommerce_add_to_cart_quantity', 1, $product->get_id() );
+
 			$context = array(
+				'productId' => $product->get_id(),
+				'quantity'  => $default_quantity,
 				'variation' => array(),
 			);
 

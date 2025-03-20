@@ -2,49 +2,74 @@
  * External dependencies
  */
 import { store, getContext } from '@wordpress/interactivity';
-
-type Attribute = {
-	attribute: string;
-	value: string;
-};
+import type { Store as WooCommerce } from '@woocommerce/stores/woocommerce/cart';
+import type { CartVariationItem } from '@woocommerce/types';
 
 type Context = {
-	variation: Attribute[];
+	productId: number;
+	variation: CartVariationItem[];
+	quantity: number;
 };
 
-store( 'woocommerce/add-to-cart-with-options', {
-	state: {
-		get variation() {
-			const { variation } = getContext< Context >();
-			return variation ?? [];
+// Stores are locked to prevent 3PD usage until the API is stable.
+const universalLock =
+	'I acknowledge that using a private store means my plugin will inevitably break on the next store release.';
+
+const addToCartWithOptionsStore = store(
+	'woocommerce/add-to-cart-with-options',
+	{
+		actions: {
+			setQuantity( value: number ) {
+				const context = getContext< Context >();
+				context.quantity = value;
+			},
+			setAttribute( attribute: string, value: string ) {
+				const context = getContext< Context >();
+				const index = context.variation.findIndex(
+					( variation ) => variation.attribute === attribute
+				);
+				if ( index >= 0 ) {
+					context.variation[ index ] = {
+						attribute,
+						value,
+					};
+				} else {
+					context.variation.push( {
+						attribute,
+						value,
+					} );
+				}
+			},
+			removeAttribute( attribute: string ) {
+				const context = getContext< Context >();
+				const index = context.variation.findIndex(
+					( variation ) => variation.attribute === attribute
+				);
+				if ( index >= 0 ) {
+					context.variation.splice( index, 1 );
+				}
+			},
+			*addToCart() {
+				// Todo: Use the module exports instead of `store()` once the
+				// woocommerce store is public.
+				yield import( '@woocommerce/stores/woocommerce/cart' );
+
+				const { actions } = store< WooCommerce >(
+					'woocommerce',
+					{},
+					{ lock: universalLock }
+				);
+
+				const {
+					productId: id,
+					quantity,
+					variation,
+				} = getContext< Context >();
+
+				yield actions.addCartItem( { id, quantity, variation } );
+			},
 		},
-	},
-	actions: {
-		setAttribute( attribute: string, value: string ) {
-			const context = getContext< Context >();
-			const index = context.variation.findIndex(
-				( variation ) => variation.attribute === attribute
-			);
-			if ( index >= 0 ) {
-				context.variation[ index ] = {
-					attribute,
-					value,
-				};
-			} else {
-				context.variation.push( {
-					attribute,
-					value,
-				} );
-			}
-		},
-		removeAttribute( attribute: string ) {
-			const context = getContext< Context >();
-			const index = context.variation.findIndex(
-				( variation ) => variation.attribute === attribute
-			);
-			if ( index >= 0 ) {
-				context.variation.splice( index, 1 );
-			}
-		},
-	},
-} );
+	}
+);
+
+export type AddToCartWithOptionsStore = typeof addToCartWithOptionsStore;
