@@ -4,6 +4,11 @@
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
+/**
+ * Internal dependencies
+ */
+import type { AddToCartWithOptionsStore } from '../../frontend';
+
 type Option = {
 	value: string;
 	label: string;
@@ -21,13 +26,14 @@ type PillsContext = Context & {
 	focused?: string;
 };
 
-const { actions: wooAddToCartWithOptions } = store(
+// Stores are locked to prevent 3PD usage until the API is stable.
+const universalLock =
+	'I acknowledge that using a private store means my plugin will inevitably break on the next store release.';
+
+const { actions: wooAddToCartWithOptions } = store< AddToCartWithOptionsStore >(
 	'woocommerce/add-to-cart-with-options',
 	{},
-	{
-		// Stores are locked to prevent 3PD usage until the API is stable.
-		lock: 'I acknowledge that using a private store means my plugin will inevitably break on the next store release.',
-	}
+	{ lock: universalLock }
 );
 
 function setAttribute( name: string, value: string | null ) {
@@ -89,8 +95,6 @@ const { state, actions } = store(
 				setAttribute( context.name, context.selectedValue );
 			},
 			handleKeyDown( event: KeyboardEvent< HTMLElement > ) {
-				const context = getContext< PillsContext >();
-
 				let keyWasProcessed = false;
 
 				switch ( event.key ) {
@@ -103,6 +107,7 @@ const { state, actions } = store(
 					case 'ArrowUp':
 					case 'Left':
 					case 'ArrowLeft': {
+						const context = getContext< PillsContext >();
 						const index = state.index;
 						if ( index === -1 ) return;
 						const at =
@@ -120,6 +125,7 @@ const { state, actions } = store(
 					case 'ArrowDown':
 					case 'Right':
 					case 'ArrowRight': {
+						const context = getContext< PillsContext >();
 						const index = state.index;
 						if ( index === -1 ) return;
 						const at =
