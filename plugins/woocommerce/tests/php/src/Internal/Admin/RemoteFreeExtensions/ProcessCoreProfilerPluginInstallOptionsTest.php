@@ -80,82 +80,20 @@ class ProcessCoreProfilerPluginInstallOptionsTest extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Test that process_install_options calls the correct method.
+	 * Test that add_option calls the correct function.
 	 * @return void
 	 */
-	public function test_process_before_filters_correctly() {
-		$install_options = array(
-			(object) array( 'options' => (object) array( 'install_priority' => 'before' ) ),
-			(object) array( 'options' => (object) array( 'install_priority' => 'after' ) ),
-		);
-
-		$plugins = array(
-			(object) array(
-				'key'             => 'my-plugin:extra',
-				'install_options' => $install_options,
-			),
-		);
-
-		$mock = Mockery::mock( ProcessCoreProfilerPluginInstallOptions::class, array( $plugins, 'my-plugin' ) )
-						->makePartial()
-						->shouldAllowMockingProtectedMethods();
-
-		$mock->shouldReceive( 'update_install_option' )
-			->once()
-			->with( $install_options[0] );
-
-		$mock->process_before(); // Ensure method is called.
-
-		$this->assertTrue( true );
-		Mockery::getContainer()->mockery_verify();
-	}
-
-	/**
-	 * Test that process_after filters correctly.
-	 * @return void
-	 */
-	public function test_process_after_filters_correctly() {
-		$install_options = array(
-			(object) array( 'options' => (object) array( 'install_priority' => 'before' ) ),
-			(object) array( 'options' => (object) array( 'install_priority' => 'after' ) ),
-		);
-
-		$plugins = array(
-			(object) array(
-				'key'             => 'my-plugin:extra',
-				'install_options' => $install_options,
-			),
-		);
-
-		$mock = Mockery::mock( ProcessCoreProfilerPluginInstallOptions::class, array( $plugins, 'my-plugin' ) )
-						->makePartial()
-						->shouldAllowMockingProtectedMethods();
-
-		$mock->shouldReceive( 'update_install_option' )
-			->once()
-			->with( $install_options[1] );
-
-		$mock->process_after(); // Ensure method is called.
-
-		$this->assertTrue( true );
-		Mockery::getContainer()->mockery_verify();
-	}
-
-	/**
-	 * Test that update_option calls the correct function.
-	 * @return void
-	 */
-	public function test_update_option_calls_update_option_function() {
+	public function test_add_option_calls_add_option_function() {
 		$mock = Mockery::mock( ProcessCoreProfilerPluginInstallOptions::class )
 						->makePartial()
 						->shouldAllowMockingProtectedMethods();
 
-		$mock->shouldReceive( 'update_option' )
+		$mock->shouldReceive( 'add_option' )
 			->once()
 			->with( 'test_option', 'test_value', 'yes' );
 
 		$reflection = new \ReflectionClass( $mock );
-		$method     = $reflection->getMethod( 'update_option' );
+		$method     = $reflection->getMethod( 'add_option' );
 		$method->setAccessible( true );
 
 		$method->invoke( $mock, 'test_option', 'test_value', 'yes' );
@@ -163,34 +101,34 @@ class ProcessCoreProfilerPluginInstallOptionsTest extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Test that is_before_priority returns true when the priority is 'before'.
+	 * Test that 'install_options' does not change existing options.
+	 * It can only add new options.
+	 *
 	 * @return void
 	 */
-	public function test_is_before_priority_handles_missing_options() {
-		$install_option = (object) array();
+	public function test_it_does_not_change_existing_options() {
+		$plugins = array(
+			(object) array(
+				'key'             => 'test-plugin',
+				'install_options' => array(
+					(object) array(
+						'name'  => 'test-option',
+						'value' => 'new-value',
+					),
+				),
+			),
+		);
 
-		$instance = new ProcessCoreProfilerPluginInstallOptions( array(), 'test-plugin' );
+		$instance = new ProcessCoreProfilerPluginInstallOptions( $plugins, 'test-plugin' );
+		$instance->process_install_options();
 
-		$reflection = new \ReflectionClass( $instance );
-		$method     = $reflection->getMethod( 'is_before_priority' );
-		$method->setAccessible( true );
+		$this->assertEquals( 'new-value', get_option( 'test-option' ) );
 
-		$this->assertTrue( $method->invoke( $instance, $install_option ) );
-	}
+		$plugins[0]->install_options[0]->value = 'changed-value';
+		$instance                              = new ProcessCoreProfilerPluginInstallOptions( $plugins, 'test-plugin' );
+		$instance->process_install_options();
 
-	/**
-	 * Test that is_after_priority returns false when the priority is 'after'.
-	 * @return void
-	 */
-	public function test_is_after_priority_handles_missing_options() {
-		$install_option = (object) array();
-
-		$instance = new ProcessCoreProfilerPluginInstallOptions( array(), 'test-plugin' );
-
-		$reflection = new \ReflectionClass( $instance );
-		$method     = $reflection->getMethod( 'is_after_priority' );
-		$method->setAccessible( true );
-
-		$this->assertFalse( $method->invoke( $instance, $install_option ) );
+		// The value should not change.
+		$this->assertEquals( 'new-value', get_option( 'test-option' ) );
 	}
 }
