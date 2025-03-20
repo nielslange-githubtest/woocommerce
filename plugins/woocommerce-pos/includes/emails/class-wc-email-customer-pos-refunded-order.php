@@ -226,6 +226,62 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		}
 
 		/**
+		 * Get content html.
+		 *
+		 * @return string
+		 */
+		public function get_content_html() {
+			$this->add_filters_before_content();
+			$content = wc_get_template_html(
+				$this->template_html,
+				array(
+					'order'              => $this->object,
+					'refund'             => $this->refund,
+					'partial_refund'     => $this->partial_refund,
+					'email_heading'      => $this->get_heading(),
+					'additional_content' => $this->get_additional_content(),
+					'pos_store_email'       => $this->get_pos_store_email(),
+					'pos_store_phone_number' => $this->get_pos_store_phone_number(),
+					'pos_store_address'     => $this->get_pos_store_address(),
+					'refund_returns_policy' => $this->get_refund_returns_policy(),
+					'blogname'           => $this->get_blogname(),
+					'sent_to_admin'      => false,
+					'plain_text'         => false,
+					'email'              => $this,
+				)
+			);
+			$this->remove_filters_after_content();
+			return $content;
+		}
+
+		/**
+		 * Get content plain.
+		 *
+		 * @return string
+		 */
+		public function get_content_plain() {
+			// TODO: set plain text content similar to get_content_html
+			return wc_get_template_html(
+				$this->template_plain,
+				array(
+					'order'              => $this->object,
+					'refund'             => $this->refund,
+					'partial_refund'     => $this->partial_refund,
+					'email_heading'      => $this->get_heading(),
+					'additional_content' => $this->get_additional_content(),
+					'pos_store_email'       => $this->get_pos_store_email(),
+					'pos_store_phone_number' => $this->get_pos_store_phone_number(),
+					'pos_store_address'     => $this->get_pos_store_address(),
+					'refund_returns_policy' => $this->get_refund_returns_policy(),
+					'blogname'           => $this->get_blogname(),
+					'sent_to_admin'      => false,
+					'plain_text'         => true,
+					'email'              => $this,
+				)
+			);
+		}
+
+		/**
 		 * Default content to show below main email content.
 		 *
 		 * @since 1.0.0

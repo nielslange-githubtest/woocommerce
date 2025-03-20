@@ -157,11 +157,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 * @return string
 		 */
 		public function get_content_html() {
-			// Add filter to include unit price in the quantity column for order items table.
-			add_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10, 2 );
-
-			// Add filter to include payment auth code in the order item totals table.
-			add_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10, 3 );
+			$this->add_filters_before_content();
 
 			$content = wc_get_template_html(
 				$this->template_html,
@@ -179,9 +175,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 				)
 			);
 
-			// Remove action and filter after generating content to avoid affecting other emails.
-			remove_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10 );
-			remove_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10 );
+			$this->remove_filters_after_content();
 			return $content;
 		}
 		
@@ -202,6 +196,19 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 					'email'              => $this,
 				)
 			);
+		}
+
+		protected function add_filters_before_content() {
+			// Add filter to include unit price in the quantity column for order items table.
+			add_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10, 2 );
+			// Add filter to include payment auth code in the order item totals table.
+			add_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10, 3 );
+		}
+
+		protected function remove_filters_after_content() {
+			// Remove action and filter after generating content to avoid affecting other emails.
+			remove_filter( 'woocommerce_get_order_item_totals', array( $this, 'order_item_totals' ), 10 );
+			remove_filter( 'woocommerce_email_order_item_quantity', array( $this, 'order_item_quantity' ), 10 );
 		}
 
 		/**
