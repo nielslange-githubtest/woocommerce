@@ -188,7 +188,7 @@ test.describe( `${ blockData.name }`, () => {
 		} );
 
 		const largeImageElement = largeImageBlockOnFrontend.locator(
-			'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
+			'.wc-block-woocommerce-product-gallery-large-image__image.is-active'
 		);
 
 		const imageSourceForLargeImageElement =
@@ -212,7 +212,7 @@ test.describe( `${ blockData.name }`, () => {
 
 		const largeImageElementAfterSelectingVariation =
 			largeImageBlockOnFrontend.locator(
-				'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
+				'.wc-block-woocommerce-product-gallery-large-image__image.is-active'
 			);
 
 		const imageSourceForLargeImageElementAfterSelectingVariation =
@@ -250,7 +250,7 @@ test.describe( `${ blockData.name }`, () => {
 			await expect( blockFrontend ).toBeVisible();
 
 			const largeImageElement = blockFrontend.locator(
-				'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
+				'.wc-block-woocommerce-product-gallery-large-image__image.is-active'
 			);
 
 			// Get the element's bounding box
@@ -326,7 +326,7 @@ test.describe( `${ blockData.name }`, () => {
 
 			// Verify the next image is shown
 			const nextImage = blockFrontend.locator(
-				'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
+				'.wc-block-woocommerce-product-gallery-large-image__image.is-active'
 			);
 			const nextImageSrc = await nextImage.getAttribute( 'src' );
 

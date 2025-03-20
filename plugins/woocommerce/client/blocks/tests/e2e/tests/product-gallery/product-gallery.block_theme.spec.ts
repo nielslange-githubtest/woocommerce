@@ -56,7 +56,7 @@ export const getVisibleLargeImageId = async (
 	mainImageBlockLocator: Locator
 ) => {
 	const mainImage = mainImageBlockLocator.locator(
-		'.wc-block-woocommerce-product-gallery-large-image__image--active-image-slide'
+		'.wc-block-woocommerce-product-gallery-large-image__image.is-active'
 	);
 
 	return getImageId( mainImage );
