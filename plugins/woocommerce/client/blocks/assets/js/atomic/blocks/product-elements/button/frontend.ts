@@ -105,9 +105,7 @@ const { state } = store< Store >(
 			},
 		},
 		actions: {
-			*addCartItem( event: MouseEvent ) {
-				event.preventDefault();
-
+			*addCartItem() {
 				const context = getContext();
 				const {
 					productId,
