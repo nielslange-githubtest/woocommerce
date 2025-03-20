@@ -9,8 +9,13 @@ import {
 	TextareaControl,
 	Button,
 } from '@wordpress/components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
+import {
+	PAYMENT_GATEWAYS_STORE_NAME,
+	type PaymentSelectors,
+} from '@woocommerce/data';
 
 /**
  * Internal dependencies
@@ -24,12 +29,56 @@ import { PaymentSettingsSection } from '~/settings-payments/components/payment-s
  * Component for managing BACS (Direct Bank Transfer) payment gateway settings.
  */
 export const SettingsPaymentsBacs = () => {
-	const [ enabled, setEnabled ] = useState( true );
-	const [ title, setTitle ] = useState( 'Check payments' );
-	const [ description, setDescription ] = useState(
-		'Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.'
+	const bacsSettings = useSelect(
+		( select ) =>
+			(
+				select( PAYMENT_GATEWAYS_STORE_NAME ) as PaymentSelectors
+			 ).getPaymentGateway( 'bacs' ),
+		[]
 	);
+	console.log( bacsSettings );
+
+	const { updatePaymentGateway } = useDispatch( PAYMENT_GATEWAYS_STORE_NAME );
+
+	// State for form fields
+	const [ enabled, setEnabled ] = useState( false );
+	const [ title, setTitle ] = useState( '' );
+	const [ description, setDescription ] = useState( '' );
 	const [ instructions, setInstructions ] = useState( '' );
+
+	useEffect( () => {
+		if ( bacsSettings ) {
+			setEnabled( bacsSettings.enabled || false );
+			setTitle(
+				bacsSettings.settings?.title?.value || 'Direct bank transfer'
+			);
+			setDescription( bacsSettings.description || '' );
+			setInstructions( bacsSettings.settings?.instructions?.value || '' );
+		}
+	}, [ bacsSettings ] );
+
+	const saveSettings = () => {
+		updatePaymentGateway( 'bacs', {
+			enabled,
+			description,
+			settings: {
+				title,
+				instructions,
+			},
+			accountDetails: [],
+		} )
+			.then( () => {
+				console.log( 'Settings updated successfully' );
+				window.location.reload();
+			} )
+			.catch( ( error ) => {
+				console.error( 'Error updating settings:', error );
+			} );
+	};
+
+	if ( ! bacsSettings ) {
+		return <p>Loading settings...</p>;
+	}
 
 	return (
 		<PaymentSettingsLayout>
@@ -45,7 +94,7 @@ export const SettingsPaymentsBacs = () => {
 					<CardBody className="bacs-settings__body">
 						<div className={ 'form-field' }>
 							<CheckboxControl
-								onChange={ () => null }
+								onChange={ ( value ) => setEnabled( value ) }
 								checked={ enabled }
 								// @ts-expect-error The label prop can be a string, however, the final consumer of this prop accepts ReactNode.
 								label={
@@ -67,7 +116,7 @@ export const SettingsPaymentsBacs = () => {
 									'woocommerce'
 								) }
 								value={ title }
-								onChange={ () => null }
+								onChange={ ( value ) => setTitle( value ) }
 							/>
 						</div>
 
@@ -79,7 +128,9 @@ export const SettingsPaymentsBacs = () => {
 									'woocommerce'
 								) }
 								value={ description }
-								onChange={ () => null }
+								onChange={ ( value ) =>
+									setDescription( value )
+								}
 							/>
 						</div>
 
@@ -91,7 +142,9 @@ export const SettingsPaymentsBacs = () => {
 									'woocommerce'
 								) }
 								value={ instructions }
-								onChange={ () => null }
+								onChange={ ( value ) =>
+									setInstructions( value )
+								}
 							/>
 						</div>
 					</CardBody>
@@ -105,15 +158,23 @@ export const SettingsPaymentsBacs = () => {
 					'woocommerce'
 				) }
 			>
-				<Card className={ 'bacs-account-details__wrapper' }>
+				<Card
+					className={
+						'payment-settings-card__wrapper bacs-account-details__wrapper'
+					}
+				>
 					<CardBody className={ 'bacs-account-details__body' }>
-						<div>Hi</div>
+						<p>Table goes here</p>
 					</CardBody>
 				</Card>
 			</PaymentSettingsSection>
-			<Button isPrimary onClick={ () => null }>
-				{ __( 'Save changes', 'woocommerce' ) }
-			</Button>
+			<Card className={ 'payment-settings-card__wrapper ' }>
+				<CardBody className={ 'form__actions' }>
+					<Button variant={ 'primary' } onClick={ saveSettings }>
+						{ __( 'Save changes', 'woocommerce' ) }
+					</Button>
+				</CardBody>
+			</Card>
 		</PaymentSettingsLayout>
 	);
 };

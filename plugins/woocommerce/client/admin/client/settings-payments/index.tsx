@@ -86,14 +86,14 @@ const SettingsPaymentsCodChunk = lazy(
 	() =>
 		import(
 			/* webpackChunkName: "settings-payments-bacs" */ './settings-payments-cod'
-			)
+		)
 );
 
 const SettingsPaymentsChequeChunk = lazy(
 	() =>
 		import(
 			/* webpackChunkName: "settings-payments-bacs" */ './settings-payments-cheque'
-			)
+		)
 );
 
 /**
@@ -395,7 +395,33 @@ export const SettingsPaymentsBacsWrapper = () => {
 export const SettingsPaymentsCodWrapper = () => {
 	return (
 		<>
-			<h1>COD ROOT</h1>
+			<Header
+				title={ __( 'Cash on delivery', 'woocommerce' ) }
+				backLink={ getAdminLink(
+					'admin.php?page=wc-settings&tab=checkout&section=offline'
+				) }
+			/>
+			<Suspense
+				fallback={
+					<>
+						<div className="settings-payments-cod__container">
+							<div className="settings-payment-gateways">
+								<div className="settings-payment-gateways__header">
+									<div className="settings-payment-gateways__header-title">
+										{ __(
+											'Cash on delivery',
+											'woocommerce'
+										) }
+									</div>
+								</div>
+								<Placeholder />
+							</div>
+						</div>
+					</>
+				}
+			>
+				<SettingsPaymentsCodChunk />
+			</Suspense>
 		</>
 	);
 };
@@ -403,7 +429,33 @@ export const SettingsPaymentsCodWrapper = () => {
 export const SettingsPaymentsChequeWrapper = () => {
 	return (
 		<>
-			<h1>Cheque ROOT</h1>
+			<Header
+				title={ __( 'Cheque', 'woocommerce' ) }
+				backLink={ getAdminLink(
+					'admin.php?page=wc-settings&tab=checkout&section=offline'
+				) }
+			/>
+			<Suspense
+				fallback={
+					<>
+						<div className="settings-payments-cheque__container">
+							<div className="settings-payment-gateways">
+								<div className="settings-payment-gateways__header">
+									<div className="settings-payment-gateways__header-title">
+										{ __(
+											'Cheque',
+											'woocommerce'
+										) }
+									</div>
+								</div>
+								<Placeholder />
+							</div>
+						</div>
+					</>
+				}
+			>
+				<SettingsPaymentsChequeChunk />
+			</Suspense>
 		</>
 	);
 };

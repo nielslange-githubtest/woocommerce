@@ -2,3 +2,8 @@
 .form-field:not(:first-child) {
 	margin-top: 24px;
 }
+
+.form__actions {
+	display: flex;
+	flex-direction: row-reverse;
+}
