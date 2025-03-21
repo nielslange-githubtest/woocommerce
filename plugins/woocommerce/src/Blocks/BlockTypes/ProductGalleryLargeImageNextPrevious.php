@@ -21,6 +21,43 @@ class ProductGalleryLargeImageNextPrevious extends AbstractBlock {
 	}
 
 	/**
+	 * Initialize this block type.
+	 */
+	protected function initialize() {
+		parent::initialize();
+
+		add_filter( 'render_block_core/group', array( $this, 'add_large_image_and_navigation_class' ), 10, 2 );
+	}
+
+	/**
+	 * Add the large image and navigation class to the group block.
+	 *
+	 * @param string $content The content of the block.
+	 * @param array  $block   The block.
+	 * @return string
+	 */
+	public function add_large_image_and_navigation_class( $content, $block ) {
+		if ( 'core/group' !== $block['blockName'] ) {
+			return $content;
+		}
+
+		if ( ! isset( $block['attrs'] ) ) {
+			return $content;
+		}
+
+		if ( ! isset( $block['attrs']['metadata']['name'] ) || 'Large Image and Navigation' !== $block['attrs']['metadata']['name'] ) {
+			return $content;
+		}
+
+		$p = new \WP_HTML_Tag_Processor( $content );
+
+		if ( $p->next_tag() ) {
+			$p->add_class( 'wc-block-product-gallery__large-image-and-navigation' );
+		}
+
+		return $p->get_updated_html();
+	}
+	/**
 	 * Get the frontend style handle for this block type.
 	 *
 	 * @return null
