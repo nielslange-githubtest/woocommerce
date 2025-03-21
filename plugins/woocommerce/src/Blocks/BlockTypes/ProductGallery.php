@@ -149,6 +149,14 @@ class ProductGallery extends AbstractBlock {
 			$html = $p->get_updated_html();
 		}
 
+		// Force the gallery area class to be added to the group block.
+		if ( $p->next_tag( array( 'class_name' => 'wp-block-group' ) ) ) {
+			$class_list = explode( ' ', $p->get_attribute( 'class' ) ?? '' );
+			if ( ! in_array( 'wc-block-product-gallery__gallery-area', $class_list, true ) ) {
+				$p->add_class( 'wc-block-product-gallery__gallery-area' );
+			}
+		}
+
 		return $html;
 	}
 
