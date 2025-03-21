@@ -52,7 +52,11 @@ class ProductGalleryLargeImageNextPrevious extends AbstractBlock {
 		$p = new \WP_HTML_Tag_Processor( $content );
 
 		if ( $p->next_tag() ) {
-			$p->add_class( 'wc-block-product-gallery__large-image-and-navigation' );
+			$classes   = $p->get_attribute( 'class' );
+			$classname = 'wc-block-product-gallery__large-image-and-navigation';
+			if ( ! str_contains( $classes ?? '', $classname ) ) {
+				$p->add_class( $classname );
+			}
 		}
 
 		return $p->get_updated_html();
