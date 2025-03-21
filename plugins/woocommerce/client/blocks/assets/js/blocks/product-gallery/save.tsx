@@ -23,9 +23,14 @@ function addGalleryClassNames(blocks: any[]): any[] {
         
         // Check if this block's name exists in our mapping
         const blockName = block.attributes?.metadata?.name;
+
+        if ( !blockName ) {
+            return updatedBlock;
+        }
+
         const className = GROUP_BLOCK_NAMES_AND_CLASS_NAMES_MAP[blockName as keyof typeof GROUP_BLOCK_NAMES_AND_CLASS_NAMES_MAP];
         
-        if (className) {
+        if ( className ) {
             // Add className if it doesn't exist
             if (!block.attributes.className?.includes(className)) {
                 updatedBlock.attributes = {
