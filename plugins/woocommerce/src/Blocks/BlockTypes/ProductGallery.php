@@ -112,8 +112,6 @@ class ProductGallery extends AbstractBlock {
 		wp_enqueue_script_module( $this->get_full_block_name() );
 
 		$image_src_data      = ProductGalleryUtils::get_product_gallery_image_data( $product );
-		$classname           = StyleAttributesUtils::get_classes_by_attributes( $attributes, array( 'extra_classes' ) );
-		$classname          .= count( $image_src_data['image_ids'] ) < 2 ? ' is-single-product-gallery-image' : '';
 		$initial_image_id    = count( $image_src_data['image_ids'] ) > 0 ? $image_src_data['image_ids'][0] : -1;
 		$product_id          = strval( $product->get_id() );
 		$gallery_with_dialog = $this->inject_dialog( $content, $this->render_dialog( $image_src_data['images'] ) );
@@ -143,6 +141,9 @@ class ProductGallery extends AbstractBlock {
 			if ( $product->is_type( ProductType::VARIABLE ) ) {
 				$p->set_attribute( 'data-wp-init--watch-changes-on-add-to-cart-form', 'callbacks.watchForChangesOnAddToCartForm' );
 			}
+
+			$classname  = StyleAttributesUtils::get_classes_by_attributes( $attributes, array( 'extra_classes' ) );
+			$classname .= count( $image_src_data['image_ids'] ) < 2 ? ' is-single-product-gallery-image' : '';
 
 			$p->add_class( $classname );
 			$html = $p->get_updated_html();
