@@ -111,13 +111,13 @@ class ProductGallery extends AbstractBlock {
 
 		wp_enqueue_script_module( $this->get_full_block_name() );
 
-		$image_src_data         = ProductGalleryUtils::get_product_gallery_image_data( $product );
-		$classname              = StyleAttributesUtils::get_classes_by_attributes( $attributes, array( 'extra_classes' ) );
-		$initial_image_id       = count( $image_src_data['image_ids'] ) > 0 ? $image_src_data['image_ids'][0] : -1;
-		$classname_single_image = count( $image_src_data['image_ids'] ) < 2 ? 'is-single-product-gallery-image' : '';
-		$product_id             = strval( $product->get_id() );
-		$gallery_with_dialog    = $this->inject_dialog( $content, $this->render_dialog( $image_src_data['images'] ) );
-		$p                      = new \WP_HTML_Tag_Processor( $gallery_with_dialog );
+		$image_src_data      = ProductGalleryUtils::get_product_gallery_image_data( $product );
+		$classname           = StyleAttributesUtils::get_classes_by_attributes( $attributes, array( 'extra_classes' ) );
+		$classname          .= count( $image_src_data['image_ids'] ) < 2 ? ' is-single-product-gallery-image' : '';
+		$initial_image_id    = count( $image_src_data['image_ids'] ) > 0 ? $image_src_data['image_ids'][0] : -1;
+		$product_id          = strval( $product->get_id() );
+		$gallery_with_dialog = $this->inject_dialog( $content, $this->render_dialog( $image_src_data['images'] ) );
+		$p                   = new \WP_HTML_Tag_Processor( $gallery_with_dialog );
 
 		if ( $p->next_tag() ) {
 			$p->set_attribute( 'data-wp-interactive', $this->get_full_block_name() );
@@ -145,7 +145,6 @@ class ProductGallery extends AbstractBlock {
 			}
 
 			$p->add_class( $classname );
-			$p->add_class( $classname_single_image );
 			$html = $p->get_updated_html();
 		}
 
