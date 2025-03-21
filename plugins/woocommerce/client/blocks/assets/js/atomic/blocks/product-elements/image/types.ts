@@ -18,6 +18,8 @@ export interface BlockAttributes {
 	imageSizing: ImageSizing;
 	// Whether or not be a children of Query Loop Block.
 	isDescendentOfQueryLoop: boolean;
+	// Whether or not a child of the Single Product block.
+	isDescendentOfSingleProductBlock: boolean;
 	// Height of the image.
 	height?: string;
 	// Width of the image.
