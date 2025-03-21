@@ -282,18 +282,6 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 		}
 
 		/**
-		 * Default content to show below main email content.
-		 *
-		 * @since 1.0.0
-		 * @return string
-		 */
-		public function get_default_additional_content() {
-			return $this->email_improvements_enabled
-				? __( 'If you need any help with your refund, please contact us at {store_email}.', 'woocommerce-pos' )
-				: __( 'We hope to see you again soon.', 'woocommerce-pos' );
-		}
-
-		/**
 		 * Initialise settings form fields.
 		 */
 		public function init_form_fields() {
@@ -338,7 +326,7 @@ if ( class_exists( 'WC_Email_POS_Base', false ) && ! class_exists( 'WC_Email_Cus
 					'css'         => 'width:400px; height: 75px;',
 					'placeholder' => '',
 					'type'        => 'textarea',
-					'default'     => $this->get_default_additional_content(),
+					'default'     => '',
 					'desc_tip'    => true,
 				),				
 				'email_type'            => array(
