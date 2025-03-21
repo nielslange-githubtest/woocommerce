@@ -147,7 +147,7 @@ trait CheckoutTrait {
 	 */
 	private function update_order_from_request( \WP_REST_Request $request ) {
 		if ( isset( $request['customer_note'] ) ) {
-			$this->order->set_customer_note( wc_sanitize_textarea( $request['customer_note'] ) ?? '' );
+			$this->order->set_customer_note( wc_sanitize_textarea( $request['customer_note'] ) );
 		}
 		$payment_method = $this->get_request_payment_method( $request );
 		if ( null !== $payment_method ) {
