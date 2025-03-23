@@ -43,17 +43,14 @@ class ProductAttributes extends AbstractBlock {
 
 		$product_attributes = array();
 
-		// Display weight and dimensions before attribute list.
-		$display_dimensions = apply_filters( 'wc_product_enable_dimensions_display', $product->has_weight() || $product->has_dimensions() );
-
-		if ( $display_dimensions && $product->has_weight() ) {
+		if ( $product->has_weight() ) {
 			$product_attributes['weight'] = array(
 				'label' => __( 'Weight', 'woocommerce' ),
 				'value' => wc_format_weight( $product->get_weight() ),
 			);
 		}
 
-		if ( $display_dimensions && $product->has_dimensions() ) {
+		if ( $product->has_dimensions() ) {
 			$product_attributes['dimensions'] = array(
 				'label' => __( 'Dimensions', 'woocommerce' ),
 				'value' => wc_format_dimensions( $product->get_dimensions( false ) ),
