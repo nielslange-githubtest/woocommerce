@@ -46,8 +46,11 @@ class ProductAttributes extends AbstractBlock {
 
 		ob_start();
 
+		$wrapper_attributes = get_block_wrapper_attributes(
+			array( 'class' => 'wc-block-product-attributes' )
+		);
 		?>
-		<table class="wc-block-product-attributes">
+		<table <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<tbody>
 				<?php
 				// Display Weight if available.
