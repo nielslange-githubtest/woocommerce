@@ -32,16 +32,63 @@ class ProductAttributes extends AbstractBlock {
 	 * @return string Rendered block output.
 	 */
 	public function render( $attributes, $content, $block ) {
-		// Check if we have a product ID in context.
 		if ( ! isset( $block->context['postId'] ) ) {
 			return '';
 		}
 
-		$product_id = $block->context['postId'];
-		$product    = wc_get_product( $product_id );
-
+		$product = wc_get_product( $block->context['postId'] );
 		if ( ! $product ) {
 			return '';
+		}
+
+		$product_attributes = array();
+
+		// Display weight and dimensions before attribute list.
+		$display_dimensions = apply_filters( 'wc_product_enable_dimensions_display', $product->has_weight() || $product->has_dimensions() );
+
+		if ( $display_dimensions && $product->has_weight() ) {
+			$product_attributes['weight'] = array(
+				'label' => __( 'Weight', 'woocommerce' ),
+				'value' => wc_format_weight( $product->get_weight() ),
+			);
+		}
+
+		if ( $display_dimensions && $product->has_dimensions() ) {
+			$product_attributes['dimensions'] = array(
+				'label' => __( 'Dimensions', 'woocommerce' ),
+				'value' => wc_format_dimensions( $product->get_dimensions( false ) ),
+			);
+		}
+
+		$attributes = $product->get_attributes();
+		foreach ( $attributes as $attribute ) {
+			$values = array();
+
+			if ( $attribute->is_taxonomy() ) {
+				$attribute_taxonomy = $attribute->get_taxonomy_object();
+				$attribute_values   = wc_get_product_terms( $product->get_id(), $attribute->get_name(), array( 'fields' => 'all' ) );
+
+				foreach ( $attribute_values as $attribute_value ) {
+					$value_name = esc_html( $attribute_value->name );
+
+					if ( $attribute_taxonomy->attribute_public ) {
+						$values[] = '<a href="' . esc_url( get_term_link( $attribute_value->term_id, $attribute->get_name() ) ) . '" rel="tag">' . $value_name . '</a>';
+					} else {
+						$values[] = $value_name;
+					}
+				}
+			} else {
+				$values = $attribute->get_options();
+
+				foreach ( $values as &$value ) {
+					$value = make_clickable( esc_html( $value ) );
+				}
+			}
+
+			$product_attributes[ 'attribute_' . sanitize_title_with_dashes( $attribute->get_name() ) ] = array(
+				'label' => wc_attribute_label( $attribute->get_name() ),
+				'value' => wpautop( wptexturize( implode( ', ', $values ) ) ),
+			);
 		}
 
 		ob_start();
@@ -52,71 +99,16 @@ class ProductAttributes extends AbstractBlock {
 		?>
 		<table <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<tbody>
-				<?php
-				// Display Weight if available.
-				if ( $product->get_weight() ) {
-					?>
-					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__weight">
+				<?php foreach ( $product_attributes as $product_attribute_key => $product_attribute ) : ?>
+					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__<?php echo esc_attr( $product_attribute_key ); ?>">
 						<th class="wc-block-product-attributes-item__label">
-							<?php echo esc_html__( 'Weight', 'woocommerce' ); ?>
+							<?php echo esc_html( $product_attribute['label'] ); ?>
 						</th>
 						<td class="wc-block-product-attributes-item__value">
-							<?php echo esc_html( $product->get_weight() . ' ' . get_option( 'woocommerce_weight_unit' ) ); ?>
+							<?php echo wp_kses_post( $product_attribute['value'] ); ?>
 						</td>
 					</tr>
-					<?php
-				}
-
-				// Display Dimensions if available.
-				if ( $product->has_dimensions() ) {
-					?>
-					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__dimensions">
-						<th class="wc-block-product-attributes-item__label">
-							<?php echo esc_html__( 'Dimensions', 'woocommerce' ); ?>
-						</th>
-						<td class="wc-block-product-attributes-item__value">
-							<?php echo esc_html( wc_format_dimensions( $product->get_dimensions( false ) ) ); ?>
-						</td>
-					</tr>
-					<?php
-				}
-
-				// Display Product Attributes.
-				$attributes = $product->get_attributes();
-				foreach ( $attributes as $attribute ) {
-					// Skip if attribute is not visible.
-					if ( ! $attribute->get_visible() ) {
-						continue;
-					}
-
-					$attribute_name = wc_attribute_label( $attribute->get_name() );
-					?>
-					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__<?php echo esc_attr( sanitize_title( $attribute->get_name() ) ); ?>">
-						<th class="wc-block-product-attributes-item__label">
-							<?php echo esc_html( $attribute_name ); ?>
-						</th>
-						<td class="wc-block-product-attributes-item__value">
-							<?php
-							$values = array();
-							if ( $attribute->is_taxonomy() ) {
-								$attribute_values = wc_get_product_terms( $product->get_id(), $attribute->get_name(), array( 'fields' => 'all' ) );
-
-								foreach ( $attribute_values as $attribute_value ) {
-									$values[] = esc_html( $attribute_value->name );
-								}
-							} else {
-								$values = $attribute->get_options();
-								foreach ( $values as &$value ) {
-									$value = esc_html( $value );
-								}
-							}
-							echo wp_kses_post( implode( ', ', $values ) );
-							?>
-						</td>
-					</tr>
-					<?php
-				}
-				?>
+				<?php endforeach; ?>
 			</tbody>
 		</table>
 		<?php

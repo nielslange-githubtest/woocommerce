@@ -39,6 +39,9 @@ const Edit = ( {
 		shouldSelect: shouldFetchProduct,
 	} );
 
+	/**
+	 * Validate Query Loop block context
+	 */
 	const { hasInvalidContext, warningElement } =
 		useQueryLoopProductContextValidation( {
 			clientId,
@@ -49,6 +52,9 @@ const Edit = ( {
 		return warningElement;
 	}
 
+	/**
+	 * Display loading state
+	 */
 	if ( isLoading && shouldFetchProduct ) {
 		return (
 			<div { ...blockProps }>
@@ -59,6 +65,9 @@ const Edit = ( {
 		);
 	}
 
+	/**
+	 * Display no product found message
+	 */
 	if ( postId && ! product ) {
 		return (
 			<div { ...blockProps }>
@@ -68,6 +77,9 @@ const Edit = ( {
 	}
 
 	return isSpecificProductContext ? (
+		/**
+		 * Display product attributes
+		 */
 		<div { ...blockProps }>
 			<table className="wc-block-product-attributes">
 				<tbody>
