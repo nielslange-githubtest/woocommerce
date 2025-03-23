@@ -97,12 +97,12 @@ class ProductAttributes extends AbstractBlock {
 			array( 'class' => 'wc-block-product-attributes' )
 		);
 		?>
-		<table <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<table <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> aria-label="<?php esc_attr_e( 'Product Attributes', 'woocommerce' ); ?>">
 			<tbody>
 				<?php foreach ( $product_attributes as $product_attribute_key => $product_attribute ) : ?>
-					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__<?php echo esc_attr( $product_attribute_key ); ?>">
+					<tr class="wc-block-product-attributes-item wc-block-product-attributes-item__<?php echo esc_attr( $product_attribute_key ); ?>" scope="row">
 						<th class="wc-block-product-attributes-item__label">
-							<?php echo esc_html( $product_attribute['label'] ); ?>
+							<?php echo wp_kses_post( $product_attribute['label'] ); ?>
 						</th>
 						<td class="wc-block-product-attributes-item__value">
 							<?php echo wp_kses_post( $product_attribute['value'] ); ?>
