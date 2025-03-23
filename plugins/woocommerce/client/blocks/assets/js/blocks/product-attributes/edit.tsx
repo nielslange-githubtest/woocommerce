@@ -34,6 +34,7 @@ const Edit = ( {
 		namespace: '/wc/v3',
 		resourceName: 'products',
 		resourceValues: [ Number( postId ) ],
+		shouldSelect: !! postId,
 	} );
 
 	if ( isLoading ) {
