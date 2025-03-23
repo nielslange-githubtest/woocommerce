@@ -30,12 +30,13 @@ const Edit = ( {
 }: ProductAttributesEditProps ) => {
 	const blockProps = useBlockProps();
 	const isSpecificProductContext = postId && postType;
+	const shouldFetchProduct = !! postId;
 
 	const { results: product, isLoading } = useCollection< object >( {
 		namespace: '/wc/v3',
 		resourceName: 'products',
 		resourceValues: [ Number( postId ) ],
-		shouldSelect: !! postId,
+		shouldSelect: shouldFetchProduct,
 	} );
 
 	const { hasInvalidContext, warningElement } =
@@ -48,7 +49,7 @@ const Edit = ( {
 		return warningElement;
 	}
 
-	if ( isLoading ) {
+	if ( isLoading && shouldFetchProduct ) {
 		return (
 			<div { ...blockProps }>
 				<span className="wc-product-attributes__loading">
