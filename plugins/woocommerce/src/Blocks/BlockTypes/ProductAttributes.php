@@ -32,7 +32,13 @@ class ProductAttributes extends AbstractBlock {
 	 * @return string Rendered block output.
 	 */
 	public function render( $attributes, $content, $block ) {
-		$product = wc_get_product( get_the_ID() );
+		// Check if we have a product ID in context.
+		if ( ! isset( $block->context['postId'] ) ) {
+			return '';
+		}
+
+		$product_id = $block->context['postId'];
+		$product    = wc_get_product( $product_id );
 
 		if ( ! $product ) {
 			return '';
