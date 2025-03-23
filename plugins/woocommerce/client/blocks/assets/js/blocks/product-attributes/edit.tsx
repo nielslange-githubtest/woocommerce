@@ -4,7 +4,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useCollection } from '@woocommerce/base-context/hooks';
-
+import { useQueryLoopProductContextValidation } from '@woocommerce/base-hooks';
 /**
  * Internal dependencies
  */
@@ -26,6 +26,7 @@ function Placeholder() {
 
 const Edit = ( {
 	context: { postId, postType },
+	clientId,
 }: ProductAttributesEditProps ) => {
 	const blockProps = useBlockProps();
 	const isSpecificProductContext = postId && postType;
@@ -36,6 +37,16 @@ const Edit = ( {
 		resourceValues: [ Number( postId ) ],
 		shouldSelect: !! postId,
 	} );
+
+	const { hasInvalidContext, warningElement } =
+		useQueryLoopProductContextValidation( {
+			clientId,
+			postType,
+			blockName: __( 'Product Attributes', 'woocommerce' ),
+		} );
+	if ( hasInvalidContext ) {
+		return warningElement;
+	}
 
 	if ( isLoading ) {
 		return (
