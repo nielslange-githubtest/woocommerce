@@ -290,7 +290,7 @@ class WC_Post_Types {
 	 * Register core post types.
 	 */
 	public static function register_post_types() {
-		if ( ! is_blog_installed() || post_type_exists( 'product' ) ) {
+		if ( wp_installing() || ! is_blog_installed() || post_type_exists( 'product' ) ) {
 			return;
 		}
 
