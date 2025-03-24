@@ -9,6 +9,10 @@ import {
 } from '@woocommerce/types';
 import { getConfig } from '@wordpress/interactivity';
 
+type CurrencyConfig = Omit< Currency, 'prefix' | 'suffix' > & {
+	symbolPosition: SymbolPosition;
+};
+
 export const getCurrencyPrefix = (
 	symbol: string,
 	symbolPosition: SymbolPosition
@@ -35,10 +39,6 @@ export const getCurrencySuffix = (
 	return suffixes[ symbolPosition ] || '';
 };
 
-type CurrencyConfig = Omit< Currency, 'prefix' | 'suffix' > & {
-	symbolPosition: SymbolPosition;
-};
-
 const config = getConfig( 'woocommerce/settings' ).currency as CurrencyConfig;
 
 const siteCurrency: Currency = {
@@ -46,6 +46,7 @@ const siteCurrency: Currency = {
 	suffix: getCurrencySuffix( config.symbol, config.symbolPosition ),
 	prefix: getCurrencyPrefix( config.symbol, config.symbolPosition ),
 };
+
 /**
  * Gets currency information in normalized format from an API response or the server.
  *
