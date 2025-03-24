@@ -30,10 +30,8 @@ export class Admin extends CoreAdmin {
 
 	async visitWidgetEditor() {
 		await this.page.goto( '/wp-admin/widgets.php' );
-		await this.page
-			.getByRole( 'dialog', { name: 'Welcome to block Widgets' } )
-			.getByRole( 'button', { name: 'Close' } )
-			.click();
+		// Force hide widget welcome guide by turing it off in the data store. Prevents flakiness if the welcome guide doesn't load for some reason.
+		await this.page.evaluate( () => window.wp.data.dispatch( window.wp.preferences.store ).set( 'core/edit-widgets', 'welcomeGuide', false ) );
 	}
 
 	async createNewPattern( name: string, synced = true ) {
