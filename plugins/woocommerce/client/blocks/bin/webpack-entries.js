@@ -223,7 +223,6 @@ const blocks = {
 		customDir: 'product-reviews',
 	},
 	'product-attributes': {
-		isExperimental: true,
 		customDir: 'product-attributes',
 	},
 };
