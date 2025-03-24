@@ -22,7 +22,7 @@ const entries = getScriptModuleEntryPoints(
 	path.resolve( __dirname, '../assets/js' )
 );
 
-// These are modules that are not tied to a specific block, but are still needed to be built.
+// These are modules that either don't use viewScriptModule yet or are not tied to a specific block.
 const manuallyDefinedModules = {
 	// DO NOT add new blocks here, use viewScriptModule in block.json and implement AbstractInteractivityAPIBlock instead.
 	'woocommerce/product-collection':
