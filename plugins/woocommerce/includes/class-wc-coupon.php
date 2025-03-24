@@ -1087,19 +1087,33 @@ class WC_Coupon extends WC_Legacy_Coupon {
 				);
 				break;
 			case self::E_WC_COUPON_MIN_SPEND_LIMIT_NOT_MET:
+				$allowed_tags = array(
+					'span' => array(
+						'class' => true,
+					),
+					'bdi' => true,
+					'small' => true
+				);
 				/* translators: %1$s: coupon code,  %2$s: coupon minimum amount */
 				$err = sprintf(
 					esc_html__( 'The minimum spend for coupon "%1$s" is %2$s.', 'woocommerce' ),
 					esc_html( $this->get_code() ),
-					wc_price( $this->get_minimum_amount() )
+					wp_kses( wc_price( $this->get_minimum_amount() , $allowed_tags ) )
 				);
 				break;
 			case self::E_WC_COUPON_MAX_SPEND_LIMIT_MET:
+				$allowed_tags = array(
+					'span' => array(
+						'class' => true,
+					),
+					'bdi' => true,
+					'small' => true
+				);
 				/* translators: %1$s: coupon code, %2$s: coupon maximum amount */
 				$err = sprintf(
 					esc_html__( 'The maximum spend for coupon "%1$s" is %2$s.', 'woocommerce' ),
 					esc_html( $this->get_code() ),
-					wc_price( $this->get_maximum_amount() )
+					wp_kses( wc_price( $this->get_maximum_amount() , $allowed_tags ) )
 				);
 				break;
 			case self::E_WC_COUPON_NOT_APPLICABLE:

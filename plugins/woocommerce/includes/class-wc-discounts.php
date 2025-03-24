@@ -732,12 +732,19 @@ class WC_Discounts {
 		$subtotal = wc_remove_number_precision( $this->get_object_subtotal() );
 
 		if ( $coupon->get_minimum_amount() > 0 && apply_filters( 'woocommerce_coupon_validate_minimum_amount', $coupon->get_minimum_amount() > $subtotal, $coupon, $subtotal ) ) {
+			$allowed_tags = array(
+				'span' => array(
+					'class' => true,
+				),
+				'bdi' => true,
+				'small' => true
+			);
 			/* translators: %1$s: coupon code, %2$s: coupon minimum amount */
 			throw new Exception(
 				sprintf(
 					esc_html__( 'The minimum spend for coupon "%1$s" is %2$s.', 'woocommerce' ),
 					esc_html( $coupon->get_code() ),
-					wc_price( $coupon->get_minimum_amount() )
+					wp_kses( wc_price( $coupon->get_minimum_amount() ), $allowed_tags )
 				),
 				108 );
 		}
@@ -757,13 +764,22 @@ class WC_Discounts {
 		$subtotal = wc_remove_number_precision( $this->get_object_subtotal() );
 
 		if ( $coupon->get_maximum_amount() > 0 && apply_filters( 'woocommerce_coupon_validate_maximum_amount', $coupon->get_maximum_amount() < $subtotal, $coupon ) ) {
+			$allowed_tags = array(
+				'span' => array(
+					'class' => true,
+				),
+				'bdi' => true,
+				'small' => true
+			);
 			/* translators: %1$s: coupon code, %2$s: coupon maximum amount */
 			throw new Exception(
 				sprintf(
 					esc_html__( 'The maximum spend for coupon "%1$s" is %2$s.', 'woocommerce' ),
 					esc_html( $coupon->get_code() ),
-					wc_price( $coupon->get_maximum_amount() ) ),
-				112 );
+					wp_kses( wc_price( $coupon->get_maximum_amount() ), $allowed_tags )
+				),
+				112
+			);
 		}
 
 		return true;
