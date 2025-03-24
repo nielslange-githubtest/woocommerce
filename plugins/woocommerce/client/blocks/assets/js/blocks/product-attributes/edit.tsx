@@ -5,6 +5,9 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useCollection } from '@woocommerce/base-context/hooks';
 import { useQueryLoopProductContextValidation } from '@woocommerce/base-hooks';
+import { useSelect } from '@wordpress/data';
+import { optionsStore, Product } from '@woocommerce/data';
+
 /**
  * Internal dependencies
  */
@@ -32,12 +35,21 @@ const Edit = ( {
 	const isSpecificProductContext = postId && postType;
 	const shouldFetchProduct = !! postId;
 
-	const { results: product, isLoading } = useCollection< object >( {
+	const { dimensionUnit, weightUnit } = useSelect( ( select ) => {
+		const { getOption } = select( optionsStore );
+		return {
+			dimensionUnit: getOption( 'woocommerce_dimension_unit' ) as string,
+			weightUnit: getOption( 'woocommerce_weight_unit' ) as string,
+		};
+	}, [] );
+
+	const { results, isLoading } = useCollection< Product >( {
 		namespace: '/wc/v3',
 		resourceName: 'products',
 		resourceValues: [ Number( postId ) ],
 		shouldSelect: shouldFetchProduct,
 	} );
+	const product = results as unknown as Product;
 
 	/**
 	 * Validate Query Loop block context
@@ -84,19 +96,19 @@ const Edit = ( {
 			<table className="wc-block-product-attributes">
 				<tbody>
 					{ /* Display Weight if available */ }
-					{ product.weight && (
+					{ product?.weight && (
 						<tr className="wc-block-product-attributes-item wc-block-product-attributes-item__weight">
 							<th className="wc-block-product-attributes-item__label">
 								{ __( 'Weight', 'woocommerce' ) }
 							</th>
 							<td className="wc-block-product-attributes-item__value">
-								{ product.weight }
+								{ `${ product.weight } ${ weightUnit }` }
 							</td>
 						</tr>
 					) }
 
 					{ /* Display Dimensions if available */ }
-					{ product.dimensions &&
+					{ product?.dimensions &&
 						Object.values( product.dimensions ).some(
 							( dim ) => dim !== ''
 						) && (
@@ -105,13 +117,13 @@ const Edit = ( {
 									{ __( 'Dimensions', 'woocommerce' ) }
 								</th>
 								<td className="wc-block-product-attributes-item__value">
-									{ `${ product.dimensions.length } × ${ product.dimensions.width } × ${ product.dimensions.height }` }
+									{ `${ product.dimensions?.length } × ${ product.dimensions?.width } × ${ product.dimensions?.height } ${ dimensionUnit }` }
 								</td>
 							</tr>
 						) }
 
 					{ /* Display Product Attributes */ }
-					{ product.attributes?.map( ( attribute ) => (
+					{ product?.attributes?.map( ( attribute ) => (
 						<tr
 							key={ attribute.id }
 							className={ `wc-block-product-attributes-item wc-block-product-attributes-item__${ attribute.name.toLowerCase() }` }
