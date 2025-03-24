@@ -128,7 +128,7 @@ class ProductImage extends AbstractBlock {
 
 		$is_link        = true === $attributes['showProductLink'];
 		$pointer_events = $is_link ? '' : 'pointer-events: none;';
-		$directive      = $is_link ? 'data-wc-on--click="woocommerce/product-collection::actions.viewProduct"' : '';
+		$directive      = $is_link ? 'data-wp-on--click="woocommerce/product-collection::actions.viewProduct"' : '';
 
 		return sprintf(
 			'<a href="%1$s" style="%2$s" %3$s>%4$s %5$s</a>',
@@ -193,7 +193,7 @@ class ProductImage extends AbstractBlock {
 	 *                           not in the post content on editor load.
 	 */
 	protected function enqueue_data( array $attributes = [] ) {
-		$this->asset_data_registry->add( 'isBlockThemeEnabled', wc_current_theme_is_fse_theme() );
+		$this->asset_data_registry->add( 'isBlockTheme', wc_current_theme_is_fse_theme() );
 	}
 
 

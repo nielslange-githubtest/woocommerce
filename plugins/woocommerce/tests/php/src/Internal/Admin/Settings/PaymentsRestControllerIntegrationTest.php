@@ -316,8 +316,7 @@ class PaymentsRestControllerIntegrationTest extends WC_REST_Unit_Test_Case {
 		// We also have the 3 offline payment methods.
 		$this->assertCount( 3, $data['offline_payment_methods'] );
 		// We only have PSPs because there is no payment gateway enabled.
-		// Square (in-person) is not a suggestion because we don't have the core profiler data set up for offline selling.
-		$this->assertCount( 2, $data['suggestions'] );
+		$this->assertCount( 3, $data['suggestions'] );
 		// Assert we get the suggestion categories.
 		$this->assertCount( 4, $data['suggestion_categories'] );
 
@@ -363,8 +362,7 @@ class PaymentsRestControllerIntegrationTest extends WC_REST_Unit_Test_Case {
 		// We also have the 3 offline payment methods.
 		$this->assertCount( 3, $data['offline_payment_methods'] );
 		// We get all the suggestions.
-		// Square (in-person) is not a suggestion because we don't have the core profiler data set up for offline selling.
-		$this->assertCount( 6, $data['suggestions'] );
+		$this->assertCount( 7, $data['suggestions'] );
 		// Assert we get the suggestion categories.
 		$this->assertCount( 4, $data['suggestion_categories'] );
 
@@ -540,8 +538,7 @@ class PaymentsRestControllerIntegrationTest extends WC_REST_Unit_Test_Case {
 		// We also have the 3 offline payment methods.
 		$this->assertCount( 3, $data['offline_payment_methods'] );
 		// We get all the suggestions.
-		// Square (in-person) is not a suggestion because we don't have the core profiler data set up for offline selling.
-		$this->assertCount( 6, $data['suggestions'] );
+		$this->assertCount( 7, $data['suggestions'] );
 		// Assert we get the suggestion categories.
 		$this->assertCount( 4, $data['suggestion_categories'] );
 
@@ -1095,11 +1092,11 @@ class PaymentsRestControllerIntegrationTest extends WC_REST_Unit_Test_Case {
 		// Assert that the incentive is in the WooPayments suggestion with the right dismissals list.
 		$suggestion = $data['providers'][3];
 		$this->assertArrayHasKey( '_incentive', $suggestion );
-		$this->assertContains( $context, $suggestion['_incentive']['_dismissals'] );
+		$this->assertEquals( $context, $suggestion['_incentive']['_dismissals'][0]['context'] );
 		// Assert that the incentive is in the WooPayments gateway with the right dismissals list.
 		$gateway = $data['providers'][4];
 		$this->assertArrayHasKey( '_incentive', $gateway );
-		$this->assertContains( $context, $gateway['_incentive']['_dismissals'] );
+		$this->assertEquals( $context, $gateway['_incentive']['_dismissals'][0]['context'] );
 
 		// Clean up.
 		remove_filter( 'user_has_cap', $filter_callback );

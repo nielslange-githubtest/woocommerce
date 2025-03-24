@@ -8,7 +8,9 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\WooCommerce\Enums\ProductStatus;
+use Automattic\WooCommerce\Enums\ProductStockStatus;
 use Automattic\WooCommerce\Enums\ProductType;
+use Automattic\WooCommerce\Internal\CostOfGoodsSold\CostOfGoodsSoldController;
 use Automattic\WooCommerce\Internal\Orders\CouponsController;
 use Automattic\WooCommerce\Internal\Orders\TaxesController;
 use Automattic\WooCommerce\Internal\Admin\Orders\MetaBoxes\CustomMetaBox;
@@ -154,6 +156,7 @@ class WC_AJAX {
 			'load_order_items',
 			'add_order_note',
 			'delete_order_note',
+			'json_search_order_metakeys',
 			'json_search_products',
 			'json_search_products_and_variations',
 			'json_search_downloadable_products_and_variations',
@@ -180,6 +183,7 @@ class WC_AJAX {
 			'shipping_zone_methods_save_settings',
 			'shipping_classes_save_changes',
 			'toggle_gateway_enabled',
+			'load_status_widget',
 		);
 
 		foreach ( $ajax_events as $ajax_event ) {
@@ -833,10 +837,8 @@ class WC_AJAX {
 		$variation_object = wc_get_product_object( ProductType::VARIATION );
 		$variation_object->set_parent_id( $product_id );
 		$variation_object->set_attributes( array_fill_keys( array_map( 'sanitize_title', array_keys( $product_object->get_variation_attributes() ) ), '' ) );
-		$variation_id   = $variation_object->save();
-		$variation      = get_post( $variation_id );
-		$variation_data = array_merge( get_post_custom( $variation_id ), wc_get_product_variation_attributes( $variation_id ) ); // kept for BW compatibility.
-		include __DIR__ . '/admin/meta-boxes/views/html-variation-admin.php';
+		$variation_object->save();
+		self::render_variation_html( $product_object, $variation_object, $loop, self::base_cost_or_null( $product_object ) );
 		wp_die();
 	}
 
@@ -2009,6 +2011,7 @@ class WC_AJAX {
 		wp_send_json( apply_filters( 'woocommerce_json_search_found_product_categories', $found_product_categories, $search_text ) );
 	}
 
+
 	/**
 	 * Ajax request handling for page searching.
 	 */
@@ -2411,12 +2414,10 @@ class WC_AJAX {
 		if ( $variations ) {
 			wc_render_invalid_variation_notice( $product_object );
 
+			$base_cost = self::base_cost_or_null( $product_object );
 			foreach ( $variations as $variation_object ) {
-				$variation_id   = $variation_object->get_id();
-				$variation      = get_post( $variation_id );
-				$variation_data = array_merge( get_post_custom( $variation_id ), wc_get_product_variation_attributes( $variation_id ) ); // kept for BW compatibility.
-				include __DIR__ . '/admin/meta-boxes/views/html-variation-admin.php';
-				$loop++;
+				self::render_variation_html( $product_object, $variation_object, $loop, $base_cost );
+				++$loop;
 			}
 		}
 		wp_die();
@@ -2544,7 +2545,7 @@ class WC_AJAX {
 	 * @used-by bulk_edit_variations
 	 */
 	private static function variation_bulk_action_variable_stock_status_instock( $variations, $data ) {
-		self::variation_bulk_set( $variations, 'stock_status', 'instock' );
+		self::variation_bulk_set( $variations, 'stock_status', ProductStockStatus::IN_STOCK );
 	}
 
 	/**
@@ -2556,7 +2557,7 @@ class WC_AJAX {
 	 * @used-by bulk_edit_variations
 	 */
 	private static function variation_bulk_action_variable_stock_status_outofstock( $variations, $data ) {
-		self::variation_bulk_set( $variations, 'stock_status', 'outofstock' );
+		self::variation_bulk_set( $variations, 'stock_status', ProductStockStatus::OUT_OF_STOCK );
 	}
 
 	/**
@@ -2568,7 +2569,7 @@ class WC_AJAX {
 	 * @used-by bulk_edit_variations
 	 */
 	private static function variation_bulk_action_variable_stock_status_onbackorder( $variations, $data ) {
-		self::variation_bulk_set( $variations, 'stock_status', 'onbackorder' );
+		self::variation_bulk_set( $variations, 'stock_status', ProductStockStatus::ON_BACKORDER );
 	}
 
 	/**
@@ -2789,6 +2790,28 @@ class WC_AJAX {
 	private static function variation_bulk_action_variable_sale_price_decrease( $variations, $data ) {
 		self::variation_bulk_adjust_price( $variations, 'sale_price', '-', wc_clean( $data['value'] ) );
 	}
+
+	// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	/**
+	 * Bulk action - Unset cost values.
+	 *
+	 * @param array $variations List of variations.
+	 * @param array $data Data to set.
+	 *
+	 * @used-by bulk_edit_variations
+	 */
+	private static function variation_bulk_action_variable_unset_cogs_value( $variations, $data ) {
+		if ( ! wc_get_container()->get( CostOfGoodsSoldController::class )->feature_is_enabled() ) {
+			return;
+		}
+
+		foreach ( $variations as $variation_id ) {
+			$variation = wc_get_product( $variation_id );
+			$variation->set_cogs_value( null );
+			$variation->save();
+		}
+	}
+	// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 	/**
 	 * Bulk action - Set Price.
@@ -3617,6 +3640,25 @@ class WC_AJAX {
 	}
 
 	/**
+	 * AJAX handler for asynchronously loading the status widget content.
+	 */
+	public static function load_status_widget() {
+		check_ajax_referer( 'wc-status-widget', 'security' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! current_user_can( 'view_woocommerce_reports' ) || ! current_user_can( 'publish_shop_orders' ) ) {
+			wp_send_json_error( 'missing_permissions' );
+			wp_die();
+		}
+
+		include_once __DIR__ . '/admin/class-wc-admin-dashboard.php';
+		ob_start();
+		$wc_admin_dashboard = new WC_Admin_Dashboard();
+		$wc_admin_dashboard->status_widget_content();
+		$content = ob_get_clean();
+		wp_send_json_success( array( 'content' => $content ) );
+	}
+
+	/**
 	 * Reimplementation of WP core's `wp_ajax_add_meta` method to support order custom meta updates with custom tables.
 	 */
 	private static function order_add_meta() {
@@ -3630,6 +3672,16 @@ class WC_AJAX {
 	 */
 	private static function order_delete_meta() : void {
 		wc_get_container()->get( CustomMetaBox::class )->delete_meta_ajax();
+	}
+
+	/**
+	 * Hooked into `wp_ajax_woocommerce_json_search_order_metakeys` to return the list of unique meta keys for the
+	 * edit order screen custom fields metabox.
+	 *
+	 * @return void
+	 */
+	public static function json_search_order_metakeys(): void {
+		wc_get_container()->get( CustomMetaBox::class )->search_metakeys_ajax();
 	}
 
 	/**
@@ -3656,6 +3708,35 @@ class WC_AJAX {
 		return wc_get_container()->get( Automattic\WooCommerce\Internal\Admin\Orders\EditLock::class )->check_locked_orders_ajax( $response, $data );
 	}
 
+	// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	/**
+	 * Render a variation editor.
+	 *
+	 * NOTE! Do NOT remove the apparently unused function arguments.
+	 * These are actually used inside the included html-variation-admin template.
+	 *
+	 * @param WC_Product $product_object PArent product of the variation being edited.
+	 * @param WC_Product $variation_object Variation being edited.
+	 * @param int        $loop Index of the variation being rendered.
+	 * @param float|null $base_cost Default cost for variations, null if the Cost of Goods Sold feature is disabled.
+	 */
+	private static function render_variation_html( WC_Product $product_object, WC_Product $variation_object, $loop, ?float $base_cost ) {
+		$variation_id   = $variation_object->get_id();
+		$variation      = get_post( $variation_id );
+		$variation_data = array_merge( get_post_custom( $variation_id ), wc_get_product_variation_attributes( $variation_id ) ); // kept for BW compatibility.
+		include __DIR__ . '/admin/meta-boxes/views/html-variation-admin.php';
+	}
+	// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
+	/**
+	 * Get the Cost of Goods Sold value for a product (0 if it's null), return null if the Cost of Goods Sold feature is disabled.
+	 *
+	 * @param WC_Product $product_object Product object.
+	 * @return float|null Cost of the product, or null.
+	 */
+	private static function base_cost_or_null( WC_Product $product_object ): ?float {
+		return wc_get_container()->get( CostOfGoodsSoldController::class )->feature_is_enabled() ? ( $product_object->get_cogs_value() ?? 0 ) : null;
+	}
 }
 
 WC_AJAX::init();

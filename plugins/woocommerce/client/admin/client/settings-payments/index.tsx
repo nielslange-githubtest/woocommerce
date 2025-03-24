@@ -3,10 +3,7 @@
  */
 import { Gridicon } from '@automattic/components';
 import { Button, SelectControl } from '@wordpress/components';
-import {
-	PAYMENT_SETTINGS_STORE_NAME,
-	type PaymentSettingsSelectors,
-} from '@woocommerce/data';
+import { paymentSettingsStore } from '@woocommerce/data';
 import { useSelect } from '@wordpress/data';
 import React, {
 	useState,
@@ -24,6 +21,7 @@ import {
 import { getHistory, getNewPath } from '@woocommerce/navigation';
 import { __ } from '@wordpress/i18n';
 import { getAdminLink } from '@woocommerce/settings';
+import { recordEvent } from '@woocommerce/tracks';
 
 /**
  * Internal dependencies
@@ -171,44 +169,50 @@ const SettingsPaymentsMain = () => {
 /**
  * Renders the recommended payment methods settings page with a fallback while loading.
  */
-const SettingsPaymentsMethods = () => {
+export const SettingsPaymentsMethods = () => {
 	const location = useLocation();
-	const [ paymentMethodsState, setPaymentMethodsState ] = useState( {} );
+	const [ paymentMethodsState, setPaymentMethodsState ] = useState< {
+		[ key: string ]: boolean;
+	} >( {} );
 	const [ isCompleted, setIsCompleted ] = useState( false );
 	const { providers } = useSelect( ( select ) => {
 		return {
-			isFetching: (
-				select(
-					PAYMENT_SETTINGS_STORE_NAME
-				) as PaymentSettingsSelectors
-			 ).isFetching(),
+			isFetching: select( paymentSettingsStore ).isFetching(),
 			providers:
-				(
-					select(
-						PAYMENT_SETTINGS_STORE_NAME
-					) as PaymentSettingsSelectors
-				 ).getPaymentProviders() || [],
+				select( paymentSettingsStore ).getPaymentProviders() || [],
 		};
 	}, [] );
 
 	// Retrieve wooPayments gateway
 	const wooPayments = getWooPaymentsFromProviders( providers );
 
-	const onClick = useCallback( () => {
+	const onPaymentMethodsContinueClick = useCallback( () => {
+		// Record the event along with payment methods selected
+		recordEvent( 'wcpay_settings_payment_methods_continue', {
+			selected_payment_methods: Object.keys( paymentMethodsState )
+				.filter(
+					( paymentMethod ) => paymentMethodsState[ paymentMethod ]
+				)
+				.join( ', ' ),
+			deselected_payment_methods: Object.keys( paymentMethodsState )
+				.filter(
+					( paymentMethod ) => ! paymentMethodsState[ paymentMethod ]
+				)
+				.join( ', ' ),
+		} );
+
 		setIsCompleted( true );
+
 		// Get the onboarding URL or fallback to the test drive account link
 		const onboardUrl =
 			wooPayments?.onboarding?._links.onboard.href ||
 			getWooPaymentsTestDriveAccountLink();
 
-		// Combine the onboard URL with the query string
-		const fullOnboardUrl =
+		// Combine the onboard URL with the query string and redirect to the onboard URL.
+		window.location.href =
 			onboardUrl +
 			'&capabilities=' +
 			encodeURIComponent( JSON.stringify( paymentMethodsState ) );
-
-		// Redirect to the onboard URL
-		window.location.href = fullOnboardUrl;
 	}, [ paymentMethodsState, wooPayments ] );
 
 	useEffect( () => {
@@ -216,6 +220,7 @@ const SettingsPaymentsMethods = () => {
 
 		if ( location.pathname === '/payment-methods' ) {
 			hideWooCommerceNavTab( 'none' );
+			recordEvent( 'wcpay_settings_payment_methods_pageview' );
 		}
 	}, [ location ] );
 
@@ -238,7 +243,7 @@ const SettingsPaymentsMethods = () => {
 					</h1>
 					<Button
 						className="components-button is-primary"
-						onClick={ onClick }
+						onClick={ onPaymentMethodsContinueClick }
 						isBusy={ isCompleted }
 						disabled={ isCompleted }
 					>

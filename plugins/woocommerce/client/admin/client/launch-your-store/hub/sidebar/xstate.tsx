@@ -11,15 +11,15 @@ import {
 	spawnChild,
 	enqueueActions,
 } from 'xstate5';
-import React from 'react';
 import clsx from 'clsx';
 import { getQuery, navigateTo } from '@woocommerce/navigation';
 import {
-	OPTIONS_STORE_NAME,
-	PAYMENT_GATEWAYS_STORE_NAME,
-	SETTINGS_STORE_NAME,
+	optionsStore,
+	settingsStore,
 	TaskListType,
 	TaskType,
+	PaymentGateway,
+	paymentGatewaysStore,
 } from '@woocommerce/data';
 import { dispatch, resolveSelect } from '@wordpress/data';
 import { recordEvent } from '@woocommerce/tracks';
@@ -77,7 +77,7 @@ const sidebarQueryParamListener = fromCallback( ( { sendBack } ) => {
 } );
 
 const launchStoreAction = async () => {
-	const results = await dispatch( OPTIONS_STORE_NAME ).updateOptions( {
+	const results = await dispatch( optionsStore ).updateOptions( {
 		woocommerce_coming_soon: 'no',
 	} );
 	if ( results.success ) {
@@ -136,8 +136,8 @@ export const getWooPaymentsStatus = async () => {
 	}
 
 	// Check the gateway is installed
-	const paymentGateways = await resolveSelect(
-		PAYMENT_GATEWAYS_STORE_NAME
+	const paymentGateways: PaymentGateway[] = await resolveSelect(
+		paymentGatewaysStore
 	).getPaymentGateways();
 	const enabledPaymentGateways = paymentGateways.filter(
 		( gateway ) => gateway.enabled
@@ -150,7 +150,7 @@ export const getWooPaymentsStatus = async () => {
 };
 
 export const getSiteCachedStatus = async () => {
-	const settings = await resolveSelect( SETTINGS_STORE_NAME ).getSettings(
+	const settings = await resolveSelect( settingsStore ).getSettings(
 		'wc_admin'
 	);
 

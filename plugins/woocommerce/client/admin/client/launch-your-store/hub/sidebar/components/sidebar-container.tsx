@@ -17,7 +17,6 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import React from 'react';
-
 /**
  * Internal dependencies
  */
@@ -72,7 +71,7 @@ export const SidebarContainer = ( {
 					<Heading
 						className="woocommerce-edit-site-sidebar-navigation-screen__title"
 						level={ 1 }
-						size={ 20 }
+						as="h1"
 					>
 						{ title }
 					</Heading>

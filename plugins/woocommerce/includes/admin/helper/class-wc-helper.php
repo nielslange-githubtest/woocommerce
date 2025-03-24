@@ -52,6 +52,16 @@ class WC_Helper {
 	}
 
 	/**
+	 * Get the source page for the connect URL (wc-admin or wc-addons/extensions)
+	 *
+	 * @return string
+	 */
+	private static function get_source_page() {
+		$page = wc_clean( wp_unslash( $_GET['page'] ?? 'wc-admin' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return in_array( $page, array( 'wc-admin', 'wc-addons' ), true ) ? $page : 'wc-admin';
+	}
+
+	/**
 	 * Include supporting helper classes.
 	 */
 	protected static function includes() {
@@ -81,7 +91,7 @@ class WC_Helper {
 		if ( ! self::is_site_connected() ) {
 			$connect_url = add_query_arg(
 				array(
-					'page'              => 'wc-addons',
+					'page'              => self::get_source_page(),
 					'section'           => 'helper',
 					'wc-helper-connect' => 1,
 					'wc-helper-nonce'   => wp_create_nonce( 'connect' ),
@@ -94,7 +104,7 @@ class WC_Helper {
 		}
 		$disconnect_url = add_query_arg(
 			array(
-				'page'                 => 'wc-addons',
+				'page'                 => self::get_source_page(),
 				'section'              => 'helper',
 				'wc-helper-disconnect' => 1,
 				'wc-helper-nonce'      => wp_create_nonce( 'disconnect' ),
@@ -105,7 +115,7 @@ class WC_Helper {
 		$current_filter = self::get_current_filter();
 		$refresh_url    = add_query_arg(
 			array(
-				'page'              => 'wc-addons',
+				'page'              => self::get_source_page(),
 				'section'           => 'helper',
 				'filter'            => $current_filter,
 				'wc-helper-refresh' => 1,
@@ -131,7 +141,7 @@ class WC_Helper {
 		foreach ( $subscriptions as &$subscription ) {
 			$subscription['activate_url'] = add_query_arg(
 				array(
-					'page'                  => 'wc-addons',
+					'page'                  => self::get_source_page(),
 					'section'               => 'helper',
 					'filter'                => $current_filter,
 					'wc-helper-activate'    => 1,
@@ -144,7 +154,7 @@ class WC_Helper {
 
 			$subscription['deactivate_url'] = add_query_arg(
 				array(
-					'page'                  => 'wc-addons',
+					'page'                  => self::get_source_page(),
 					'section'               => 'helper',
 					'filter'                => $current_filter,
 					'wc-helper-deactivate'  => 1,
@@ -494,7 +504,7 @@ class WC_Helper {
 		$screen_id    = $screen ? $screen->id : '';
 		$wc_screen_id = 'woocommerce';
 
-		if ( $wc_screen_id . '_page_wc-addons' === $screen_id && isset( $_GET['section'] ) && 'helper' === $_GET['section'] ) {
+		if ( ( $wc_screen_id . '_page_wc-addons' === $screen_id || $wc_screen_id . '_page_wc-admin' === $screen_id ) && isset( $_GET['section'] ) && 'helper' === $_GET['section'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			wp_enqueue_style( 'woocommerce-helper', WC()->plugin_url() . '/assets/css/helper.css', array(), Constants::get_constant( 'WC_VERSION' ) );
 			wp_style_add_data( 'woocommerce-helper', 'rtl', 'replace' );
 		}
@@ -552,7 +562,7 @@ class WC_Helper {
 				if ( $local && is_plugin_active( $local['_filename'] ) && current_user_can( 'activate_plugins' ) ) {
 					$deactivate_plugin_url = add_query_arg(
 						array(
-							'page'                        => 'wc-addons',
+							'page'                        => self::get_source_page(),
 							'section'                     => 'helper',
 							'filter'                      => self::get_current_filter(),
 							'wc-helper-deactivate-plugin' => 1,
@@ -649,7 +659,7 @@ class WC_Helper {
 	public static function current_screen( $screen ) {
 		$wc_screen_id = 'woocommerce';
 
-		if ( $wc_screen_id . '_page_wc-addons' !== $screen->id ) {
+		if ( $wc_screen_id . '_page_wc-addons' !== $screen->id && $wc_screen_id . '_page_wc-admin' !== $screen->id ) {
 			return;
 		}
 
@@ -701,7 +711,7 @@ class WC_Helper {
 		wp_safe_redirect(
 			self::get_helper_redirect_url(
 				array(
-					'page'    => 'wc-addons',
+					'page'    => self::get_source_page(),
 					'section' => 'helper',
 				)
 			)
@@ -730,7 +740,8 @@ class WC_Helper {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if (
-			'woocommerce_page_wc-addons' === $current_screen->id &&
+			( 'woocommerce_page_wc-addons' === $current_screen->id ||
+			'woocommerce_page_wc-admin' === $current_screen->id ) &&
 			FeaturesUtil::feature_is_enabled( 'marketplace' ) &&
 			(
 				false === empty( $redirect_admin_url ) ||
@@ -777,7 +788,7 @@ class WC_Helper {
 		}
 
 		$redirect_url_args = array(
-			'page'             => 'wc-addons',
+			'page'             => self::get_source_page(),
 			'section'          => 'helper',
 			'wc-helper-return' => 1,
 			'wc-helper-nonce'  => wp_create_nonce( 'connect' ),
@@ -828,6 +839,9 @@ class WC_Helper {
 		 */
 		do_action( 'woocommerce_helper_connect_start' );
 
+		// Ignore all previously dismissed connected notices.
+		delete_metadata( 'user', 0, \Automattic\WooCommerce\Admin\PluginsHelper::DISMISS_CONNECT_NOTICE, '', true );
+
 		$connect_url = add_query_arg(
 			array(
 				'home_url'           => rawurlencode( home_url() ),
@@ -871,7 +885,7 @@ class WC_Helper {
 			wp_safe_redirect(
 				self::get_helper_redirect_url(
 					array(
-						'page'    => 'wc-addons',
+						'page'    => self::get_source_page(),
 						'section' => 'helper',
 					)
 				)
@@ -910,7 +924,7 @@ class WC_Helper {
 			wp_die( 'Something went wrong' );
 		}
 
-		self::update_auth_option( $access_token['access_token'], $access_token['access_token_secret'], $access_token['site_id'] );
+		self::update_auth_option( $access_token['access_token'], $access_token['access_token_secret'], $access_token['site_id'], home_url() );
 
 		/**
 		 * Fires when the Helper connection process has completed successfully.
@@ -939,7 +953,7 @@ class WC_Helper {
 		wp_safe_redirect(
 			self::get_helper_redirect_url(
 				array(
-					'page'             => 'wc-addons',
+					'page'             => self::get_source_page(),
 					'section'          => 'helper',
 					'wc-helper-status' => 'helper-connected',
 				)
@@ -964,7 +978,7 @@ class WC_Helper {
 
 		$redirect_uri = self::get_helper_redirect_url(
 			array(
-				'page'             => 'wc-addons',
+				'page'             => self::get_source_page(),
 				'section'          => 'helper',
 				'wc-helper-status' => 'helper-disconnected',
 			)
@@ -989,7 +1003,7 @@ class WC_Helper {
 
 		$redirect_uri = self::get_helper_redirect_url(
 			array(
-				'page'             => 'wc-addons',
+				'page'             => self::get_source_page(),
 				'section'          => 'helper',
 				'filter'           => self::get_current_filter(),
 				'wc-helper-status' => 'helper-refreshed',
@@ -1036,7 +1050,7 @@ class WC_Helper {
 
 		$redirect_uri = add_query_arg(
 			array(
-				'page'                 => 'wc-addons',
+				'page'                 => self::get_source_page(),
 				'section'              => 'helper',
 				'filter'               => self::get_current_filter(),
 				'wc-helper-status'     => $activated ? 'activate-success' : 'activate-error',
@@ -1119,7 +1133,7 @@ class WC_Helper {
 
 		$redirect_uri = add_query_arg(
 			array(
-				'page'                 => 'wc-addons',
+				'page'                 => self::get_source_page(),
 				'section'              => 'helper',
 				'filter'               => self::get_current_filter(),
 				'wc-helper-status'     => $deactivated ? 'deactivate-success' : 'deactivate-error',
@@ -1245,7 +1259,7 @@ class WC_Helper {
 
 		$redirect_uri = add_query_arg(
 			array(
-				'page'                 => 'wc-addons',
+				'page'                 => self::get_source_page(),
 				'section'              => 'helper',
 				'filter'               => self::get_current_filter(),
 				'wc-helper-status'     => $deactivated ? 'deactivate-plugin-success' : 'deactivate-plugin-error',
@@ -1620,6 +1634,48 @@ class WC_Helper {
 		$data = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		return isset( $data['success'] ) && true === $data['success'];
+	}
+
+	/**
+	 * Get details of the current WooCommerce.com connection.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function fetch_helper_connection_info() {
+		$cache_key = '_woocommerce_helper_connection_data';
+		$data      = get_transient( $cache_key );
+		if ( false !== $data ) {
+			return $data;
+		}
+
+		$request = WC_Helper_API::get(
+			'connection-info',
+			array(
+				'authenticated' => true,
+			)
+		);
+
+		$status = wp_remote_retrieve_response_code( $request );
+		if ( 200 !== $status ) {
+			return new WP_Error(
+				'invalid_response',
+				'Invalid response from WooCommerce.com',
+				array( 'status' => $status )
+			);
+		}
+
+		$connection_data = json_decode( wp_remote_retrieve_body( $request ), true );
+
+		$url = $connection_data['url'] ?? '';
+
+		if ( ! empty( $url ) ) {
+			$auth        = WC_Helper_Options::get( 'auth' );
+			$auth['url'] = $url;
+			WC_Helper_Options::update( 'auth', $auth );
+			set_transient( $cache_key, $connection_data, 15 * MINUTE_IN_SECONDS );
+		}
+
+		return $connection_data;
 	}
 
 
@@ -2225,7 +2281,7 @@ class WC_Helper {
 		return sprintf(
 			/* translators: %1$s: helper url, %2$d: number of extensions */
 			_n( 'Note: You currently have <a href="%1$s">%2$d paid extension</a> which should be updated first before updating WooCommerce.', 'Note: You currently have <a href="%1$s">%2$d paid extensions</a> which should be updated first before updating WooCommerce.', $available, 'woocommerce' ),
-			admin_url( 'admin.php?page=wc-addons&section=helper' ),
+			admin_url( 'admin.php?page=' . self::get_source_page() . ' &section=helper' ),
 			$available
 		);
 	}
@@ -2265,6 +2321,13 @@ class WC_Helper {
 	 */
 	public static function flush_product_usage_notice_rules_cache() {
 		delete_transient( '_woocommerce_helper_product_usage_notice_rules' );
+	}
+
+	/**
+	 * Flush connection data cache.
+	 */
+	public static function flush_connection_data_cache() {
+		delete_transient( '_woocommerce_helper_connection_data' );
 	}
 
 	/**
@@ -2372,6 +2435,7 @@ class WC_Helper {
 		self::_flush_subscriptions_cache();
 		self::_flush_updates_cache();
 		self::flush_product_usage_notice_rules_cache();
+		self::flush_connection_data_cache();
 	}
 
 	/**
@@ -2428,7 +2492,7 @@ class WC_Helper {
 			return new WP_Error( 'connect-with-password-invalid-response', $message );
 		}
 
-		self::update_auth_option( $access_data['access_token'], $access_data['access_token_secret'], $access_data['site_id'] );
+		self::update_auth_option( $access_data['access_token'], $access_data['access_token_secret'], $access_data['site_id'], home_url() );
 	}
 
 	/**
@@ -2437,16 +2501,18 @@ class WC_Helper {
 	 * @param string $access_token The access token.
 	 * @param string $access_token_secret The secret access token.
 	 * @param int    $site_id The site id returned by the API.
+	 * @param string $home_url Home url of the site.
 	 *
 	 * @return void
 	 */
-	public static function update_auth_option( string $access_token, string $access_token_secret, int $site_id ): void {
+	public static function update_auth_option( string $access_token, string $access_token_secret, int $site_id, string $home_url ): void {
 		WC_Helper_Options::update(
 			'auth',
 			array(
 				'access_token'        => $access_token,
 				'access_token_secret' => $access_token_secret,
 				'site_id'             => $site_id,
+				'url'                 => $home_url,
 				'user_id'             => get_current_user_id(),
 				'updated'             => time(),
 			)

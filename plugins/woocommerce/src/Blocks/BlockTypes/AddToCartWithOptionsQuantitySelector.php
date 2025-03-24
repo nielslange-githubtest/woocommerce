@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Automattic\WooCommerce\Blocks\BlockTypes;
 
-use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Blocks\Utils\StyleAttributesUtils;
+use Automattic\WooCommerce\Enums\ProductType;
 
 /**
- * CatalogSorting class.
+ * AddToCartWithOptionsQuantitySelector class.
  */
 class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 	/**
@@ -42,7 +42,7 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 	 * @param WP_Block $block Block instance.
 	 */
 	protected function enqueue_assets( $attributes, $content, $block ) {
-		if ( 'stepper' !== $attributes['quantitySelectorStyle'] ) {
+		if ( ! isset( $attributes['quantitySelectorStyle'] ) || 'stepper' !== $attributes['quantitySelectorStyle'] ) {
 			return;
 		}
 
@@ -61,10 +61,10 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 		$pattern = '/(<input[^>]*id="quantity_[^"]*"[^>]*\/>)/';
 		// Replacement string to add button BEFORE the matched <input> element.
 		/* translators: %s refers to the item name in the cart. */
-		$minus_button = '<button aria-label="' . esc_attr( sprintf( __( 'Reduce quantity of %s', 'woocommerce' ), $product_name ) ) . '"type="button" data-wc-on--click="actions.removeQuantity" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--minus">-</button>$1';
+		$minus_button = '<button aria-label="' . esc_attr( sprintf( __( 'Reduce quantity of %s', 'woocommerce' ), $product_name ) ) . '"type="button" data-wp-on--click="actions.removeQuantity" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--minus">-</button>$1';
 		// Replacement string to add button AFTER the matched <input> element.
 		/* translators: %s refers to the item name in the cart. */
-		$plus_button = '$1<button aria-label="' . esc_attr( sprintf( __( 'Increase quantity of %s', 'woocommerce' ), $product_name ) ) . '" type="button" data-wc-on--click="actions.addQuantity" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--plus">+</button>';
+		$plus_button = '$1<button aria-label="' . esc_attr( sprintf( __( 'Increase quantity of %s', 'woocommerce' ), $product_name ) ) . '" type="button" data-wp-on--click="actions.addQuantity" class="wc-block-components-quantity-selector__button wc-block-components-quantity-selector__button--plus">+</button>';
 		$new_html    = preg_replace( $pattern, $minus_button, $product_html );
 		$new_html    = preg_replace( $pattern, $plus_button, $new_html );
 		return $new_html;
@@ -97,6 +97,12 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 	/**
 	 * Render the block.
 	 *
+	 * The selector is hidden for:
+	 * - Simple products that are out of stock.
+	 * - Not purchasable simple products.
+	 * - External products with URLs
+	 * - Products sold individually
+	 *
 	 * @param array    $attributes Block attributes.
 	 * @param string   $content Block content.
 	 * @param WP_Block $block Block instance.
@@ -105,16 +111,19 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 	 */
 	protected function render( $attributes, $content, $block ) {
 		global $product;
+		$previous_product = $product;
 
-		$post_id = $block->context['postId'];
-
-		if ( ! isset( $post_id ) ) {
+		// Try to load the product from the block context, if not available,
+		// use the global $product.
+		$post_id = isset( $block->context['postId'] ) ? $block->context['postId'] : '';
+		$post    = $post_id ? wc_get_product( $post_id ) : null;
+		if ( $post instanceof \WC_Product ) {
+			$product = $post;
+		} elseif ( ! $product instanceof \WC_Product ) {
 			return '';
 		}
 
-		$previous_product = $product;
-		$product          = wc_get_product( $post_id );
-		if ( ! $product instanceof \WC_Product ) {
+		if ( ProductType::SIMPLE === $product->get_type() && ( ! $product->is_in_stock() || ! $product->is_purchasable() ) ) {
 			$product = $previous_product;
 
 			return '';
@@ -124,21 +133,16 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 		$can_only_be_purchased_one_at_a_time = $product->is_sold_individually();
 
 		if ( $is_external_product_with_url || $can_only_be_purchased_one_at_a_time ) {
+			$product = $previous_product;
+
 			return '';
 		}
 
-		$is_stepper_style = 'stepper' === $attributes['quantitySelectorStyle'] && ! $product->is_sold_individually();
+		wp_enqueue_script_module( $this->get_full_block_name() );
+
+		$is_stepper_style = isset( $attributes['quantitySelectorStyle'] ) && 'stepper' === $attributes['quantitySelectorStyle'] && ! $product->is_sold_individually();
 
 		ob_start();
-
-		/**
-		 * Hook: woocommerce_before_add_to_cart_quantity.
-		 *
-		 * Action that fires before the quantity input field is rendered.
-		 *
-		 * @since 2.7.0
-		 */
-		do_action( 'woocommerce_before_add_to_cart_quantity' );
 
 		woocommerce_quantity_input(
 			array(
@@ -161,15 +165,6 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 				'input_value' => isset( $_POST['quantity'] ) ? wc_stock_amount( wp_unslash( $_POST['quantity'] ) ) : $product->get_min_purchase_quantity(), // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			)
 		);
-
-		/**
-		 * Hook: woocommerce_after_add_to_cart_quantity.
-		 *
-		 * Action that fires after the quantity input field is rendered.
-		 *
-		 * @since 2.7.0
-		 */
-		do_action( 'woocommerce_after_add_to_cart_quantity' );
 
 		$product_html = ob_get_clean();
 
@@ -201,17 +196,22 @@ class AddToCartWithOptionsQuantitySelector extends AbstractBlock {
 		$form = sprintf(
 			'<div %1$s %2$s>%3$s</div>',
 			$wrapper_attributes,
-			$is_stepper_style ? 'data-wc-interactive=\'' . wp_json_encode(
-				array(
-					'namespace' => 'woocommerce/add-to-cart-with-options',
-				),
-				JSON_NUMERIC_CHECK | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-			) . '\'' : '',
+			$is_stepper_style ? 'data-wp-interactive="woocommerce/add-to-cart-with-options"' : '',
 			$product_html
 		);
 
 		$product = $previous_product;
 
 		return $form;
+	}
+
+	/**
+	 * Disable the frontend script for this block type, it's built with script modules.
+	 *
+	 * @param string $key Data to get, or default to everything.
+	 * @return array|string|null
+	 */
+	protected function get_block_type_script( $key = null ) {
+		return null;
 	}
 }

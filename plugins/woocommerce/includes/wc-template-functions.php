@@ -53,7 +53,13 @@ function wc_template_redirect() {
 	if ( is_wc_endpoint_url() && ! is_account_page() && ! is_checkout() && apply_filters( 'woocommerce_account_endpoint_page_not_found', true ) ) {
 		$wp_query->set_404();
 		status_header( 404 );
-		include get_query_template( '404' );
+
+		$template = get_query_template( '404' );
+		if ( ! empty( $template ) && file_exists( $template ) ) {
+			include $template;
+		} else {
+			wp_safe_redirect( home_url() );
+		}
 		exit;
 	}
 
@@ -1083,8 +1089,13 @@ if ( ! function_exists( 'woocommerce_demo_store' ) ) {
 
 		$notice_id = md5( $notice );
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo apply_filters( 'woocommerce_demo_store', '<p class="woocommerce-store-notice demo_store" data-notice-id="' . esc_attr( $notice_id ) . '" style="display:none;">' . wp_kses_post( $notice ) . ' <a href="#" class="woocommerce-store-notice__dismiss-link">' . esc_html__( 'Dismiss', 'woocommerce' ) . '</a></p>', $notice );
+		/**
+		 * Filter demo store notice.
+		 *
+		 * @since 1.6.4
+		 * @param string $store_notice Notice element.
+		 */
+		echo apply_filters( 'woocommerce_demo_store', '<p role="complementary" aria-label="' . esc_attr__( 'Store notice', 'woocommerce' ) . '" class="woocommerce-store-notice demo_store" data-notice-id="' . esc_attr( $notice_id ) . '" style="display:none;">' . wp_kses_post( $notice ) . ' <a role="button" href="#" class="woocommerce-store-notice__dismiss-link">' . esc_html__( 'Dismiss', 'woocommerce' ) . '</a></p>', $notice ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
@@ -1567,7 +1578,15 @@ if ( ! function_exists( 'woocommerce_catalog_ordering' ) ) {
 		if ( ! wc_get_loop_prop( 'is_paginated' ) || ! woocommerce_products_will_display() ) {
 			return;
 		}
-		$show_default_orderby    = 'menu_order' === apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby', 'menu_order' ) );
+
+		/**
+		 * Filter the default catalog orderby.
+		 *
+		 * @since 1.6.4
+		 *
+		 * @param string $default_orderby The default orderby option.
+		 */
+		$show_default_orderby = 'menu_order' === apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby', 'menu_order' ) );
 
 		if ( isset( $attributes ) && isset( $attributes['useLabel'] ) && $attributes['useLabel'] ) {
 			/**
@@ -1619,6 +1638,10 @@ if ( ! function_exists( 'woocommerce_catalog_ordering' ) ) {
 
 		if ( ! wc_review_ratings_enabled() ) {
 			unset( $catalog_orderby_options['rating'] );
+		}
+
+		if ( is_array( $orderby ) ) {
+			$orderby = current( array_intersect( $orderby, array_keys( $catalog_orderby_options ) ) );
 		}
 
 		if ( ! array_key_exists( $orderby, $catalog_orderby_options ) ) {
@@ -1795,9 +1818,11 @@ if ( ! function_exists( 'woocommerce_template_single_rating' ) ) {
 	 * Output the product rating.
 	 */
 	function woocommerce_template_single_rating() {
-		if ( post_type_supports( 'product', 'comments' ) ) {
-			wc_get_template( 'single-product/rating.php' );
+		if ( ! post_type_supports( 'product', 'comments' ) || ! is_a( $GLOBALS['product'] ?? null, \WC_Product::class ) ) {
+			return;
 		}
+
+		wc_get_template( 'single-product/rating.php' );
 	}
 }
 if ( ! function_exists( 'woocommerce_template_single_price' ) ) {
@@ -1806,6 +1831,10 @@ if ( ! function_exists( 'woocommerce_template_single_price' ) ) {
 	 * Output the product price.
 	 */
 	function woocommerce_template_single_price() {
+		if ( ! is_a( $GLOBALS['product'] ?? null, \WC_Product::class ) ) {
+			return;
+		}
+
 		wc_get_template( 'single-product/price.php' );
 	}
 }
@@ -1815,6 +1844,10 @@ if ( ! function_exists( 'woocommerce_template_single_excerpt' ) ) {
 	 * Output the product short description (excerpt).
 	 */
 	function woocommerce_template_single_excerpt() {
+		if ( ! isset( $GLOBALS['post']->post_excerpt ) ) {
+			return;
+		}
+
 		wc_get_template( 'single-product/short-description.php' );
 	}
 }
@@ -1824,6 +1857,10 @@ if ( ! function_exists( 'woocommerce_template_single_meta' ) ) {
 	 * Output the product meta.
 	 */
 	function woocommerce_template_single_meta() {
+		if ( ! is_a( $GLOBALS['product'] ?? null, \WC_Product::class ) ) {
+			return;
+		}
+
 		wc_get_template( 'single-product/meta.php' );
 	}
 }
@@ -2067,6 +2104,10 @@ if ( ! function_exists( 'woocommerce_default_product_tabs' ) ) {
 			);
 		}
 
+		if ( ! ( $product instanceof WC_Product ) ) {
+			return $tabs;
+		}
+
 		// Additional information tab - shows attributes.
 
 		/**
@@ -2076,7 +2117,7 @@ if ( ! function_exists( 'woocommerce_default_product_tabs' ) ) {
 		 *
 		 * @since 2.0.14
 		 */
-		if ( ( $product instanceof WC_Product ) && ( $product->has_attributes() || apply_filters( 'wc_product_enable_dimensions_display', $product->has_weight() || $product->has_dimensions() ) ) ) {
+		if ( $product->has_attributes() || apply_filters( 'wc_product_enable_dimensions_display', $product->has_weight() || $product->has_dimensions() ) ) {
 			$tabs['additional_information'] = array(
 				'title'    => __( 'Additional information', 'woocommerce' ),
 				'priority' => 20,
@@ -2371,8 +2412,11 @@ if ( ! function_exists( 'woocommerce_cross_sell_display' ) ) {
 		if ( is_checkout() ) {
 			return;
 		}
+
 		// Get visible cross sells then sort them at random.
-		$cross_sells = array_filter( array_map( 'wc_get_product', WC()->cart->get_cross_sells() ), 'wc_products_array_filter_visible' );
+		$cross_sells = isset( WC()->cart )
+			? array_filter( array_map( 'wc_get_product', WC()->cart->get_cross_sells() ), 'wc_products_array_filter_visible' )
+			: array();
 
 		wc_set_loop_prop( 'name', 'cross-sells' );
 		wc_set_loop_prop( 'columns', apply_filters( 'woocommerce_cross_sells_columns', $columns ) );
@@ -2571,6 +2615,15 @@ if ( ! function_exists( 'woocommerce_checkout_payment' ) ) {
 	 * Output the Payment Methods on the checkout.
 	 */
 	function woocommerce_checkout_payment() {
+		if ( ! WC()->cart ) {
+			wc_doing_it_wrong(
+				__FUNCTION__,
+				__( 'Cart is not available. This may indicate that the function is being called before woocommerce_init or in an admin context.', 'woocommerce' ),
+				'9.8.0'
+			);
+			return;
+		}
+
 		if ( WC()->cart->needs_payment() ) {
 			$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
 			WC()->payment_gateways()->set_current_gateway( $available_gateways );
@@ -3025,6 +3078,18 @@ if ( ! function_exists( 'woocommerce_form_field' ) ) {
 			$args['class'] = array( $args['class'] );
 		}
 
+		if ( is_string( $args['label_class'] ) ) {
+			$args['label_class'] = array( $args['label_class'] );
+		}
+
+		if ( is_null( $value ) ) {
+			$value = $args['default'];
+		}
+
+		// Custom attribute handling.
+		$custom_attributes         = array();
+		$args['custom_attributes'] = array_filter( (array) $args['custom_attributes'], 'strlen' );
+
 		if ( $args['required'] ) {
 			// hidden inputs are the only kind of inputs that don't need an `aria-required` attribute.
 			// checkboxes apply the `custom_attributes` to the label - we need to apply the attribute on the input itself, instead.
@@ -3038,18 +3103,6 @@ if ( ! function_exists( 'woocommerce_form_field' ) ) {
 		} else {
 			$required_indicator = '&nbsp;<span class="optional">(' . esc_html__( 'optional', 'woocommerce' ) . ')</span>';
 		}
-
-		if ( is_string( $args['label_class'] ) ) {
-			$args['label_class'] = array( $args['label_class'] );
-		}
-
-		if ( is_null( $value ) ) {
-			$value = $args['default'];
-		}
-
-		// Custom attribute handling.
-		$custom_attributes         = array();
-		$args['custom_attributes'] = array_filter( (array) $args['custom_attributes'], 'strlen' );
 
 		if ( $args['maxlength'] ) {
 			$args['custom_attributes']['maxlength'] = absint( $args['maxlength'] );
@@ -3107,7 +3160,7 @@ if ( ! function_exists( 'woocommerce_form_field' ) ) {
 						$field .= '<option value="' . esc_attr( $ckey ) . '" ' . selected( $value, $ckey, false ) . '>' . esc_html( $cvalue ) . '</option>';
 					}
 
-					$field .= $required_indicator . '</select>';
+					$field .= '</select>';
 
 					$field .= '<noscript><button type="submit" name="woocommerce_checkout_update_totals" value="' . esc_attr__( 'Update country / region', 'woocommerce' ) . '">' . esc_html__( 'Update country / region', 'woocommerce' ) . '</button></noscript>';
 
@@ -3333,7 +3386,7 @@ if ( ! function_exists( 'woocommerce_single_variation' ) ) {
 	 * Output placeholders for the single variation.
 	 */
 	function woocommerce_single_variation() {
-		echo '<div class="woocommerce-variation single_variation"></div>';
+		echo '<div class="woocommerce-variation single_variation" role="alert" aria-relevant="additions"></div>';
 	}
 }
 
@@ -3575,6 +3628,17 @@ if ( ! function_exists( 'wc_no_products_found' ) ) {
 	 * Handles the loop when no products were found/no product exist.
 	 */
 	function wc_no_products_found() {
+		if ( ! function_exists( 'wc_print_notice' ) ) {
+			// wc_print_notice() is used in our default template, so this likely means this function was called out of
+			// context. We include the notice functions here to avoid a fatal error.
+			wc_doing_it_wrong(
+				__FUNCTION__,
+				'Function should only be used during frontend requests.',
+				'9.8.0'
+			);
+			return;
+		}
+
 		wc_get_template( 'loop/no-products-found.php' );
 	}
 }
@@ -4123,6 +4187,15 @@ function wc_get_cart_undo_url( $cart_item_key ) {
  * @since 3.5.0
  */
 function woocommerce_output_all_notices() {
+	if ( ! function_exists( 'wc_print_notices' ) ) {
+		wc_doing_it_wrong(
+			__FUNCTION__,
+			'Function should only be used during frontend requests.',
+			'9.8.0'
+		);
+		return;
+	}
+
 	echo '<div class="woocommerce-notices-wrapper">';
 	wc_print_notices();
 	echo '</div>';
@@ -4342,7 +4415,7 @@ function wc_add_aria_label_to_pagination_numbers( $html, $args ) {
 			continue;
 		}
 
-		$p->set_attribute( 'aria-label', $page_text . ' ' . number_format_i18n( $n ) );
+		$p->set_attribute( 'aria-label', $page_text . ' ' . number_format_i18n( (int) $n ) );
 		++$n;
 	}
 

@@ -6,7 +6,7 @@ use Automattic\WooCommerce\StoreApi\Exceptions\RouteException;
 use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
 use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Utilities\DiscountsUtil;
-
+use Automattic\WooCommerce\StoreApi\Utilities\PaymentUtils;
 /**
  * OrderController class.
  * Helper class which creates and syncs orders with the cart.
@@ -113,6 +113,7 @@ class OrderController {
 		$order->set_customer_user_agent( wc_get_user_agent() );
 		$order->update_meta_data( 'is_vat_exempt', wc()->cart->get_customer()->get_is_vat_exempt() ? 'yes' : 'no' );
 		$order->calculate_totals();
+		$order->set_payment_method( PaymentUtils::get_default_payment_method() );
 	}
 
 	/**
@@ -394,7 +395,7 @@ class OrderController {
 
 		foreach ( $current_locale as $address_field_key => $address_field ) {
 			// Skip validation if field is not required.
-			if ( ! $address_field['required'] ) {
+			if ( true !== $address_field['required'] ) {
 				continue;
 			}
 
@@ -702,25 +703,25 @@ class OrderController {
 			wc()->checkout->create_order_line_items( $order, $cart );
 		}
 
-		if ( $order->get_meta_data( '_shipping_hash' ) !== $cart_hashes['shipping'] ) {
+		if ( $order->get_meta( '_shipping_hash' ) !== $cart_hashes['shipping'] ) {
 			$order->update_meta_data( '_shipping_hash', $cart_hashes['shipping'] );
 			$order->remove_order_items( 'shipping' );
 			wc()->checkout->create_order_shipping_lines( $order, wc()->session->get( 'chosen_shipping_methods' ), wc()->shipping()->get_packages() );
 		}
 
-		if ( $order->get_meta_data( '_coupons_hash' ) !== $cart_hashes['coupons'] ) {
+		if ( $order->get_meta( '_coupons_hash' ) !== $cart_hashes['coupons'] ) {
 			$order->remove_order_items( 'coupon' );
 			$order->update_meta_data( '_coupons_hash', $cart_hashes['coupons'] );
 			wc()->checkout->create_order_coupon_lines( $order, $cart );
 		}
 
-		if ( $order->get_meta_data( '_fees_hash' ) !== $cart_hashes['fees'] ) {
+		if ( $order->get_meta( '_fees_hash' ) !== $cart_hashes['fees'] ) {
 			$order->update_meta_data( '_fees_hash', $cart_hashes['fees'] );
 			$order->remove_order_items( 'fee' );
 			wc()->checkout->create_order_fee_lines( $order, $cart );
 		}
 
-		if ( $order->get_meta_data( '_taxes_hash' ) !== $cart_hashes['taxes'] ) {
+		if ( $order->get_meta( '_taxes_hash' ) !== $cart_hashes['taxes'] ) {
 			$order->update_meta_data( '_taxes_hash', $cart_hashes['taxes'] );
 			$order->remove_order_items( 'tax' );
 			wc()->checkout->create_order_tax_lines( $order, $cart );

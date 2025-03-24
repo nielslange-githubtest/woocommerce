@@ -457,7 +457,7 @@ class PaymentProviders {
 		$categories[] = array(
 			'id'          => self::CATEGORY_EXPRESS_CHECKOUT,
 			'_priority'   => 10,
-			'title'       => esc_html__( 'Express Checkouts', 'woocommerce' ),
+			'title'       => esc_html__( 'Wallets & Express checkouts', 'woocommerce' ),
 			'description' => esc_html__( 'Allow shoppers to fast-track the checkout process with express options like Apple Pay and Google Pay.', 'woocommerce' ),
 		);
 		$categories[] = array(
@@ -809,20 +809,42 @@ class PaymentProviders {
 					ExtensionSuggestions::PAYPAL_FULL_STACK,
 					ExtensionSuggestions::PAYPAL_WALLET,
 					ExtensionSuggestions::MOLLIE,
+					ExtensionSuggestions::MONEI,
 					ExtensionSuggestions::ANTOM,
 					ExtensionSuggestions::MERCADO_PAGO,
 					ExtensionSuggestions::AMAZON_PAY,
-					ExtensionSuggestions::SQUARE_IN_PERSON,
+					ExtensionSuggestions::SQUARE,
 					ExtensionSuggestions::PAYONEER,
+					ExtensionSuggestions::COINBASE, // We don't have suggestion details yet.
+					ExtensionSuggestions::AUTHORIZE_NET, // We don't have suggestion details yet.
+					ExtensionSuggestions::BOLT, // We don't have suggestion details yet.
+					ExtensionSuggestions::DEPAY, // We don't have suggestion details yet.
+					ExtensionSuggestions::ELAVON, // We don't have suggestion details yet.
+					ExtensionSuggestions::EWAY, // We don't have suggestion details yet.
+					ExtensionSuggestions::FORTISPAY, // We don't have suggestion details yet.
+					ExtensionSuggestions::NEXI, // We don't have suggestion details yet.
+					ExtensionSuggestions::PAYPAL_ZETTLE, // We don't have suggestion details yet.
+					ExtensionSuggestions::RAPYD, // We don't have suggestion details yet.
+					ExtensionSuggestions::PAYPAL_BRAINTREE, // We don't have suggestion details yet.
 				),
 				true
 			) ) {
-				$gateway_details['title']       = $suggestion['title'];
-				$gateway_details['description'] = $suggestion['description'];
+				if ( ! empty( $suggestion['title'] ) ) {
+					$gateway_details['title'] = $suggestion['title'];
+				}
+
+				if ( ! empty( $suggestion['description'] ) ) {
+					$gateway_details['description'] = $suggestion['description'];
+				}
 			}
 
-			$gateway_details['icon']  = $suggestion['icon'];
-			$gateway_details['image'] = $suggestion['image'];
+			if ( ! empty( $suggestion['icon'] ) ) {
+				$gateway_details['icon'] = $suggestion['icon'];
+			}
+
+			if ( ! empty( $suggestion['image'] ) ) {
+				$gateway_details['image'] = $suggestion['image'];
+			}
 
 			if ( empty( $gateway_details['links'] ) ) {
 				$gateway_details['links'] = $suggestion['links'];
