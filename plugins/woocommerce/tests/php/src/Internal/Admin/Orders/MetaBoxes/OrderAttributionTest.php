@@ -148,10 +148,10 @@ class OrderAttributionTest extends WP_UnitTestCase {
 	public function test_mobile_app_source_type_sets_origin_label_without_more_details() {
 		$order = WC_Helper_Order::create_order();
 		$order->add_meta_data( '_wc_order_attribution_source_type', 'mobile_app' );
-		
+
 		add_action(
 			'woocommerce_before_template_part',
-			function( $template_name, $template_path, $located, $args ) {
+			function ( $template_name, $template_path, $located, $args ) {
 				$this->assertEquals( 'Mobile app', $args['meta']['origin'] ?? '' );
 				$this->assertFalse( $args['has_more_details'] );
 			},
@@ -172,10 +172,10 @@ class OrderAttributionTest extends WP_UnitTestCase {
 	public function test_pos_source_type_sets_origin_label_without_more_details() {
 		$order = WC_Helper_Order::create_order();
 		$order->add_meta_data( '_wc_order_attribution_source_type', 'pos' );
-		
+
 		add_action(
 			'woocommerce_before_template_part',
-			function( $template_name, $template_path, $located, $args ) {
+			function ( $template_name, $template_path, $located, $args ) {
 				$this->assertEquals( 'Point of Sale', $args['meta']['origin'] ?? '' );
 				$this->assertFalse( $args['has_more_details'] );
 			},
