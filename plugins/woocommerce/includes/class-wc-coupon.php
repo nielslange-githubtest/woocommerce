@@ -1074,7 +1074,7 @@ class WC_Coupon extends WC_Legacy_Coupon {
 			case self::E_WC_COUPON_USAGE_LIMIT_COUPON_STUCK:
 				if ( is_user_logged_in() && wc_get_page_id( 'myaccount' ) > 0 && ! WC()->is_store_api_request() ) {
 					/* translators: %1$s: coupon code, %2$s: myaccount page link. */
-					$err = sprintf( wp_kses_data( __( 'Usage limit for coupon "%1$s" has been reached. If you were using this coupon just now but your order was not complete, you can retry or cancel the order by going to the <a href="%2$s">my account page</a>.', 'woocommerce' ) ), esc_html( $this->get_code() ), wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ) );
+					$err = sprintf( wp_kses_data( __( 'Usage limit for coupon "%1$s" has been reached. If you were using this coupon just now but your order was not complete, you can retry or cancel the order by going to the <a href="%2$s">my account page</a>.', 'woocommerce' ) ), esc_html( $this->get_code() ), esc_attr( wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ) ) );
 				} else {
 					$err = $this->get_coupon_error( self::E_WC_COUPON_USAGE_LIMIT_REACHED );
 				}
