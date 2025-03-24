@@ -3041,10 +3041,10 @@ function wc_update_1000_add_sales_channel_to_orders() {
 	}
 
 	$operational_data_table_name = OrdersTableDataStore::get_operational_data_table_name();
-	
-	$wpdb->query( 
-		$wpdb->prepare( 
-			"ALTER TABLE %i ADD COLUMN sales_channel varchar(100) NULL AFTER created_via",
+
+	$wpdb->query(
+		$wpdb->prepare(
+			'ALTER TABLE %i ADD COLUMN sales_channel varchar(100) NULL AFTER created_via',
 			$operational_data_table_name
 		)
 	);
