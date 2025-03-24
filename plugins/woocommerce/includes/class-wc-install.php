@@ -283,6 +283,9 @@ class WC_Install {
 			'wc_update_990_remove_wc_count_comments_transient',
 			'wc_update_990_remove_email_notes',
 		),
+			'10.0.0' => array(
+				'wc_update_1000_add_sales_channel_to_orders',
+			),
 	);
 
 	/**
@@ -450,7 +453,7 @@ class WC_Install {
 				'woocommerce_run_update_callback',
 				array(
 					'update_callback' => $callback,
-				),
+			),
 				'woocommerce-db-updates'
 			);
 		}
@@ -747,7 +750,7 @@ class WC_Install {
 						'woocommerce_run_update_callback',
 						array(
 							'update_callback' => $update_callback,
-						),
+					),
 						'woocommerce-db-updates'
 					);
 					++$loop;
@@ -764,7 +767,7 @@ class WC_Install {
 				'woocommerce_update_db_to_current_version',
 				array(
 					'version' => $current_wc_version,
-				),
+			),
 				'woocommerce-db-updates'
 			);
 		}
@@ -911,28 +914,28 @@ class WC_Install {
 					'name'    => _x( 'shop', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Shop', 'Page title', 'woocommerce' ),
 					'content' => '',
-				),
+			),
 				'cart'           => array(
 					'name'    => _x( 'cart', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Cart', 'Page title', 'woocommerce' ),
 					'content' => $cart_page_content,
-				),
+			),
 				'checkout'       => array(
 					'name'    => _x( 'checkout', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'Checkout', 'Page title', 'woocommerce' ),
 					'content' => $checkout_page_content,
-				),
+			),
 				'myaccount'      => array(
 					'name'    => _x( 'my-account', 'Page slug', 'woocommerce' ),
 					'title'   => _x( 'My account', 'Page title', 'woocommerce' ),
 					'content' => '<!-- wp:shortcode -->[' . $my_account_shortcode . ']<!-- /wp:shortcode -->',
-				),
+			),
 				'refund_returns' => array(
 					'name'        => _x( 'refund_returns', 'Page slug', 'woocommerce' ),
 					'title'       => _x( 'Refund and Returns Policy', 'Page title', 'woocommerce' ),
 					'content'     => self::get_refunds_return_policy_page_content(),
 					'post_status' => 'draft',
-				),
+			),
 			)
 		);
 
@@ -2369,7 +2372,7 @@ $hpos_table_schema;
 								'donate_link'       => false,
 								'author_profile'    => false,
 								'author'            => false,
-							),
+						),
 						)
 					);
 
@@ -2400,7 +2403,7 @@ $hpos_table_schema;
 							'hook_extra'                  => array(
 								'type'   => 'plugin',
 								'action' => 'install',
-							),
+						),
 						)
 					);
 
