@@ -608,7 +608,8 @@ class WC_Discounts {
 					esc_html__( 'Coupon "%s" does not exist!', 'woocommerce' ),
 					esc_html( $coupon->get_code() )
 				),
-				105 );
+				105
+			);
 		}
 
 		return true;
@@ -714,7 +715,8 @@ class WC_Discounts {
 					esc_html__( 'Coupon "%s" has expired.', 'woocommerce' ),
 					esc_html( $coupon->get_code() )
 				),
-				107 );
+				107
+			);
 		}
 
 		return true;
@@ -746,7 +748,8 @@ class WC_Discounts {
 					esc_html( $coupon->get_code() ),
 					wp_kses( wc_price( $coupon->get_minimum_amount() ), $allowed_tags )
 				),
-				108 );
+				108
+			);
 		}
 
 		return true;
@@ -809,7 +812,8 @@ class WC_Discounts {
 				throw new Exception(sprintf(
 					esc_html__( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ),
 					esc_html( $coupon->get_code() ) ),
-					109 );
+					109
+				);
 			}
 		}
 
@@ -853,7 +857,8 @@ class WC_Discounts {
 						esc_html__( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ),
 						esc_html( $coupon->get_code() )
 					),
-					109 );
+					109
+				);
 			}
 		}
 
@@ -886,7 +891,8 @@ class WC_Discounts {
 						esc_html__( 'Sorry, coupon "%s" is not valid for sale items.', 'woocommerce' ),
 						esc_html( $coupon->get_code() )
 					),
-					110 );
+					110
+				);
 			}
 		}
 
@@ -920,7 +926,8 @@ class WC_Discounts {
 						esc_html__( 'Sorry, coupon "%s" is not applicable to selected products.', 'woocommerce' ),
 						esc_html( $coupon->get_code() )
 					),
-					109 );
+					109
+				);
 			}
 		}
 
@@ -972,7 +979,8 @@ class WC_Discounts {
 						esc_html( $coupon->get_code() ),
 						esc_html( implode(', ', $products) )
 					),
-					113 );
+					113
+				);
 			}
 		}
 
@@ -1018,7 +1026,8 @@ class WC_Discounts {
 					esc_html( $coupon->get_code() ),
 					esc_html( implode(', ', array_unique($categories)) )
 				),
-					114 );
+					114
+				);
 			}
 		}
 
