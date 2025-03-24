@@ -13,5 +13,6 @@
 		"interactivity": true,
 		"html": false
 	},
+	"viewScriptModule": "file:./frontend.ts",
 	"usesContext": [ "query", "filterParams" ]
 }
