@@ -12,6 +12,7 @@ import { recordEvent } from '@woocommerce/tracks';
  */
 import { SubscriptionsContext } from '../../../../contexts/subscriptions-context';
 import {
+	activateProductPlugin,
 	addNotice,
 	connectProduct,
 	removeNotice,
@@ -51,7 +52,37 @@ export default function ConnectButton( props: ConnectProps ) {
 						),
 						NoticeStatus.Success
 					);
-					setIsConnecting( false );
+					activateProductPlugin( props.subscription )
+						.then( () => {
+							addNotice(
+								props.subscription.product_key,
+								sprintf(
+									// translators: %s is the product name.
+									__(
+										'%s plugin successfully activated.',
+										'woocommerce'
+									),
+									props.subscription.product_name
+								),
+								NoticeStatus.Success
+							);
+							setIsConnecting( false );
+						} )
+						.catch( () => {
+							addNotice(
+								props.subscription.product_key,
+								sprintf(
+									// translators: %s is the product name.
+									__(
+										'Failed activating the local plugin for %s.',
+										'woocommerce'
+									),
+									props.subscription.product_name
+								),
+								NoticeStatus.Error
+							);
+							setIsConnecting( false );
+						} );
 					if ( props.onClose ) {
 						props.onClose();
 					}
