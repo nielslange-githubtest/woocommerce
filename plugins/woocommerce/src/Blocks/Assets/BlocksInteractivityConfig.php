@@ -37,10 +37,10 @@ class BlocksInteractivityConfig {
 			return;
 		}
 
+		self::$core_settings_registered = true;
+
 		self::add( self::get_currency_data() );
 		self::add( self::get_locale_data() );
-
-		self::$core_settings_registered = true;
 	}
 
 	/**
@@ -48,7 +48,7 @@ class BlocksInteractivityConfig {
 	 *
 	 * @return array
 	 */
-	protected function get_currency_data() {
+	protected static function get_currency_data() {
 		$currency = get_woocommerce_currency();
 
 		return [
@@ -69,7 +69,7 @@ class BlocksInteractivityConfig {
 	 *
 	 * @return array
 	 */
-	protected function get_locale_data() {
+	protected static function get_locale_data() {
 		global $wp_locale;
 
 		return [
