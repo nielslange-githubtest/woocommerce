@@ -88,6 +88,7 @@ function wc_create_order( $args = array() ) {
 		'customer_note' => null,
 		'parent'        => null,
 		'created_via'   => null,
+		'sales_channel' => null,
 		'cart_hash'     => null,
 		'order_id'      => 0,
 	);
