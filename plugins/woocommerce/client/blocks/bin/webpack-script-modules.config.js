@@ -24,6 +24,42 @@ const entries = getScriptModuleEntryPoints(
 
 // These are modules that are not tied to a specific block, but are still needed to be built.
 const manuallyDefinedModules = {
+	// Blocks not yet using AbstractInteractivityAPIBlock
+	'woocommerce/product-gallery-large-image':
+		'./assets/js/blocks/product-gallery/inner-blocks/product-gallery-large-image/frontend.ts',
+	'woocommerce/product-collection':
+		'./assets/js/blocks/product-collection/frontend.ts',
+	'woocommerce/product-filters':
+		'./assets/js/blocks/product-filters/frontend.ts',
+	'woocommerce/product-filter-active':
+		'./assets/js/blocks/product-filters/inner-blocks/active-filters/frontend.ts',
+	'woocommerce/product-filter-attribute':
+		'./assets/js/blocks/product-filters/inner-blocks/attribute-filter/frontend.ts',
+	'woocommerce/product-filter-checkbox-list':
+		'./assets/js/blocks/product-filters/inner-blocks/checkbox-list/frontend.ts',
+	'woocommerce/product-filter-chips':
+		'./assets/js/blocks/product-filters/inner-blocks/chips/frontend.ts',
+	'woocommerce/product-filter-price-slider':
+		'./assets/js/blocks/product-filters/inner-blocks/price-slider/frontend.ts',
+	'woocommerce/product-filter-rating':
+		'./assets/js/blocks/product-filters/inner-blocks/rating-filter/frontend.ts',
+	'woocommerce/product-filter-removable-chips':
+		'./assets/js/blocks/product-filters/inner-blocks/removable-chips/frontend.ts',
+	'woocommerce/product-filter-status':
+		'./assets/js/blocks/product-filters/inner-blocks/status-filter/frontend.ts',
+	'woocommerce/accordion-group':
+		'./assets/js/blocks/accordion/accordion-group/frontend.js',
+	'woocommerce/add-to-cart-form':
+		'./assets/js/blocks/product-elements/add-to-cart-form/frontend.ts',
+	'woocommerce/add-to-cart-with-options':
+		'./assets/js/blocks/add-to-cart-with-options/frontend.ts',
+	'woocommerce/add-to-cart-with-options-grouped-product-selector':
+		'./assets/js/blocks/add-to-cart-with-options/grouped-product-selector/frontend.ts',
+	'woocommerce/add-to-cart-with-options-quantity-selector':
+		'./assets/js/blocks/add-to-cart-with-options/quantity-selector/frontend.ts',
+	'woocommerce/add-to-cart-with-options-variation-selector':
+		'./assets/js/blocks/add-to-cart-with-options/variation-selector/frontend.ts',
+
 	'@woocommerce/stores/woocommerce/cart':
 		'./assets/js/base/stores/woocommerce/cart.ts',
 	'@woocommerce/stores/store-notices':

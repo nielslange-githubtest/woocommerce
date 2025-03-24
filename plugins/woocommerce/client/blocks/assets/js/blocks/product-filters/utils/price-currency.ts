@@ -130,6 +130,8 @@ export const formatPrice = (
 
 	const currency: Currency = getCurrency( currencyData );
 
+	console.log( 'currency', currency );
+
 	const { minorUnit, prefix, suffix, decimalSeparator, thousandSeparator } =
 		currency;
 
