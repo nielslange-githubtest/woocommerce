@@ -220,7 +220,26 @@ class WC_Helper_Admin {
 			wp_send_json_error( array( 'message' => $product_preview->get_error_message() ) );
 		}
 
-		wp_send_json( $product_preview );
+		if (
+			! isset ( $product_preview['css'] )
+			|| ! is_string( $product_preview['css'] )
+			|| ! isset ( $product_preview['html'] )
+			|| ! is_string( $product_preview['html'] )
+		) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'API response is missing required elements, or the data is in the wrong form.', 'woocommerce' )
+				),
+				500
+			);
+		}
+
+		$sanitized_product_preview = array(
+			'css'  => WC_Helper_Sanitization::sanitize_css( $product_preview['css'] ),
+			'html' => wp_kses_post( $product_preview['html'] ),
+		);
+
+		wp_send_json( $sanitized_product_preview );
 	}
 }
 
