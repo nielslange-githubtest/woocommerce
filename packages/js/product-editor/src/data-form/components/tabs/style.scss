@@ -1,4 +1,8 @@
 .woocommerce-product-tabs {
+	&__tablist-container {
+		display: flex;
+		flex-direction: column;
+	}
 	&__tablist {
 		margin: 0 auto;
 	}

@@ -57,13 +57,15 @@ export function ProductTabs( {
 			// onKeyDown={ handleKeyDown }
 			className="woocommerce-product-tabs"
 		>
-			<Tabs.TabList className="woocommerce-product-tabs__tablist">
-				{ tabs.map( ( tab ) => (
-					<Tabs.Tab key={ tab.id } tabId={ tab.id }>
-						{ tab.title }
-					</Tabs.Tab>
-				) ) }
-			</Tabs.TabList>
+			<div className="woocommerce-product-tabs__tablist-container">
+				<Tabs.TabList className="woocommerce-product-tabs__tablist">
+					{ tabs.map( ( tab ) => (
+						<Tabs.Tab key={ tab.id } tabId={ tab.id }>
+							{ tab.title }
+						</Tabs.Tab>
+					) ) }
+				</Tabs.TabList>
+			</div>
 			{ tabs.map( ( tab ) => (
 				<Tabs.TabPanel
 					key={ tab.id }
