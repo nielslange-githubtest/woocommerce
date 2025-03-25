@@ -12,6 +12,10 @@
 			}
 
 			&:focus {
+				box-shadow: none;
+			}
+
+			&:focus-visible {
 				box-shadow: 0 0 0 1px #fff;
 			}
 		}
