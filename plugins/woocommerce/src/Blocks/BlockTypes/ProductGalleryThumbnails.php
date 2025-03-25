@@ -84,17 +84,17 @@ class ProductGalleryThumbnails extends AbstractBlock {
 			class="wc-block-product-gallery-thumbnails <?php echo esc_attr( $classes_and_styles['classes'] . ' ' . $thumbnails_class ); ?>"
 			style="<?php echo esc_attr( $classes_and_styles['styles'] ); ?>"
 			data-wp-interactive="woocommerce/product-gallery"
-			data-wp-class--wc-block-product-gallery-thumbnails--overflow-top="context.thumbnailsOverflow.top"
-			data-wp-class--wc-block-product-gallery-thumbnails--overflow-bottom="context.thumbnailsOverflow.bottom"
-			data-wp-class--wc-block-product-gallery-thumbnails--overflow-left="context.thumbnailsOverflow.left"
-			data-wp-class--wc-block-product-gallery-thumbnails--overflow-right="context.thumbnailsOverflow.right">
+			data-wp-class--wc-block-product-gallery-thumbnails--overflow-top="state.thumbnailsOverflow.top"
+			data-wp-class--wc-block-product-gallery-thumbnails--overflow-bottom="state.thumbnailsOverflow.bottom"
+			data-wp-class--wc-block-product-gallery-thumbnails--overflow-left="state.thumbnailsOverflow.left"
+			data-wp-class--wc-block-product-gallery-thumbnails--overflow-right="state.thumbnailsOverflow.right">
 			<div
 				class="wc-block-product-gallery-thumbnails__scrollable"
 				data-wp-init="actions.onScroll"
 				data-wp-on--scroll="actions.onScroll">
 				<template
-					data-wp-each--image="state.thumbnails"
-					data-wp-each-key="context.image.id">
+					data-wp-each--image="state.imageData"
+					data-wp-each-key="state.image.id">
 					<div class="wc-block-product-gallery-thumbnails__thumbnail">
 						<img
 							class="wc-block-product-gallery-thumbnails__thumbnail__image"

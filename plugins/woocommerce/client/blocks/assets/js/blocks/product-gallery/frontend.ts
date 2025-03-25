@@ -1,23 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	store,
-	getContext as getContextFn,
-	getElement,
-	withScope,
-} from '@wordpress/interactivity';
+import { store, getElement, withScope } from '@wordpress/interactivity';
 
 /**
  * Internal dependencies
  */
-import type {
-	ProductGalleryState,
-	ImageDataItem,
-	ProductGalleryStore,
-} from './types';
-
-const getContext = ( ns?: string ) => getContextFn< ProductGalleryState >( ns );
+import type { ImageDataItem, ProductGalleryStore } from './types';
+import { checkOverflow } from './utils';
 
 const getArrowsState = ( imageId: number ) => ( {
 	disableLeft: imageId === state.allImageIds[ 0 ],
@@ -207,10 +197,8 @@ const productGallery: ProductGalleryStore = {
 			if ( ! scrollableElement ) {
 				return;
 			}
-			const context = getContext();
-			const overflowState = checkOverflow( scrollableElement );
 
-			context.thumbnailsOverflow = overflowState;
+			state.thumbnailsOverflow = checkOverflow( scrollableElement );
 		},
 	},
 	callbacks: {
@@ -307,8 +295,12 @@ const productGallery: ProductGalleryStore = {
 	},
 };
 
-const { actions } = store( 'woocommerce/product-gallery', productGallery, {
-	lock: true,
-} );
+const { state, actions } = store(
+	'woocommerce/product-gallery',
+	productGallery,
+	{
+		lock: true,
+	}
+);
 
 export type Store = ProductGalleryStore;
