@@ -23,7 +23,7 @@ export type PaymentGateway = {
 	method_title: string;
 	method_description: string;
 	method_supports: string[];
-	settings: SettingDefinition;
+	settings: Record< string, SettingDefinition >;
 	settings_url: string;
 	needs_setup?: boolean;
 };

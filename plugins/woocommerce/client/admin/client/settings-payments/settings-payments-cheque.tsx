@@ -12,10 +12,6 @@ import {
 import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	PAYMENT_GATEWAYS_STORE_NAME,
-	type PaymentSelectors,
-} from '@woocommerce/data';
 
 /**
  * Internal dependencies
@@ -28,15 +24,22 @@ import { PaymentSettingsSection } from '~/settings-payments/components/payment-s
  * Component for managing Cheque payment gateway settings.
  */
 export const SettingsPaymentsCheque = () => {
-	const chequeSettings = useSelect(
-		( select ) =>
-			(
-				select( PAYMENT_GATEWAYS_STORE_NAME ) as PaymentSelectors
-			 ).getPaymentGateway( 'cheque' ),
+	const { createSuccessNotice, createErrorNotice } =
+		useDispatch( 'core/notices' );
+	const { chequeSettings, isLoading } = useSelect(
+		( select ) => ( {
+			chequeSettings:
+				select( paymentGatewaysStore ).getPaymentGateway( 'cheque' ),
+			isLoading: ! select( paymentGatewaysStore ).hasFinishedResolution(
+				'getPaymentGateway',
+				[ 'cheque' ]
+			),
+		} ),
 		[]
 	);
 
-	const { updatePaymentGateway } = useDispatch( PAYMENT_GATEWAYS_STORE_NAME );
+	const { updatePaymentGateway, invalidateResolutionForStoreSelector } =
+		useDispatch( paymentGatewaysStore );
 
 	const [ enabled, setEnabled ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
@@ -66,15 +69,19 @@ export const SettingsPaymentsCheque = () => {
 			},
 		} )
 			.then( () => {
-				console.log( 'Settings updated successfully' );
-				window.location.reload();
+				invalidateResolutionForStoreSelector( 'getPaymentGateway' );
+				createSuccessNotice(
+					__( 'Settings updated successfully', 'woocommerce' )
+				);
 			} )
 			.catch( ( error ) => {
-				console.error( 'Error updating settings:', error );
+				createErrorNotice(
+					__( 'Failed to update settings', 'woocommerce' )
+				);
 			} );
 	};
 
-	if ( ! chequeSettings ) {
+	if ( isLoading ) {
 		return <p>Loading settings...</p>;
 	}
 

@@ -13,15 +13,13 @@ import {
 import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	PAYMENT_GATEWAYS_STORE_NAME,
-	type PaymentSelectors,
-} from '@woocommerce/data';
+import { paymentGatewaysStore } from '@woocommerce/data';
 
 /**
  * Internal dependencies
  */
-import './settings-payments-main.scss';
+import './settings-payments-body.scss';
+import './settings-payments-form.scss';
 import { PaymentSettingsLayout } from '~/settings-payments/components/payment-settings-layout';
 import { PaymentSettingsSection } from '~/settings-payments/components/payment-settings-section';
 
@@ -29,21 +27,29 @@ import { PaymentSettingsSection } from '~/settings-payments/components/payment-s
  * Component for managing Cash on Delivery payment gateway settings.
  */
 export const SettingsPaymentsCod = () => {
+	const { createSuccessNotice, createErrorNotice } =
+		useDispatch( 'core/notices' );
+	const { codSettings, isLoading } = useSelect(
+		( select ) => ( {
+			codSettings:
+				select( paymentGatewaysStore ).getPaymentGateway( 'cod' ),
+			isLoading: ! select( paymentGatewaysStore ).hasFinishedResolution(
+				'getPaymentGateway',
+				[ 'cod' ]
+			),
+		} ),
+		[]
+	);
+
+	const { updatePaymentGateway, invalidateResolutionForStoreSelector } =
+		useDispatch( paymentGatewaysStore );
+
 	const [ enabled, setEnabled ] = useState( false );
 	const [ enableForMethods, setEnableForMethods ] = useState( [] );
 	const [ enableForVirtual, setEnableForVirtual ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
 	const [ description, setDescription ] = useState( '' );
 	const [ instructions, setInstructions ] = useState( '' );
-
-	const codSettings = useSelect(
-		( select ) =>
-			(
-				select( PAYMENT_GATEWAYS_STORE_NAME ) as PaymentSelectors
-			 ).getPaymentGateway( 'cod' ),
-		[]
-	);
-	console.log( codSettings );
 
 	useEffect( () => {
 		if ( codSettings ) {
@@ -64,8 +70,6 @@ export const SettingsPaymentsCod = () => {
 		}
 	}, [ codSettings ] );
 
-	const { updatePaymentGateway } = useDispatch( PAYMENT_GATEWAYS_STORE_NAME );
-
 	const saveSettings = () => {
 		updatePaymentGateway( 'cod', {
 			enabled,
@@ -78,30 +82,34 @@ export const SettingsPaymentsCod = () => {
 			},
 		} )
 			.then( () => {
-				console.log( 'Settings updated successfully' );
-				window.location.reload();
+				invalidateResolutionForStoreSelector( 'getPaymentGateway' );
+				createSuccessNotice(
+					__( 'Settings updated successfully', 'woocommerce' )
+				);
 			} )
 			.catch( ( error ) => {
-				console.error( 'Error updating settings:', error );
+				createErrorNotice(
+					__( 'Failed to update settings', 'woocommerce' )
+				);
 			} );
 	};
 
-	if ( ! codSettings ) {
+	if ( isLoading ) {
 		return <p>Loading settings...</p>;
 	}
 
 	return (
 		<PaymentSettingsLayout>
 			<PaymentSettingsSection
-				id={ 'cheque-settings' }
+				id={ 'cod-settings' }
 				title={ __( 'Enable and customise', 'woocommerce' ) }
 				description={ __(
-					'Choose how you want to present cheque payments to your customers during checkout.',
+					'Choose how you want to present cash on delivery to your customers during checkout.',
 					'woocommerce'
 				) }
 			>
-				<Card className="payment-settings-card__wrapper cheque-settings__wrapper">
-					<CardBody className="bacs-settings__body">
+				<Card className="payment-settings-card__wrapper cod-settings__wrapper">
+					<CardBody className="cod-settings__body">
 						<div className={ 'form-field' }>
 							<CheckboxControl
 								onChange={ ( value ) => setEnabled( value ) }
@@ -160,6 +168,7 @@ export const SettingsPaymentsCod = () => {
 
 						<div className={ 'form-field' }>
 							<SelectControl
+								className="wc-enhanced-select"
 								label={ __(
 									'Enable for shipping methods',
 									'woocommerce'
@@ -170,6 +179,7 @@ export const SettingsPaymentsCod = () => {
 								) }
 								value={ enableForMethods }
 								multiple
+								style={ { width: '400px' } }
 								options={ Object.entries(
 									codSettings.settings?.enable_for_methods
 										?.options || {}
@@ -179,7 +189,7 @@ export const SettingsPaymentsCod = () => {
 											label: label.replace(
 												/&quot;/g,
 												'"'
-											), // Convert HTML entities to human-readable quotes
+											),
 											value,
 										} )
 									)

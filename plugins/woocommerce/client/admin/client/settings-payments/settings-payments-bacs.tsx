@@ -21,11 +21,23 @@ import './settings-payments-body.scss';
 import './settings-payments-form.scss';
 import { PaymentSettingsLayout } from '~/settings-payments/components/payment-settings-layout';
 import { PaymentSettingsSection } from '~/settings-payments/components/payment-settings-section';
+import { BacsAccountDetailsTable } from '~/settings-payments/components/bacs-account-details-table';
+
+interface BacsAccountDetails {
+	account_name: string;
+	account_number: string;
+	bank_name: string;
+	sort_code: string;
+	iban: string;
+	bic: string;
+}
 
 /**
  * Component for managing BACS (Direct Bank Transfer) payment gateway settings.
  */
 export const SettingsPaymentsBacs = () => {
+	const { createSuccessNotice, createErrorNotice } =
+		useDispatch( 'core/notices' );
 	const { bacsSettings, isLoading } = useSelect(
 		( select ) => ( {
 			bacsSettings:
@@ -37,15 +49,18 @@ export const SettingsPaymentsBacs = () => {
 		} ),
 		[]
 	);
-	console.log( bacsSettings );
 
-	const { updatePaymentGateway } = useDispatch( paymentGatewaysStore );
+	const { updatePaymentGateway, invalidateResolutionForStoreSelector } =
+		useDispatch( paymentGatewaysStore );
 
 	// State for form fields
 	const [ enabled, setEnabled ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
 	const [ description, setDescription ] = useState( '' );
 	const [ instructions, setInstructions ] = useState( '' );
+	const [ accountDetails, setAccountDetails ] = useState<
+		BacsAccountDetails[]
+	>( [] );
 
 	useEffect( () => {
 		if ( bacsSettings ) {
@@ -55,6 +70,13 @@ export const SettingsPaymentsBacs = () => {
 			);
 			setDescription( bacsSettings.description || '' );
 			setInstructions( bacsSettings.settings?.instructions?.value || '' );
+
+			// Load account details if available
+			if ( Array.isArray( bacsSettings.account_details ) ) {
+				setAccountDetails( bacsSettings.account_details );
+			} else {
+				setAccountDetails( [] );
+			}
 		}
 	}, [ bacsSettings ] );
 
@@ -66,14 +88,18 @@ export const SettingsPaymentsBacs = () => {
 				title,
 				instructions,
 			},
-			accountDetails: [],
+			accountDetails,
 		} )
 			.then( () => {
-				console.log( 'Settings updated successfully' );
-				window.location.reload();
+				invalidateResolutionForStoreSelector( 'getPaymentGateway' );
+				createSuccessNotice(
+					__( 'Settings updated successfully', 'woocommerce' )
+				);
 			} )
 			.catch( ( error ) => {
-				console.error( 'Error updating settings:', error );
+				createErrorNotice(
+					__( 'Failed to update settings', 'woocommerce' )
+				);
 			} );
 	};
 
@@ -165,7 +191,12 @@ export const SettingsPaymentsBacs = () => {
 					}
 				>
 					<CardBody className={ 'bacs-account-details__body' }>
-						<p>Table goes here</p>
+						<div className={ 'form-field' }>
+							<BacsAccountDetailsTable
+								accounts={ accountDetails }
+								setAccounts={ setAccountDetails }
+							/>
+						</div>
 					</CardBody>
 				</Card>
 			</PaymentSettingsSection>

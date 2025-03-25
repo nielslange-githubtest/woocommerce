@@ -30,15 +30,6 @@ import { registerSettingsEmailImageUrlFill } from '~/settings-email/settings-ema
 import { registerSettingsEmailPreviewFill } from '~/settings-email/settings-email-preview-slotfill';
 import { registerSettingsEmailFeedbackFill } from '~/settings-email/settings-email-feedback-slotfill';
 
-const renderPaymentComponent = ( containerId, Component ) => {
-	const container = document.getElementById( containerId );
-	if ( container ) {
-		createRoot(
-			container.insertBefore( document.createElement( 'div' ), null )
-		).render( <Component /> );
-	}
-};
-
 const renderPaymentsSettings = () => {
 	if (
 		! window.wcAdminFeatures ||
@@ -48,37 +39,41 @@ const renderPaymentsSettings = () => {
 		return;
 	}
 
-	// Configuration mapping IDs to components
-	const paymentComponents = [
+	const pages = [
 		{
 			id: 'experimental_wc_settings_payments_main',
-			component: SettingsPaymentsMainWrapper,
+			component: <SettingsPaymentsMainWrapper />,
 		},
 		{
 			id: 'experimental_wc_settings_payments_offline',
-			component: SettingsPaymentsOfflineWrapper,
+			component: <SettingsPaymentsOfflineWrapper />,
 		},
 		{
 			id: 'experimental_wc_settings_payments_bacs',
-			component: SettingsPaymentsBacsWrapper,
+			component: <SettingsPaymentsBacsWrapper />,
 		},
 		{
 			id: 'experimental_wc_settings_payments_cheque',
-			component: SettingsPaymentsChequeWrapper,
+			component: <SettingsPaymentsChequeWrapper />,
 		},
 		{
 			id: 'experimental_wc_settings_payments_cod',
-			component: SettingsPaymentsCodWrapper,
+			component: <SettingsPaymentsCodWrapper />,
 		},
 		{
 			id: 'experimental_wc_settings_payments_woocommerce_payments',
-			component: SettingsPaymentsWooCommercePaymentsWrapper,
+			component: <SettingsPaymentsWooCommercePaymentsWrapper />,
 		},
 	];
 
 	// Render each payment component.
-	paymentComponents.forEach( ( { id, component } ) => {
-		renderPaymentComponent( id, component );
+	pages.forEach( ( { id, component } ) => {
+		const root = document.getElementById( id );
+		if ( root ) {
+			createRoot(
+				root.insertBefore( document.createElement( 'div' ), null )
+			).render( component );
+		}
 	} );
 };
 
