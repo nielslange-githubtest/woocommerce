@@ -4,14 +4,10 @@
 	"title": "Featured Product",
 	"description": "Highlight a product or variation.",
 	"category": "woocommerce",
-	"keywords": [
-		"WooCommerce"
-	],
+	"keywords": [ "WooCommerce" ],
 	"supports": {
-		"align": [
-			"wide",
-			"full"
-		],
+		"interactivity": false,
+		"align": [ "wide", "full" ],
 		"ariaLabel": true,
 		"html": false,
 		"color": {
