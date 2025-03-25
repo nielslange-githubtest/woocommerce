@@ -62,8 +62,6 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 	const { iamSettings } = useContext( MarketplaceContext );
 	const shouldShowPreview = iamSettings?.product_previews === 'modal';
 
-	console.log( 'iamSettings', iamSettings );
-
 	function isSponsored(): boolean {
 		return SPONSORED_PRODUCT_LABEL === product.label;
 	}
@@ -174,7 +172,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 			product_type: type,
 		};
 
-		recordTracksEvent( 'marketplace_product_preview_notice_opened', data );
+		recordTracksEvent( 'marketplace_product_preview_modal_opened', data );
 	};
 
 	const handleModalClose = () => {
@@ -203,20 +201,25 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 	);
 
 	const CardLink = () => {
-		if ( shouldShowPreview ) {
-			return (
-				<span className="woocommerce-marketplace__product-card__link">
-					{ isLoading ? ' ' : product.title }
-				</span>
-			);
-		}
-
 		return (
 			<a
 				className="woocommerce-marketplace__product-card__link"
 				href={ productUrl() }
 				rel="noopener noreferrer"
 				target="_blank"
+				onClick={ ( e ) => {
+					if ( shouldShowPreview ) {
+						e.preventDefault();
+						handleCardClick();
+					} else {
+						recordTracksEvent( 'marketplace_product_card_clicked', {
+							product_id: product.id,
+							product_name: product.title,
+							vendor: product.vendorName,
+							product_type: type,
+						} );
+					}
+				} }
 			>
 				{ isLoading ? ' ' : product.title }
 			</a>
@@ -334,37 +337,17 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 	);
 
 	const CardWrapper = () => {
-		if ( shouldShowPreview && ! isLoading ) {
+		if ( ! isLoading ) {
 			return (
-				<button
+				<div
 					className="woocommerce-marketplace__product-card-wrapper"
-					onClick={ handleCardClick }
 					style={ {
-						background: 'transparent',
-						border: 'none',
-						cursor: 'pointer',
-						width: '100%',
-						textAlign: 'left',
-						padding: 0,
+						color: 'inherit',
+						textDecoration: 'none',
 					} }
 				>
 					{ isBusinessService ? <BusinessService /> : cardContent }
-				</button>
-			);
-		}
-
-		if ( ! shouldShowPreview && ! isLoading ) {
-			return (
-				<a
-					className="woocommerce-marketplace__product-card-wrapper"
-					href={ productUrl() }
-					rel="noopener noreferrer"
-					target="_blank"
-					onClick={ handleCardClick }
-					style={ { color: 'inherit', textDecoration: 'none' } }
-				>
-					{ isBusinessService ? <BusinessService /> : cardContent }
-				</a>
+				</div>
 			);
 		}
 
