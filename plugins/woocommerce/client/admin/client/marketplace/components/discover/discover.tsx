@@ -8,7 +8,7 @@ import { recordEvent } from '@woocommerce/tracks';
  * Internal dependencies
  */
 import ProductList from '../product-list/product-list';
-import { fetchDiscoverPageData, ProductGroup } from '../../utils/functions';
+import { fetchDiscoverPageData, fetchProductPreview, ProductGroup } from '../../utils/functions';
 import ProductLoader from '../product-loader/product-loader';
 import { MarketplaceContext } from '../../contexts/marketplace-context';
 import { ProductType } from '../product-list/types';
@@ -45,6 +45,10 @@ export default function Discover(): JSX.Element | null {
 	// Get the content for this screen
 	useEffect( () => {
 		setIsLoading( true );
+
+		fetchProductPreview().then( ( response ) => {
+			console.log( response );
+		} );
 
 		fetchDiscoverPageData()
 			.then(

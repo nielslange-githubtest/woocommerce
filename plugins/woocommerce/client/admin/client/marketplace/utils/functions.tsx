@@ -192,6 +192,22 @@ async function fetchDiscoverPageData(): Promise< ProductGroup[] > {
 	}
 }
 
+async function fetchProductPreview( productId = 9 ): Promise {
+	let url = `/wc/v3/marketplace/product-preview?product_id=${productId}`;
+
+	if ( LOCALE.userLocale ) {
+		url = `${ url }&locale=${ LOCALE.userLocale }`;
+	}
+
+	try {
+		return ( await apiFetchWithCache( {
+			path: url.toString(),
+		} ) ) as Promise;
+	} catch ( error ) {
+		return [];
+	}
+}
+
 function getProductType( tab: string ): ProductType {
 	switch ( tab ) {
 		case 'themes':
@@ -517,6 +533,7 @@ export {
 	fetchCategories,
 	fetchDiscoverPageData,
 	fetchSearchResults,
+	fetchProductPreview,
 	getProductType,
 	fetchSubscriptions,
 	refreshSubscriptions,
