@@ -103,11 +103,19 @@ class Init {
 	 * Replaces the default posts menu item with the new posts dashboard.
 	 */
 	public function woocommerce_add_new_products_dashboard() {
-		$gutenberg_experiments = get_option( 'gutenberg-experiments' );
-		if ( ! $gutenberg_experiments ) {
-			return;
-		}
 		$ptype_obj = get_post_type_object( 'product' );
+		global $submenu;
+		$permalink = 'admin.php?page=wc-admin&path=/add-product-data-forms';
+		array_splice(
+			$submenu['edit.php?post_type=product'],
+			2,
+			0,
+			array(
+				array( 'Add new product ( data forms )', 'manage_options', $permalink )
+			)
+		);
+
+		// Adds the dataviews product page.
 		add_submenu_page(
 			'edit.php?post_type=product',
 			$ptype_obj->labels->name,

@@ -5,6 +5,7 @@ import registerProductEditorUiStore from './store/product-editor-ui';
 import registerProductEditorHooks from './wp-hooks';
 
 export * from './components';
+export * from './data-form/components';
 export { DETAILS_SECTION_ID, TAB_GENERAL_ID, TRACKS_SOURCE } from './constants';
 
 /**

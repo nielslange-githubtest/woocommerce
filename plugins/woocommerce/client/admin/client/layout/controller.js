@@ -38,6 +38,11 @@ const ProductVariationPage = lazy( () =>
 const ProductPage = lazy( () =>
 	import( /* webpackChunkName: "product-page" */ '../products/product-page' )
 );
+const ProductDataFormsPage = lazy( () =>
+	import(
+		/* webpackChunkName: "product-data-forms-page" */ '../products/product-data-forms-page'
+	)
+);
 const AnalyticsReport = lazy( () =>
 	import( /* webpackChunkName: "analytics-report" */ '../analytics/report' )
 );
@@ -228,6 +233,44 @@ export const getPages = () => {
 			],
 			navArgs: {
 				id: 'woocommerce-edit-product',
+			},
+		} );
+	}
+
+	if (
+		isFeatureEnabled( 'product_block_editor' ) &&
+		window.wcAdminFeatures[ 'product-data-views' ]
+	) {
+		const productPage = {
+			container: ProductDataFormsPage,
+			layout: {
+				header: false,
+			},
+			wpOpenMenu: 'menu-posts-product',
+			capability: 'manage_woocommerce',
+		};
+
+		pages.push( {
+			...productPage,
+			path: '/add-product-data-forms',
+			breadcrumbs: [
+				[ '/add-product-data-forms', __( 'Product', 'woocommerce' ) ],
+				__( 'Add New Product (Data Forms)', 'woocommerce' ),
+			],
+			navArgs: {
+				id: 'woocommerce-add-product-data-forms',
+			},
+		} );
+
+		pages.push( {
+			...productPage,
+			path: '/product-data-forms/:productId',
+			breadcrumbs: [
+				[ '/edit-product-data-forms', __( 'Product', 'woocommerce' ) ],
+				__( 'Edit Product (Data Forms)', 'woocommerce' ),
+			],
+			navArgs: {
+				id: 'woocommerce-edit-product-data-forms',
 			},
 		} );
 	}
