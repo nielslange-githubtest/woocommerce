@@ -4,6 +4,7 @@
 import { Modal } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Spinner } from '@woocommerce/components';
 
 /**
  * Internal dependencies
@@ -104,7 +105,7 @@ export default function ProductPreviewModal( {
 			<div className="woocommerce-marketplace__product-preview-modal__content">
 				{ isLoading && (
 					<div className="woocommerce-marketplace__product-preview-modal__loading">
-						{ __( 'Loading preview…', 'woocommerce' ) }
+						<Spinner />
 					</div>
 				) }
 				{ error && (
