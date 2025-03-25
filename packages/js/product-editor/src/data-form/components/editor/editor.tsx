@@ -1,20 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	createElement,
-	StrictMode,
-	useCallback,
-	useMemo,
-	useState,
-} from '@wordpress/element';
+import { createElement, StrictMode, useCallback } from '@wordpress/element';
 import {
 	LayoutContextProvider,
 	useExtendLayout,
 } from '@woocommerce/admin-layout';
 import { navigateTo, getNewPath, getQuery } from '@woocommerce/navigation';
 import { useLayoutTemplate } from '@woocommerce/block-templates';
-import { Product } from '@woocommerce/data';
 import { Popover } from '@wordpress/components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore No types for this exist yet.
@@ -41,8 +34,6 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 
 	const { layoutTemplate } = useLayoutTemplate( 'simple-product' );
 
-	const [ edits, setEdits ] = useState< Product >( {} as Product );
-
 	return (
 		<LayoutContextProvider value={ updatedLayoutContext }>
 			<StrictMode>
@@ -66,9 +57,7 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 									layoutTemplate?.blockTemplates
 								}
 								postType={ postType }
-								data={ edits }
-								// @ts-expect-error onChange is not typed
-								onChange={ setEdits }
+								productId={ productId }
 							/>
 						) }
 						{ /* @ts-expect-error name does exist on PopoverSlot see: https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/popover/index.tsx#L555 */ }

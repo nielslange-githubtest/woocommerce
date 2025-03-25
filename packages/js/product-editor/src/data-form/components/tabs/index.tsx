@@ -3,8 +3,6 @@
  */
 import { createElement, useMemo } from '@wordpress/element';
 import { Template } from '@wordpress/blocks';
-import { DataFormProps } from '@wordpress/dataviews';
-import { Product } from '@woocommerce/data';
 import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 // @ts-expect-error missing types.
 // eslint-disable-next-line @woocommerce/dependency-group
@@ -25,7 +23,8 @@ const { Tabs } = unlock( componentsPrivateApis );
 type ProductSectionProps = {
 	sectionTemplate: Template[];
 	postType: string;
-} & Omit< DataFormProps< Product >, 'fields' | 'form' >;
+	productId: number;
+};
 
 type Tab = {
 	id: string;
@@ -36,7 +35,7 @@ type Tab = {
 export function ProductTabs( {
 	sectionTemplate,
 	postType,
-	...dataFormProps
+	productId,
 }: ProductSectionProps ) {
 	const tabs = useMemo( () => {
 		return sectionTemplate
@@ -80,7 +79,7 @@ export function ProductTabs( {
 									}
 									postType={ postType }
 									sectionTemplate={ child }
-									{ ...dataFormProps }
+									productId={ productId }
 								/>
 							);
 						}

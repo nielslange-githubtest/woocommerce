@@ -3,7 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { createElement } from '@wordpress/element';
-import { getNewPath, navigateTo } from '@woocommerce/navigation';
+import { getNewPath, getQuery, navigateTo } from '@woocommerce/navigation';
 import { Product } from '@woocommerce/data';
 import { recordEvent } from '@woocommerce/tracks';
 import { useDispatch } from '@wordpress/data';
@@ -32,7 +32,15 @@ export function PreviewButton( {
 		},
 		onSaveSuccess( savedProduct: Product ) {
 			if ( productStatus === 'auto-draft' ) {
-				const url = getNewPath( {}, `/product/${ savedProduct.id }` );
+				const query = getQuery() as { path?: string; page: string };
+				let urlPrefix = '/product/';
+				if ( query.path?.includes( 'data-forms' ) ) {
+					urlPrefix = '/product-data-forms/';
+				}
+				const url = getNewPath(
+					{},
+					`${ urlPrefix }${ savedProduct.id }`
+				);
 				navigateTo( { url } );
 			}
 		},

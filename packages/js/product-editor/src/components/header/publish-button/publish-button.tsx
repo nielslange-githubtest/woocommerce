@@ -7,7 +7,7 @@ import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { createElement } from '@wordpress/element';
 import { type Product } from '@woocommerce/data';
-import { getNewPath, navigateTo } from '@woocommerce/navigation';
+import { getNewPath, navigateTo, getQuery } from '@woocommerce/navigation';
 import { recordEvent } from '@woocommerce/tracks';
 
 /**
@@ -58,7 +58,15 @@ export function PublishButton( {
 			maybeShowFeedbackBar();
 
 			if ( prevStatus === 'auto-draft' || prevStatus === 'draft' ) {
-				const url = getNewPath( {}, `/product/${ savedProduct.id }` );
+				const query = getQuery() as { path?: string; page: string };
+				let urlPrefix = '/product/';
+				if ( query.path?.includes( 'data-forms' ) ) {
+					urlPrefix = '/product-data-forms/';
+				}
+				const url = getNewPath(
+					{},
+					`${ urlPrefix }${ savedProduct.id }`
+				);
 				navigateTo( { url } );
 			}
 		},

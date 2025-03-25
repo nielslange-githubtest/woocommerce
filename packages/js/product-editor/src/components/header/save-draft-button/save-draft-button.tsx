@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { createElement } from '@wordpress/element';
-import { getNewPath, navigateTo } from '@woocommerce/navigation';
+import { getNewPath, navigateTo, getQuery } from '@woocommerce/navigation';
 import { Product } from '@woocommerce/data';
 import { useDispatch } from '@wordpress/data';
 
@@ -44,7 +44,15 @@ export function SaveDraftButton( {
 			maybeShowFeedbackBar();
 
 			if ( productStatus === 'auto-draft' ) {
-				const url = getNewPath( {}, `/product/${ savedProduct.id }` );
+				const query = getQuery() as { path?: string; page: string };
+				let urlPrefix = '/product/';
+				if ( query.path?.includes( 'data-forms' ) ) {
+					urlPrefix = '/product-data-forms/';
+				}
+				const url = getNewPath(
+					{},
+					`${ urlPrefix }${ savedProduct.id }`
+				);
 				navigateTo( { url } );
 			}
 		},
