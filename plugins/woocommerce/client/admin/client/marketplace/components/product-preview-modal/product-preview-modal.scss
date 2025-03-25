@@ -2,10 +2,26 @@
 
 .woocommerce-marketplace__product-preview-modal {
 
+	.components-modal__header {
+		background-image: url( https://woocommerce.com/wp-content/themes/woo/images/helper-api/woo-official-banner.png );
+		background-size: cover;
+
+		button {
+			svg {
+				fill: #fff;
+			}
+
+			&:focus {
+				box-shadow: 0 0 0 1px #fff;
+			}
+		}
+	}
+
 	&__header {
 		display: flex;
-		gap:  $grid-unit-40;
+		gap: $grid-unit-40;
 		align-items: center;
+		margin-top: $grid-unit-40;
 	}
 
 	&__icon {
