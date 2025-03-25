@@ -56,8 +56,8 @@ class WC_Admin_Addons {
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function fetch_product_preview( int $product_id = 9 ) {
-		$url = 'https://woocommerce.test/wp-json/wccom-extensions/3.0/product-preview';
+	public static function fetch_product_preview( int $product_id ) {
+		$url = 'https://woocommerce.test/wp-json/wccom-extensions/1.0/product-previews?product_id=' . $product_id;
 
 		$fetch_options = array(
 			'locale' => true,
@@ -65,7 +65,7 @@ class WC_Admin_Addons {
 
 		$raw_preview = self::fetch( $url, $fetch_options );
 
-		return self::process_api_response( $raw_preview, 'product preview' );
+		return self::process_api_response( $raw_preview, 'product preview', true );
 	}
 
 	/**
@@ -306,11 +306,11 @@ class WC_Admin_Addons {
 	 *
 	 * @param array|WP_Error $response    The response from the API request.
 	 * @param string         $context     Context for error messages (e.g. 'featured', 'product-preview').
-	 * @param bool           $decode_json Whether to decode the JSON response.
+	 * @param bool           $associative Whether to decode the JSON as an associative array.
 	 *
 	 * @return array|WP_Error Processed API data or WP_Error on failure.
 	 */
-	private static function process_api_response( $response, $context = 'api', $decode_json = true ) {
+	private static function process_api_response( $response, $context = 'api', $associative = false ) {
 		if ( is_wp_error( $response ) ) {
 			do_action( 'woocommerce_page_wc-addons_connection_error', $response->get_error_message() );
 
@@ -342,11 +342,7 @@ class WC_Admin_Addons {
 			return new WP_Error( 'wc-addons-connection-error', $message );
 		}
 
-		if ( ! $decode_json ) {
-			return wp_remote_retrieve_body( $response );
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ) );
+		$data = json_decode( wp_remote_retrieve_body( $response ), $associative );
 		if ( empty( $data ) || ! is_array( $data ) ) {
 			do_action( 'woocommerce_page_wc-addons_connection_error', 'Empty or malformed response' );
 			$message = sprintf(
@@ -394,7 +390,9 @@ class WC_Admin_Addons {
 			}
 		}
 
-		$query_string = ! empty( $parameters ) ? '?' . http_build_query( $parameters ) : '';
+		// Check if URL already has
+		$connector = strpos( $url, '?' ) !== false ? '&' : '?';
+		$query_string = ! empty( $parameters ) ? $connector . http_build_query( $parameters ) : '';
 
 		return wp_safe_remote_get(
 			$url . $query_string,
