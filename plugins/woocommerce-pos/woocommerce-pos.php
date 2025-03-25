@@ -73,6 +73,10 @@ class WC_POS {
 	 */
 	private function init_hooks() {
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 20 );
+		
+		// Disable default refund emails for POS orders.
+		add_filter( 'woocommerce_email_enabled_customer_partially_refunded_order', array( $this, 'disable_default_refund_email_for_pos_order' ), 10, 3 );
+		add_filter( 'woocommerce_email_enabled_customer_refunded_order', array( $this, 'disable_default_refund_email_for_pos_order' ), 10, 3 );
 	}
 
 	/**
@@ -101,9 +105,6 @@ class WC_POS {
 		
 		// Add template locator for POS email templates.
 		add_filter( 'woocommerce_locate_template', array( $this, 'locate_template' ), 10, 3 );
-
-		// Conditionally disable default WooCommerce refund emails for POS orders.
-		add_action( 'init', array( $this, 'maybe_disable_default_refund_emails' ), 20 );
 	}
 
 	/**
@@ -119,80 +120,12 @@ class WC_POS {
 	}
 
 	/**
-	 * Maybe disable default WooCommerce refund emails for POS orders.
-	 * This method hooks into the email triggers to prevent default refund emails
-	 * from being sent for POS orders while keeping them enabled for regular orders.
-	 */
-	public function maybe_disable_default_refund_emails() {
-		if ( ! function_exists( 'WC' ) || ! WC()->mailer() ) {
-			return;
-		}
-
-		// Add our filtered triggers
-		add_action( 'woocommerce_order_fully_refunded_notification', array( $this, 'filter_default_full_refund_email' ), 9, 2 );
-		add_action( 'woocommerce_order_partially_refunded_notification', array( $this, 'filter_default_partial_refund_email' ), 9, 2 );
-
-		$this->disable_default_refund_emails();
-	}
-
-	public function filter_default_partial_refund_email( $order_id, $refund_id ) {
-		$this->filter_default_refund_email( $order_id, $refund_id, true );
-	}
-
-	public function filter_default_full_refund_email( $order_id, $refund_id ) {
-		$this->filter_default_refund_email( $order_id, $refund_id, false );
-	}
-
-	/**
-	 * Filter callback to selectively trigger default refund emails only for non-POS orders.
-	 *
-	 * @param int $order_id Order ID.
-	 * @param int $refund_id Refund ID.
-	 */
-	public function filter_default_refund_email( $order_id, $refund_id, $partial_refund ) {
-		$order = wc_get_order( $order_id );
-		
-		if ( ! $order || $this->is_pos_order( $order ) ) {
-			return; // Don't trigger default email for POS orders
-		}
-
-		// Get the default refund email instance
-		$emails = WC()->mailer()->get_emails();
-		
-		foreach ( $emails as $email ) {
-			if ( is_a( $email, 'WC_Email_Customer_Refunded_Order' ) ) {
-				// Check which hook was called and trigger appropriate email
-				if ( $partial_refund ) {
-					$email->trigger_partial( $order_id, $refund_id );					
-				} else {
-					$email->trigger_full( $order_id, $refund_id );
-				}
-				break;
-			}
-		}
-	}
-
-	/**
 	 * Check if this order was created from a POS (Point of Sale) system.
 	 *
 	 * @return bool True if this is a POS order, false otherwise.
 	 */
 	private function is_pos_order($order): bool {
 		return 'pos' === $order->get_meta( '_wc_order_attribution_source_type' );
-	}
-
-	private function disable_default_refund_emails() {
-		$emails = WC()->mailer()->get_emails();
-
-		// Look for the default refund email class
-		foreach ( $emails as $email ) {
-			if ( is_a( $email, 'WC_Email_Customer_Refunded_Order' ) ) {
-				// Remove the default triggers
-				remove_action( 'woocommerce_order_fully_refunded_notification', array( $email, 'trigger_full' ), 10 );
-				remove_action( 'woocommerce_order_partially_refunded_notification', array( $email, 'trigger_partial' ), 10 );
-				break;
-			}
-		}
 	}
 
 	/**
@@ -254,6 +187,21 @@ class WC_POS {
 			esc_html__( 'WooCommerce POS requires WooCommerce to be installed and active. You can download %s here.', 'woocommerce-pos' ), 
 			'<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' 
 		) . '</p></div>';
+	}
+
+	/**
+	 * Disable the default WooCommerce refund email for POS orders.
+	 *
+	 * @param bool           $enabled Whether the email is enabled.
+	 * @param WC_Order|null $order   The order object.
+	 * @param WC_Email|null $email   The email object.
+	 * @return bool
+	 */
+	public function disable_default_refund_email_for_pos_order( $enabled, $order, $email ) {
+		if ( $order && $this->is_pos_order( $order ) ) {
+			return false;
+		}
+		return $enabled;
 	}
 }
 
