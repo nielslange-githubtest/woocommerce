@@ -193,7 +193,7 @@ async function fetchDiscoverPageData(): Promise< ProductGroup[] > {
 }
 
 async function fetchProductPreview( productId = 9 ): Promise {
-	let url = `/wc/v3/marketplace/product-preview?product_id=${productId}`;
+	let url = `/wc/v1/marketplace/product-preview?product_id=${productId}`;
 
 	if ( LOCALE.userLocale ) {
 		url = `${ url }&locale=${ LOCALE.userLocale }`;

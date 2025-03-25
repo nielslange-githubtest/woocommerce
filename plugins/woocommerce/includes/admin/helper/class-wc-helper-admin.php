@@ -156,7 +156,7 @@ class WC_Helper_Admin {
 
 		/* Used to show previews of products in a modal in in-app marketplace. */
 		register_rest_route(
-			'wc/v3',
+			'wc/v1',
 			'/marketplace/product-preview',
 			array(
 				'methods'             => 'GET',
