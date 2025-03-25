@@ -39,49 +39,33 @@ class WC_Admin_Addons {
 			);
 			$raw_featured  = self::fetch( $url, $fetch_options );
 
-			if ( is_wp_error( $raw_featured ) ) {
-				do_action( 'woocommerce_page_wc-addons_connection_error', $raw_featured->get_error_message() );
+			$featured = self::process_api_response( $raw_featured, 'featured' );
 
-				$message = self::is_ssl_error( $raw_featured->get_error_message() )
-					? __( 'We encountered an SSL error. Please ensure your site supports TLS version 1.2 or above.', 'woocommerce' )
-					: $raw_featured->get_error_message();
-
-				return new WP_Error( 'wc-addons-connection-error', $message );
-			}
-
-			$response_code = (int) wp_remote_retrieve_response_code( $raw_featured );
-			if ( 200 !== $response_code ) {
-				do_action( 'woocommerce_page_wc-addons_connection_error', $response_code );
-
-				/* translators: %d: HTTP error code. */
-				$message = sprintf(
-					esc_html(
-						/* translators: Error code  */
-						__(
-							'Our request to the featured API got error code %d.',
-							'woocommerce'
-						)
-					),
-					$response_code
-				);
-
-				return new WP_Error( 'wc-addons-connection-error', $message );
-			}
-
-			$featured = json_decode( wp_remote_retrieve_body( $raw_featured ) );
-			if ( empty( $featured ) || ! is_array( $featured ) ) {
-				do_action( 'woocommerce_page_wc-addons_connection_error', 'Empty or malformed response' );
-				$message = __( 'Our request to the featured API got a malformed response.', 'woocommerce' );
-
-				return new WP_Error( 'wc-addons-connection-error', $message );
-			}
-
-			if ( $featured ) {
+			if ( ! is_wp_error( $featured ) && $featured ) {
 				self::set_locale_data_in_transient( $transient_name, $featured, $locale, DAY_IN_SECONDS );
 			}
 		}
 
 		return $featured;
+	}
+
+	/**
+	 * Fetch markup and other info for the preview of a product.
+	 *
+	 * @param int $product_id
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function fetch_product_preview( int $product_id = 9 ) {
+		$url = 'https://woocommerce.test/wp-json/wccom-extensions/3.0/product-preview';
+
+		$fetch_options = array(
+			'locale' => true,
+		);
+
+		$raw_preview = self::fetch( $url, $fetch_options );
+
+		return self::process_api_response( $raw_preview, 'product preview' );
 	}
 
 	/**
@@ -315,6 +299,65 @@ class WC_Admin_Addons {
 		$transient_value            = is_array( $transient_value ) ? $transient_value : array();
 		$transient_value[ $locale ] = $value;
 		return set_transient( $transient, $transient_value, $expiration );
+	}
+
+	/**
+	 * Process API response from WooCommerce.com endpoints.
+	 *
+	 * @param array|WP_Error $response    The response from the API request.
+	 * @param string         $context     Context for error messages (e.g. 'featured', 'product-preview').
+	 * @param bool           $decode_json Whether to decode the JSON response.
+	 *
+	 * @return array|WP_Error Processed API data or WP_Error on failure.
+	 */
+	private static function process_api_response( $response, $context = 'api', $decode_json = true ) {
+		if ( is_wp_error( $response ) ) {
+			do_action( 'woocommerce_page_wc-addons_connection_error', $response->get_error_message() );
+
+			$message = self::is_ssl_error( $response->get_error_message() )
+				? __( 'We encountered an SSL error. Please ensure your site supports TLS version 1.2 or above.',
+					'woocommerce' )
+				: $response->get_error_message();
+
+			return new WP_Error( 'wc-addons-connection-error', $message );
+		}
+
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			do_action( 'woocommerce_page_wc-addons_connection_error', $response_code );
+
+			/* translators: %d: HTTP error code. */
+			$message = sprintf(
+				esc_html(
+				/* translators: Error code  */
+					__(
+						'Our request to the %s API got error code %d.',
+						'woocommerce'
+					)
+				),
+				$context,
+				$response_code
+			);
+
+			return new WP_Error( 'wc-addons-connection-error', $message );
+		}
+
+		if ( ! $decode_json ) {
+			return wp_remote_retrieve_body( $response );
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			do_action( 'woocommerce_page_wc-addons_connection_error', 'Empty or malformed response' );
+			$message = sprintf(
+				__( 'Our request to the %s API got a malformed response.', 'woocommerce' ),
+				$context
+			);
+
+			return new WP_Error( 'wc-addons-connection-error', $message );
+		}
+
+		return $data;
 	}
 
 	/**
