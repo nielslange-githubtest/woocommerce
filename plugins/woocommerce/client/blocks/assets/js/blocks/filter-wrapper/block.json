@@ -5,7 +5,9 @@
 	"category": "woocommerce",
 	"keywords": [ "WooCommerce" ],
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"inserter": false
 	},
 	"attributes": {

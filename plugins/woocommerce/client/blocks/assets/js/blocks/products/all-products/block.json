@@ -8,7 +8,9 @@
 	"keywords": [ "WooCommerce" ],
 	"description": "Display products from your store in a grid layout.",
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"align": [ "wide", "full" ],
 		"html": false,
 		"multiple": false,

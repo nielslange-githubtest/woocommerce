@@ -5,7 +5,9 @@
 	"keywords": [ "WooCommerce" ],
 	"description": "Display a grid of your top rated products.",
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"align": [ "wide", "full" ],
 		"html": false,
 		"inserter": false

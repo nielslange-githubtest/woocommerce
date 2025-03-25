@@ -5,7 +5,9 @@
 	"keywords": [ "WooCommerce" ],
 	"description": "Display a grid of your all-time best selling products.",
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"align": [ "wide", "full" ],
 		"html": false,
 		"inserter": false

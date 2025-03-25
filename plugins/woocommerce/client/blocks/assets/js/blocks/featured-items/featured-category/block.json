@@ -6,7 +6,9 @@
 	"keywords": [ "WooCommerce" ],
 	"description": "Visually highlight a product category and encourage prompt action.",
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"align": [ "wide", "full" ],
 		"ariaLabel": true,
 		"html": false,

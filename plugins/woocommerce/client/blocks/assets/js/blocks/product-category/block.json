@@ -5,7 +5,9 @@
 	"keywords": [ "WooCommerce" ],
 	"description": "Display a grid of products from your selected categories.",
 	"supports": {
-		"interactivity": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"align": [ "wide", "full" ],
 		"html": false,
 		"inserter": false
