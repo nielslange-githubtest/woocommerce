@@ -1,12 +1,18 @@
 /**
  * External dependencies
  */
-import { createElement, StrictMode, useCallback } from '@wordpress/element';
+import {
+	createElement,
+	StrictMode,
+	useCallback,
+	useMemo,
+} from '@wordpress/element';
 import {
 	LayoutContextProvider,
 	useExtendLayout,
 } from '@woocommerce/admin-layout';
 import { navigateTo, getNewPath, getQuery } from '@woocommerce/navigation';
+import { useLayoutTemplate } from '@woocommerce/block-templates';
 import { Popover } from '@wordpress/components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore No types for this exist yet.
@@ -19,6 +25,8 @@ import { EntityProvider } from '@wordpress/core-data';
 import { Header } from '../../../components/header';
 import { ValidationProvider } from '../../../contexts/validation-context';
 import { EditorProps } from './types';
+import { ProductTabs } from '../tabs';
+import { useProductTemplate } from '../../../hooks/use-product-template';
 
 export function Editor( { productId, postType = 'product' }: EditorProps ) {
 	const query = getQuery() as Record< string, string >;
@@ -29,6 +37,9 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 	}, [] );
 
 	const updatedLayoutContext = useExtendLayout( 'product-block-editor' );
+
+	const { productTemplate } = useProductTemplate( null, null );
+	const { layoutTemplate } = useLayoutTemplate( 'simple-product' );
 
 	return (
 		<LayoutContextProvider value={ updatedLayoutContext }>
@@ -47,7 +58,14 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 							productType={ postType }
 							selectedTab={ selectedTab }
 						/>
-						<p>Data Form Editor</p>
+						{ layoutTemplate?.blockTemplates && (
+							<ProductTabs
+								sectionTemplate={
+									layoutTemplate?.blockTemplates
+								}
+								postType={ postType }
+							/>
+						) }
 						{ /* @ts-expect-error name does exist on PopoverSlot see: https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/popover/index.tsx#L555 */ }
 						<Popover.Slot />
 					</ValidationProvider>
