@@ -24,6 +24,11 @@ class WC_Helper_Sanitization {
 	 * @return string Sanitized CSS safe for inclusion in style blocks.
 	 */
 	public static function sanitize_css( $css ) {
+		// Handle non-string inputs (return empty string)
+		if ( ! is_string( $css ) ) {
+			return '';
+		}
+
 		// Remove potentially harmful constructs
 		$css = preg_replace( '/@import\s+[^;]+;?/', '', $css );
 

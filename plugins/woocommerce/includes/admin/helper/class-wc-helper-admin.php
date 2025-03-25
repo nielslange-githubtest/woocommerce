@@ -228,7 +228,7 @@ class WC_Helper_Admin {
 		) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'API response is missing required elements, or the data is in the wrong form.', 'woocommerce' )
+					'message' => __( 'API response is missing required elements, or they are in the wrong form.', 'woocommerce' )
 				),
 				500
 			);
