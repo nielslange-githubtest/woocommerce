@@ -99,7 +99,7 @@ const Image = ( {
 	);
 };
 
-type Props = { isEditor: boolean } & BlockAttributes &
+type Props = { isEditor?: boolean } & BlockAttributes &
 	HTMLAttributes< HTMLDivElement >;
 
 export const Block = ( props: Props ): JSX.Element | null => {

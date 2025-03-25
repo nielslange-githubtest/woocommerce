@@ -168,6 +168,7 @@ describe( 'Product Image Block', () => {
 			expect( anchor?.getAttribute( 'href' ) ).toBe(
 				productWithImages.permalink
 			);
+			expect( anchor?.getAttribute( 'inert' ) ).toBeNull();
 		} );
 
 		test( 'should render an anchor with the placeholder image', () => {
@@ -284,6 +285,37 @@ describe( 'Product Image Block', () => {
 			);
 			expect( placeholderImage.getAttribute( 'width' ) ).toBe( null );
 			expect( placeholderImage.getAttribute( 'height' ) ).toBe( null );
+		} );
+	} );
+
+	describe( 'in editor', () => {
+		test( 'should disable anchor to prevent redirect', () => {
+			const component = render(
+				<ProductDataContextProvider
+					product={ productWithImages }
+					isLoading={ false }
+				>
+					<Block
+						showProductLink={ true }
+						productId={ productWithImages.id }
+						showSaleBadge={ false }
+						saleBadgeAlign={ 'left' }
+						imageSizing={ ImageSizing.SINGLE }
+						isDescendentOfQueryLoop={ false }
+						isEditor={ true }
+					/>
+				</ProductDataContextProvider>
+			);
+
+			const productImage = component.getByAltText(
+				productWithImages.name
+			);
+			expect( productImage.getAttribute( 'src' ) ).toBe(
+				productWithImages.images[ 0 ].src
+			);
+
+			const anchor = productImage.closest( 'a' );
+			expect( anchor?.getAttribute( 'inert' ) ).toBe( 'true' );
 		} );
 	} );
 } );
