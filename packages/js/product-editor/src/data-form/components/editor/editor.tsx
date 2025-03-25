@@ -6,6 +6,7 @@ import {
 	StrictMode,
 	useCallback,
 	useMemo,
+	useState,
 } from '@wordpress/element';
 import {
 	LayoutContextProvider,
@@ -13,6 +14,7 @@ import {
 } from '@woocommerce/admin-layout';
 import { navigateTo, getNewPath, getQuery } from '@woocommerce/navigation';
 import { useLayoutTemplate } from '@woocommerce/block-templates';
+import { Product } from '@woocommerce/data';
 import { Popover } from '@wordpress/components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore No types for this exist yet.
@@ -26,7 +28,6 @@ import { Header } from '../../../components/header';
 import { ValidationProvider } from '../../../contexts/validation-context';
 import { EditorProps } from './types';
 import { ProductTabs } from '../tabs';
-import { useProductTemplate } from '../../../hooks/use-product-template';
 
 export function Editor( { productId, postType = 'product' }: EditorProps ) {
 	const query = getQuery() as Record< string, string >;
@@ -38,8 +39,9 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 
 	const updatedLayoutContext = useExtendLayout( 'product-block-editor' );
 
-	const { productTemplate } = useProductTemplate( null, null );
 	const { layoutTemplate } = useLayoutTemplate( 'simple-product' );
+
+	const [ edits, setEdits ] = useState< Product >( {} as Product );
 
 	return (
 		<LayoutContextProvider value={ updatedLayoutContext }>
@@ -64,6 +66,9 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 									layoutTemplate?.blockTemplates
 								}
 								postType={ postType }
+								data={ edits }
+								// @ts-expect-error onChange is not typed
+								onChange={ setEdits }
 							/>
 						) }
 						{ /* @ts-expect-error name does exist on PopoverSlot see: https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/popover/index.tsx#L555 */ }
