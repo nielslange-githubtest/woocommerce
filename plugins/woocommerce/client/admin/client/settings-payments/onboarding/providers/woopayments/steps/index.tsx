@@ -10,6 +10,7 @@ import { useOnboardingContext } from '../data/onboarding-context';
 import { WooPaymentsProviderOnboardingStep } from '~/settings-payments/onboarding/types';
 import WooPaymentsStepHeader from '../components/header';
 import PaymentMethodsSelection from './payment-methods-selection';
+import TestAccountStep from './test-account';
 
 /**
  * Step Components
@@ -28,27 +29,6 @@ export const WelcomeStep = () => {
 				<button onClick={ () => refreshOnboardingSteps() }>
 					Refresh redux store
 				</button>
-			</div>
-		</>
-	);
-};
-
-export const JetpackStep = () => {
-	const { navigateToNextStep, refreshOnboardingSteps } =
-		useOnboardingContext();
-	return (
-		<>
-			<WooPaymentsStepHeader onClose={ () => {} } />
-			<div className="settings-payments-onboarding-modal__step--content">
-				<div>
-					Jetpack Step Content{ ' ' }
-					<button onClick={ () => navigateToNextStep() }>
-						Next (Front-end only)
-					</button>
-					<button onClick={ () => refreshOnboardingSteps() }>
-						Refresh redux store
-					</button>
-				</div>
 			</div>
 		</>
 	);
@@ -112,9 +92,9 @@ export const steps: WooPaymentsProviderOnboardingStep[] = [
 		id: 'test_account',
 		order: 3,
 		type: 'backend',
-		label: 'Test account',
+		label: 'Ready to test payments',
 		dependencies: [ 'wpcom_connection' ],
-		content: <OtherStep />,
+		content: <TestAccountStep />,
 	},
 	{
 		id: 'business_verification',
