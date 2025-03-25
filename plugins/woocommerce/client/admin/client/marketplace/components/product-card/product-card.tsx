@@ -119,8 +119,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 				href={ product.vendorUrl }
 				rel="noopener noreferrer"
 				target="_blank"
-				onClick={ ( e ) => {
-					e.stopPropagation();
+				onClick={ () => {
 					recordTracksEvent( eventName, {
 						product: product.title,
 						vendor: product.vendorName,
