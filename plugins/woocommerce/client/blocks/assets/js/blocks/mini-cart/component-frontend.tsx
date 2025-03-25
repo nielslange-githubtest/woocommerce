@@ -83,4 +83,4 @@ const renderMiniCartFrontend = () => {
 	}
 };
 
-renderMiniCartFrontend();
+// renderMiniCartFrontend();

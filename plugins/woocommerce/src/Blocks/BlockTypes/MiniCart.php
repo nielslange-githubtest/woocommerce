@@ -426,6 +426,69 @@ class MiniCart extends AbstractBlock {
 		return $content . $this->get_markup( MiniCartUtils::migrate_attributes_to_color_panel( $attributes ) );
 	}
 
+	protected function get_template_part_contents() {
+		$template_part_contents = '';
+
+		// Determine if we need to load the template part from the DB, the theme or WooCommerce in that order.
+		$templates_from_db = BlockTemplateUtils::get_block_templates_from_db( array( 'mini-cart' ), 'wp_template_part' );
+		if ( is_countable( $templates_from_db ) && count( $templates_from_db ) > 0 ) {
+			$template_slug_to_load = $templates_from_db[0]->theme;
+		} else {
+			$theme_has_mini_cart   = BlockTemplateUtils::theme_has_template_part( 'mini-cart' );
+			$template_slug_to_load = $theme_has_mini_cart ? get_stylesheet() : BlockTemplateUtils::PLUGIN_SLUG;
+		}
+		$template_part = get_block_template( $template_slug_to_load . '//mini-cart', 'wp_template_part' );
+
+		if ( $template_part && ! empty( $template_part->content ) ) {
+			$template_part_contents = do_blocks( $template_part->content );
+		}
+
+		if ( '' === $template_part_contents ) {
+			$template_part_contents = do_blocks(
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				file_get_contents( Package::get_path() . 'templates/' . BlockTemplateUtils::DIRECTORY_NAMES['TEMPLATE_PARTS'] . '/mini-cart.html' )
+			);
+		}
+
+		return $template_part_contents;
+	}
+
+	protected function render_interactivity_drawer() {
+		wp_enqueue_script_module( 'woocommerce/mini-cart-drawer' );
+
+		$template_part_contents = $this->get_template_part_contents();
+
+		$context = array(
+			'drawerIsOpen' => false,
+		);
+
+		ob_start();
+		?>
+		<div <?php echo wp_interactivity_data_wp_context( $context ); ?> data-wp-interactive="woocommerce/mini-cart" class="is-loading wc-block-components-drawer__screen-overlay wc-block-components-drawer__screen-overlay--is-hidden" aria-hidden="true">
+			<div class="wc-block-mini-cart__drawer wc-block-components-drawer">
+				<div class="wc-block-components-drawer__content">
+					<?php echo $this->render_close_button(); ?>					
+				</div>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	protected function render_close_button() {
+		$button_aria_label = __( 'Close', 'woocommerce' );
+		ob_start();
+		?>
+		<div class="wc-block-components-drawer__close-wrapper">
+			<button data-wc-on--click="actions.toggleDrawerOpen" class="wc-block-components-button wp-element-button wc-block-components-drawer__close contained" aria-label="<?php echo esc_attr( $button_aria_label ); ?>" type="button">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg>
+			</button>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+
 	/**
 	 * Render the markup for the Mini-Cart block.
 	 *
@@ -463,46 +526,15 @@ class MiniCart extends AbstractBlock {
 			}
 
 			// It is not necessary to load the Mini-Cart Block on Cart and Checkout page.
-			return '<div class="' . esc_attr( $wrapper_classes ) . '" style="visibility:hidden" aria-hidden="true">
-				<button class="wc-block-mini-cart__button" disabled aria-label="' . __( 'Cart', 'woocommerce' ) . '">' . $button_html . '</button>
-			</div>';
-		}
-
-		$template_part_contents = '';
-
-		// Determine if we need to load the template part from the DB, the theme or WooCommerce in that order.
-		$templates_from_db = BlockTemplateUtils::get_block_templates_from_db( array( 'mini-cart' ), 'wp_template_part' );
-		if ( is_countable( $templates_from_db ) && count( $templates_from_db ) > 0 ) {
-			$template_slug_to_load = $templates_from_db[0]->theme;
-		} else {
-			$theme_has_mini_cart   = BlockTemplateUtils::theme_has_template_part( 'mini-cart' );
-			$template_slug_to_load = $theme_has_mini_cart ? get_stylesheet() : BlockTemplateUtils::PLUGIN_SLUG;
-		}
-		$template_part = get_block_template( $template_slug_to_load . '//mini-cart', 'wp_template_part' );
-
-		if ( $template_part && ! empty( $template_part->content ) ) {
-			$template_part_contents = do_blocks( $template_part->content );
-		}
-
-		if ( '' === $template_part_contents ) {
-			$template_part_contents = do_blocks(
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				file_get_contents( Package::get_path() . 'templates/' . BlockTemplateUtils::DIRECTORY_NAMES['TEMPLATE_PARTS'] . '/mini-cart.html' )
-			);
+			return '<div class="' . esc_attr( $wrapper_classes ) . '" style="visibility:hidden" aria-hidden="true">'
+				. '<button class="wc-block-mini-cart__button" disabled aria-label="' . __( 'Cart', 'woocommerce' ) . '">' . $button_html . '</button>'
+				. $this->render_interactivity_drawer() .
+			'</div>';
 		}
 
 		return '<div class="' . esc_attr( $wrapper_classes ) . '" style="' . esc_attr( $wrapper_styles ) . '">
 			<button class="wc-block-mini-cart__button" aria-label="' . __( 'Cart', 'woocommerce' ) . '">' . $button_html . '</button>
-			<div class="is-loading wc-block-components-drawer__screen-overlay wc-block-components-drawer__screen-overlay--is-hidden" aria-hidden="true">
-				<div class="wc-block-mini-cart__drawer wc-block-components-drawer">
-					<div class="wc-block-components-drawer__content">
-						<div class="wc-block-mini-cart__template-part">'
-						. wp_kses_post( $template_part_contents ) .
-						'</div>
-					</div>
-				</div>
-			</div>
-		</div>';
+			' . $this->render_interactivity_drawer() . '</div>';
 	}
 
 	/**
