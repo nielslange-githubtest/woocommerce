@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ComponentProps } from 'react';
-import { Button } from '@wordpress/components';
+import { Button, ButtonGroup, Modal } from '@wordpress/components';
 import { useContext, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { recordEvent } from '@woocommerce/tracks';
@@ -19,6 +19,7 @@ import {
 } from '../../../../utils/functions';
 import { Subscription } from '../../types';
 import { NoticeStatus } from '../../../../contexts/types';
+import sanitizeHTML from '~/lib/sanitize-html';
 
 type ButtonProps = ComponentProps< typeof Button >;
 
@@ -30,6 +31,8 @@ interface ConnectProps {
 
 export default function ConnectButton( props: ConnectProps ) {
 	const [ isConnecting, setIsConnecting ] = useState( false );
+	const [ showActivationConfirmation, setShowActivationConfirmation ] =
+		useState( false );
 	const { loadSubscriptions } = useContext( SubscriptionsContext );
 
 	const connect = () => {
@@ -39,9 +42,17 @@ export default function ConnectButton( props: ConnectProps ) {
 		} );
 
 		setIsConnecting( true );
+		setShowActivationConfirmation( false );
 		removeNotice( props.subscription.product_key );
 		connectProduct( props.subscription )
 			.then( () => {
+				if (
+					props.subscription.local.installed &&
+					! props.subscription.local.active &&
+					props.subscription.local.type === 'plugin'
+				) {
+					setShowActivationConfirmation( true );
+				}
 				loadSubscriptions( false ).then( () => {
 					addNotice(
 						props.subscription.product_key,
@@ -52,37 +63,7 @@ export default function ConnectButton( props: ConnectProps ) {
 						),
 						NoticeStatus.Success
 					);
-					activateProductPlugin( props.subscription )
-						.then( () => {
-							addNotice(
-								props.subscription.product_key,
-								sprintf(
-									// translators: %s is the product name.
-									__(
-										'%s plugin successfully activated.',
-										'woocommerce'
-									),
-									props.subscription.product_name
-								),
-								NoticeStatus.Success
-							);
-							setIsConnecting( false );
-						} )
-						.catch( () => {
-							addNotice(
-								props.subscription.product_key,
-								sprintf(
-									// translators: %s is the product name.
-									__(
-										'Failed activating the local plugin for %s.',
-										'woocommerce'
-									),
-									props.subscription.product_name
-								),
-								NoticeStatus.Error
-							);
-							setIsConnecting( false );
-						} );
+					setIsConnecting( false );
 					if ( props.onClose ) {
 						props.onClose();
 					}
@@ -113,14 +94,94 @@ export default function ConnectButton( props: ConnectProps ) {
 				}
 			} );
 	};
+
+	const activatePlugin = () => {
+		activateProductPlugin( props.subscription )
+			.then( () => {
+				addNotice(
+					props.subscription.product_key,
+					sprintf(
+						// translators: %s is the product name.
+						__(
+							'%s plugin successfully activated.',
+							'woocommerce'
+						),
+						props.subscription.product_name
+					),
+					NoticeStatus.Success
+				);
+			} )
+			.catch( () => {
+				addNotice(
+					props.subscription.product_key,
+					sprintf(
+						// translators: %s is the product name.
+						__(
+							'Failed activating the local plugin for %s.',
+							'woocommerce'
+						),
+						props.subscription.product_name
+					),
+					NoticeStatus.Error
+				);
+			} );
+
+		setShowActivationConfirmation( false );
+	};
+
+	const activationConfirmationModal = () => {
+		if ( ! showActivationConfirmation ) {
+			return null;
+		}
+		return (
+			<Modal
+				title={ __( 'Activate the Plugin', 'woocommerce' ) }
+				onRequestClose={ () => setShowActivationConfirmation( false ) }
+				focusOnMount={ true }
+				className="woocommerce-marketplace__header-account-modal"
+				style={ { borderRadius: 4 } }
+				overlayClassName="woocommerce-marketplace__header-account-modal-overlay"
+			>
+				<p className="woocommerce-marketplace__header-account-modal-text">
+					<span
+						dangerouslySetInnerHTML={ sanitizeHTML(
+							sprintf(
+								// translators: %s is the product name.
+								__(
+									'<b>%s</b> is installed but not activated on this store. Would you like to activate it now?',
+									'woocommerce'
+								),
+								props.subscription.product_name
+							)
+						) }
+					/>
+				</p>
+				<ButtonGroup className="woocommerce-marketplace__header-account-modal-button-group">
+					<Button
+						onClick={ () => setShowActivationConfirmation( false ) }
+						variant="secondary"
+					>
+						{ __( 'No', 'woocommerce' ) }
+					</Button>
+					<Button onClick={ activatePlugin } variant="primary">
+						{ __( 'Yes', 'woocommerce' ) }
+					</Button>
+				</ButtonGroup>
+			</Modal>
+		);
+	};
+
 	return (
-		<Button
-			onClick={ connect }
-			variant={ props.variant ?? 'secondary' }
-			isBusy={ isConnecting }
-			disabled={ isConnecting }
-		>
-			{ __( 'Connect', 'woocommerce' ) }
-		</Button>
+		<>
+			{ activationConfirmationModal() }
+			<Button
+				onClick={ connect }
+				variant={ props.variant ?? 'secondary' }
+				isBusy={ isConnecting }
+				disabled={ isConnecting }
+			>
+				{ __( 'Connect', 'woocommerce' ) }
+			</Button>
+		</>
 	);
 }
