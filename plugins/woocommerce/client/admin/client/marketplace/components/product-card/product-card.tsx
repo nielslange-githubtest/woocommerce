@@ -59,9 +59,6 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 		type: '',
 	};
 
-	const { iamSettings } = useContext( MarketplaceContext );
-	const shouldShowPreview = iamSettings?.product_previews === 'modal';
-
 	function isSponsored(): boolean {
 		return SPONSORED_PRODUCT_LABEL === product.label;
 	}
@@ -138,6 +135,12 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 
 	const isTheme = type === ProductType.theme;
 	const isBusinessService = type === ProductType.businessService;
+	const { iamSettings } = useContext( MarketplaceContext );
+	const shouldShowPreview =
+		iamSettings?.product_previews === 'modal' &&
+		! isTheme &&
+		! isBusinessService;
+
 	const productVendor = createVendorLink(
 		'marketplace_product_card_vendor_clicked'
 	);
