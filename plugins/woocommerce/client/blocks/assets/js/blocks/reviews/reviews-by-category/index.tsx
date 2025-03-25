@@ -34,6 +34,7 @@ registerBlockType( 'woocommerce/reviews-by-category', {
 		'woocommerce'
 	),
 	supports: {
+		interactivity: false,
 		html: false,
 		color: {
 			background: false,
