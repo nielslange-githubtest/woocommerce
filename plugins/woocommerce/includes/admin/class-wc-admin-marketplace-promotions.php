@@ -18,7 +18,7 @@ class WC_Admin_Marketplace_Promotions {
 	const CRON_NAME           = 'woocommerce_marketplace_cron_fetch_promotions';
 	const TRANSIENT_NAME      = 'woocommerce_marketplace_promotions_v2';
 	const TRANSIENT_LIFE_SPAN = DAY_IN_SECONDS;
-	const PROMOTIONS_API_URL  = 'https://woocommerce.com/wp-json/wccom-extensions/3.0/promotions';
+	const PROMOTIONS_API_URL  = 'https://woocommerce.test/wp-json/wccom-extensions/3.0/promotions';
 
 	/**
 	 * The user's locale, for example en_US.
@@ -142,7 +142,11 @@ class WC_Admin_Marketplace_Promotions {
 			'auth'    => true,
 			'country' => true,
 		);
-		$raw_promotions = WC_Admin_Addons::fetch( self::PROMOTIONS_API_URL, $fetch_options );
+		$jsonString = '{"notice":{"date_from_gmt":"2024-07-02 00:00","date_to_gmt":"2024-07-19 23:59","format":"notice","style":"info","pages":[{"page":"wc-admin","path":"/extensions","tab":"","name":"Discover"},{"page":"wc-admin","path":"/extensions","tab":"extensions","name":"Browse"},{"page":"wc-admin","path":"/extensions","tab":"themes","name":"Themes"},{"page":"wc-admin","path":"/extensions","tab":"business-services","name":"Business Services"},{"page":"wc-admin","path":"/extensions","tab":"my-subscriptions","name":"My Subscriptions"}],"content":{"en_US":"Test Banner"},"icon":"info","is_dismissible":true},"promos":[{"date_from_gmt":"2024-11-27 15:00","date_to_gmt":"2025-03-25 15:00","format":"promo-card","pages":[{"path":"","pathname":"/wp-admin/admin.php?page=wc-admin"}],"cta_label":{"en_US":"Shop the sale"},"cta_link":"/wp-admin/admin.php?page=wc-admin&tab=extensions&path=%2Fextensions","content":{"en_US":"Save 40% in the WooCommerce Marketplace sale. Offer ends December 3 at 3 pm UTC. \u003Ca href=\"https://woocommerce.com/products/#sale-ts-and-cs\" target=\"_blank\"\u003ET&Cs\u003C/a\u003E apply."},"title":{"en_US":"Customize your store with 40% off"},"icon":"percent"},{"date_from_gmt":"2024-11-27 15:00","date_to_gmt":"2024-12-25 15:00","format":"promo-card","pages":[{"page":"wc-admin","path":"/marketing"}],"cta_label":{"en_US":"Upgrade your marketing"},"cta_link":"/wp-admin/admin.php?page=wc-admin&tab=extensions&path=%2Fextensions&category=marketing-extensions","content":{"en_US":"Save 40% in the WooCommerce Marketplace sale. Offer ends December 3 at 3 pm UTC. \u003Ca href=\"https://woocommerce.com/products/#sale-ts-and-cs\" target=\"_blank\"\u003ET&Cs\u003C/a\u003E apply."},"title":{"en_US":"Save big on marketing tools and more"},"icon":"percent"},{"date_from_gmt":"2024-11-27 15:00","date_to_gmt":"2024-12-25 15:00","format":"promo-card","pages":[{"path":"","pathname":"/wp-admin/edit.php?post_type=shop_coupon"}],"cta_label":{"en_US":"Level up your promos"},"cta_link":"/wp-admin/admin.php?page=wc-admin&path=%2Fextensions&tab=extensions&term=Coupons","content":{"en_US":"Save 40% in the WooCommerce Marketplace sale. Offer ends December 3 at 3 pm UTC. \u003Ca href=\"https://woocommerce.com/products/#sale-ts-and-cs\" target=\"_blank\"\u003ET&Cs\u003C/a\u003E apply."},"title":{"en_US":"Save now on coupon and promotion extensions"},"style":"wide","icon":"percent"},{"date_from_gmt":"2024-11-27 15:00","date_to_gmt":"2024-12-25 15:00","format":"promo-card","pages":[{"page":"wc-admin","path":"/extensions"}],"cta_label":{"en_US":"Shop the sale"},"cta_link":"/wp-admin/admin.php?page=wc-admin&tab=extensions&path=%2Fextensions","content":{"en_US":"Save 40% in the WooCommerce Marketplace sale. Offer ends December 3 at 3 pm UTC. \u003Ca href=\"https://woocommerce.com/products/#sale-ts-and-cs\" target=\"_blank\"\u003ET&Cs\u003C/a\u003E apply."},"title":{"en_US":"Save big on your next store upgrade"},"style":"has-background","icon":"percent"}]}';
+
+		// Convert JSON to PHP object
+		$data = json_decode($jsonString, true);
+		return $data;
 
 		// phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores
 		if ( is_wp_error( $raw_promotions ) ) {

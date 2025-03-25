@@ -15,7 +15,6 @@ import './product-card.scss';
 import ProductCardFooter from './product-card-footer';
 import { Product, ProductTracksData, ProductType } from '../product-list/types';
 import { appendURLParams } from '../../utils/functions';
-
 export interface ProductCardProps {
 	type?: string;
 	product?: Product;
