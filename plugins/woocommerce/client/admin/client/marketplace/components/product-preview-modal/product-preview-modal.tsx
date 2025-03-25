@@ -1,68 +1,50 @@
 /**
  * External dependencies
  */
-import { recordEvent } from '@woocommerce/tracks';
 import { Modal } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
-
+import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 
 interface ProductPreviewModalProps {
-	productId: string;
 	productTitle: string;
 	productVendorName: string;
-	productType: string;
-	tab: string;
+	onOpen?: () => void;
+	onClose?: () => void;
 }
 
 export default function ProductPreviewModal( {
-	productId,
 	productTitle,
 	productVendorName,
-	productType,
-	tab,
+	onOpen,
+	onClose,
 }: ProductPreviewModalProps ) {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-
+	// Record event when the modal mounts
 	useEffect( () => {
-		if ( isModalOpen ) {
-			recordEvent( 'marketplace_product_preview_notice_opened', {
-				product_id: productId,
-				product_name: productTitle,
-				vendor: productVendorName,
-				product_type: productType,
-				tab,
-			} );
+		if ( onOpen ) {
+			onOpen();
 		}
-	}, [
-		isModalOpen,
-		productId,
-		productTitle,
-		productVendorName,
-		productType,
-		tab,
-	] );
+	}, [ onOpen ] );
 
 	const closeModal = () => {
-		setIsModalOpen( false );
-		recordEvent( 'marketplace_product_preview_modal_dismissed', {
-			product_id: productId,
-			product_name: productTitle,
-			vendor: productVendorName,
-			product_type: productType,
-			tab,
-		} );
+		if ( onClose ) {
+			onClose();
+		}
 	};
 
 	return (
 		<Modal
 			onRequestClose={ closeModal }
 			className="woocommerce-marketplace__product-preview-modal"
+			closeButtonLabel={ __( 'Close product preview', 'woocommerce' ) }
+			size="large"
+			focusOnMount="firstElement"
 		>
 			<div>
-				<h1>Product Preview</h1>
+				<h1>{ productTitle }</h1>
+				<p>{ productVendorName }</p>
 			</div>
 		</Modal>
 	);

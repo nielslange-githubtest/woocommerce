@@ -162,6 +162,32 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 		}
 	};
 
+	const handleModalOpen = () => {
+		const data: ExtraProperties = {
+			product_id: product.id,
+			product_name: product.title,
+			vendor: product.vendorName,
+			product_type: type,
+		};
+
+		recordTracksEvent( 'marketplace_product_preview_notice_opened', data );
+	};
+
+	const handleModalClose = () => {
+		const data: ExtraProperties = {
+			product_id: product.id,
+			product_name: product.title,
+			vendor: product.vendorName,
+			product_type: type,
+		};
+
+		recordTracksEvent(
+			'marketplace_product_preview_modal_dismissed',
+			data
+		);
+		setIsPreviewModalOpen( false );
+	};
+
 	const classNames = clsx(
 		'woocommerce-marketplace__product-card',
 		`woocommerce-marketplace__product-card--${ type }`,
@@ -356,11 +382,10 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 
 			{ shouldShowPreview && isPreviewModalOpen && product && (
 				<ProductPreviewModal
-					productId={ product.id?.toString() || '' }
 					productTitle={ product.title }
 					productVendorName={ product.vendorName || '' }
-					productType={ type || '' }
-					tab={ query.tab || 'discover' }
+					onOpen={ handleModalOpen }
+					onClose={ handleModalClose }
 				/>
 			) }
 		</>
