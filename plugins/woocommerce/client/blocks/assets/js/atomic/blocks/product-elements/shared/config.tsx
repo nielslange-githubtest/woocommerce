@@ -26,14 +26,6 @@ const sharedConfig: Omit< BlockConfiguration, 'attributes' | 'title' > = {
 		),
 	},
 	apiVersion: 3,
-	supports: {
-		html: false,
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error - This is a valid property.
-		interactivity: {
-			clientNavigation: true,
-		},
-	},
 	ancestor: [
 		'woocommerce/all-products',
 		'woocommerce/single-product',

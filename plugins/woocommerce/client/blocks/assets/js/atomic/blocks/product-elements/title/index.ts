@@ -31,7 +31,7 @@ const blockConfig: BlockConfiguration = {
 	edit,
 	save: Save,
 	supports: {
-		...sharedConfig.supports,
+		html: false,
 		interactivity: {
 			clientNavigation: true,
 		},
