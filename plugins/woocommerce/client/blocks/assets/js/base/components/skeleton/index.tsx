@@ -1,37 +1,40 @@
 /**
+ * External dependencies
+ */
+import clsx from 'clsx';
+
+/**
  * Internal dependencies
  */
 import './style.scss';
 
 export interface SkeletonProps {
-	numberOfLines?: number;
 	tag?: keyof JSX.IntrinsicElements;
-	maxWidth?: string;
+	width?: string;
+	height?: string;
+	borderRadius?: string;
+	className?: string;
 }
 
 export const Skeleton = ( {
-	numberOfLines = 1,
 	tag: Tag = 'div',
-	maxWidth = '100%',
+	width = '100%',
+	height = '1em',
+	className = '',
+	borderRadius = '',
 }: SkeletonProps ): JSX.Element => {
-	const skeletonLines = Array.from(
-		{ length: numberOfLines },
-		( _: undefined, index ) => (
-			<span
-				className="wc-block-components-skeleton-text-line"
-				aria-hidden="true"
-				key={ index }
-			/>
-		)
-	);
 	return (
 		<Tag
-			className="wc-block-components-skeleton"
+			className={ clsx(
+				'wc-block-components-skeleton__element',
+				className
+			) }
+			aria-hidden="true"
 			style={ {
-				maxWidth,
+				width,
+				height,
+				borderRadius,
 			} }
-		>
-			{ skeletonLines }
-		</Tag>
+		/>
 	);
 };
