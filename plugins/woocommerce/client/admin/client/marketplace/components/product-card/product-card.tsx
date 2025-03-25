@@ -114,31 +114,35 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 		queueRecordEvent( event, data );
 	}
 
-	const isTheme = type === ProductType.theme;
-	const isBusinessService = type === ProductType.businessService;
-	let productVendor: string | JSX.Element | null = product?.vendorName;
-	if ( product?.vendorName && product?.vendorUrl ) {
-		productVendor = (
+	const createVendorLink = ( eventName: string ) => {
+		if ( ! product?.vendorName || ! product?.vendorUrl ) {
+			return product?.vendorName || null;
+		}
+
+		return (
 			<a
 				href={ product.vendorUrl }
 				rel="noopener noreferrer"
 				target="_blank"
 				onClick={ ( e ) => {
 					e.stopPropagation();
-					recordTracksEvent(
-						'marketplace_product_card_vendor_clicked',
-						{
-							product: product.title,
-							vendor: product.vendorName,
-							product_type: type,
-						}
-					);
+					recordTracksEvent( eventName, {
+						product: product.title,
+						vendor: product.vendorName,
+						product_type: type,
+					} );
 				} }
 			>
 				{ product.vendorName }
 			</a>
 		);
-	}
+	};
+
+	const isTheme = type === ProductType.theme;
+	const isBusinessService = type === ProductType.businessService;
+	const productVendor = createVendorLink(
+		'marketplace_product_card_vendor_clicked'
+	);
 
 	const productUrl = () => {
 		if ( query.ref ) {
@@ -213,7 +217,6 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 				href={ productUrl() }
 				rel="noopener noreferrer"
 				target="_blank"
-				onClick={ handleCardClick }
 			>
 				{ isLoading ? ' ' : product.title }
 			</a>
@@ -383,7 +386,10 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 			{ shouldShowPreview && isPreviewModalOpen && product && (
 				<ProductPreviewModal
 					productTitle={ product.title }
-					productVendorName={ product.vendorName || '' }
+					productVendor={ createVendorLink(
+						'marketplace_product_preview_vendor_clicked'
+					) }
+					productIcon={ product.icon || '' }
 					onOpen={ handleModalOpen }
 					onClose={ handleModalClose }
 				/>

@@ -1,0 +1,41 @@
+@import "../../stylesheets/_variables.scss";
+
+.woocommerce-marketplace__product-preview-modal {
+
+	&__header {
+		display: flex;
+		gap:  $grid-unit-40;
+		align-items: center;
+	}
+
+	&__icon {
+		width: 64px;
+		height: 64px;
+		border-radius: 8px;
+	}
+
+	&__header-content h1 {
+		margin: 0;
+		font-size:  $grid-unit-40;
+		line-height: 1;
+	}
+
+	&__vendor {
+		display: flex;
+		gap: $grid-unit-05;
+		margin:  $grid-unit-10 0 0;
+		font-size: 14px;
+
+		& a {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 1;
+			text-decoration: none;
+			overflow: hidden;
+		}
+	}
+
+	&__divider {
+		margin:  $grid-unit-40 0;
+	}
+}
