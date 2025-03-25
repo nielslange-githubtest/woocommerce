@@ -86,7 +86,7 @@ export const RemovableChip = ( {
 			{ ...props }
 			{ ...chipProps }
 			className={ clsx( className, 'is-removable' ) }
-			element={ removeOnAnyClick ? 'button' : props.element }
+			element={ removeOnAnyClick ? 'button' : props.element || 'span' }
 			screenReaderText={ screenReaderText }
 			text={ text }
 		>
@@ -99,6 +99,8 @@ export const RemovableChip = ( {
 					icon={ closeSmall }
 					size={ 16 }
 					role="img"
+					onPointerEnterCapture={ undefined } // onPointerEnterCapture required by SVG types.
+					onPointerLeaveCapture={ undefined } // onPointerLeaveCapture required by SVG types.
 				/>
 			</RemoveElement>
 		</Chip>
