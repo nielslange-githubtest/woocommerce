@@ -2,15 +2,11 @@
 	"name": "woocommerce/products-by-attribute",
 	"title": "Products by Attribute",
 	"category": "woocommerce",
-	"keywords": [
-		"WooCommerce"
-	],
+	"keywords": [ "WooCommerce" ],
 	"description": "Display a grid of products with selected attributes.",
 	"supports": {
-		"align": [
-			"wide",
-			"full"
-		],
+		"interactivity": false,
+		"align": [ "wide", "full" ],
 		"html": false,
 		"inserter": false
 	},
@@ -21,10 +17,7 @@
 		},
 		"attrOperator": {
 			"type": "string",
-			"enum": [
-				"all",
-				"any"
-			],
+			"enum": [ "all", "any" ],
 			"default": "any"
 		},
 		"columns": {
