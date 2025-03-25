@@ -192,19 +192,22 @@ async function fetchDiscoverPageData(): Promise< ProductGroup[] > {
 	}
 }
 
-async function fetchProductPreview( productId = 9 ): Promise {
-	let url = `/wc/v3/marketplace/product-preview?product_id=${productId}`;
+async function fetchProductPreview(
+	productId: number
+): Promise< { data: { html: string; css: string } } > {
+	let url = `/wc/v3/marketplace/product-preview?product_id=${ productId }`;
 
 	if ( LOCALE.userLocale ) {
 		url = `${ url }&locale=${ LOCALE.userLocale }`;
 	}
 
 	try {
-		return ( await apiFetchWithCache( {
+		const response = await apiFetchWithCache( {
 			path: url.toString(),
-		} ) ) as Promise;
+		} );
+		return response as { data: { html: string; css: string } };
 	} catch ( error ) {
-		return [];
+		return { data: { html: '', css: '' } };
 	}
 }
 

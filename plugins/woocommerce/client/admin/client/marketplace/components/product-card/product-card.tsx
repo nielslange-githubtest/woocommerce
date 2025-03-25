@@ -377,6 +377,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 					productIcon={ product.icon || '' }
 					onOpen={ handleModalOpen }
 					onClose={ handleModalClose }
+					productId={ product.id as number }
 				/>
 			) }
 		</>
