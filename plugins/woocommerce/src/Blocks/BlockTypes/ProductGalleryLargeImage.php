@@ -124,7 +124,7 @@ class ProductGalleryLargeImage extends AbstractBlock {
 		ob_start();
 		?>
 			<ul class="wc-block-product-gallery-large-image__container" tabindex="-1">
-				<template data-wp-each--image="state.processedImageData" data-wp-each-key="context.image.id">
+				<template data-wp-each--image="state.imageData" data-wp-each-key="state.image.id">
 					<?php // No need to use wp_kses on $directives_html because this markup is built internally. ?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					<li class="wc-block-product-gallery-large-image__wrapper" <?php echo $directives_html; ?>>

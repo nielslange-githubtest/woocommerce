@@ -69,7 +69,7 @@ class ProductGalleryThumbnails extends AbstractBlock {
 		}
 
 		$product_gallery_thumbnails_data = ProductGalleryUtils::get_product_gallery_image_data( $product );
-		$product_gallery_images          = $product_gallery_thumbnails_data['images'];
+		$product_gallery_images          = $product_gallery_thumbnails_data;
 		// Don't show the thumbnails block if there is only one image.
 		if ( count( $product_gallery_images ) <= 1 ) {
 			return '';
