@@ -67,6 +67,8 @@ const Panel = ( {
 					aria-hidden="true"
 					className="wc-block-components-panel__button-icon"
 					icon={ isOpen ? chevronUp : chevronDown }
+					onPointerEnterCapture={ undefined } // onPointerEnterCapture required by SVG types.
+					onPointerLeaveCapture={ undefined } // onPointerLeaveCapture required by SVG types.
 				/>
 				{ title }
 			</Button>
