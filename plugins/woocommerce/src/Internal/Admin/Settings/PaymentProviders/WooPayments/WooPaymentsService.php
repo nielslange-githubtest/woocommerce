@@ -391,26 +391,31 @@ class WooPaymentsService {
 			throw new Exception( 'Invalid onboarding step ID.' );
 		}
 
+		// Validate the received step data.
+		// If we didn't receive any known data for the step, we consider it an invalid save operation.
+		if ( ! $this->is_valid_onboarding_step_data( $step_id, $request_data ) ) {
+			throw new Exception( 'Invalid onboarding step data.' );
+		}
+
 		$step_details = $this->get_nox_profile_onboarding_step( $step_id, $location );
 		if ( empty( $step_details['data'] ) ) {
 			$step_details['data'] = array();
 		}
 
-		// We support save for only certain steps, each with its own data structure.
+		// Extract the data for the step.
 		switch ( $step_id ) {
 			case self::ONBOARDING_STEP_PAYMENT_METHODS:
-				if ( ! isset( $request_data['payment_methods'] ) || ! is_array( $request_data['payment_methods'] ) ) {
-					throw new Exception( 'Invalid onboarding step data.' );
+				if ( isset( $request_data['payment_methods'] ) ) {
+					$step_details['data']['payment_methods'] = $request_data['payment_methods'];
 				}
-
-				$step_details['data']['payment_methods'] = $request_data['payment_methods'];
 				break;
 			case self::ONBOARDING_STEP_BUSINESS_VERIFICATION:
-				if ( ! isset( $request_data['self_assessment'] ) || ! is_array( $request_data['self_assessment'] ) ) {
-					throw new Exception( 'Invalid onboarding step data.' );
+				if ( isset( $request_data['self_assessment'] ) ) {
+					$step_details['data']['self_assessment'] = $request_data['self_assessment'];
 				}
-
-				$step_details['data']['self_assessment'] = $request_data['self_assessment'];
+				if ( isset( $request_data['sub_steps'] ) ) {
+					$step_details['data']['sub_steps'] = $request_data['sub_steps'];
+				}
 				break;
 			default:
 				throw new Exception( 'Invalid onboarding step ID.' );
@@ -418,6 +423,52 @@ class WooPaymentsService {
 
 		// Store the updated step data.
 		return $this->save_nox_profile_onboarding_step( $step_id, $location, $step_details );
+	}
+
+	/**
+	 * Check if the given onboarding step data is valid.
+	 *
+	 * If we didn't receive any known data for the step, we consider it invalid.
+	 *
+	 * @param string $step_id      The ID of the onboarding step.
+	 * @param array  $request_data The entire data received in the request.
+	 *
+	 * @return bool Whether the given onboarding step data is valid.
+	 */
+	public function is_valid_onboarding_step_data( string $step_id, array $request_data ): bool {
+		switch ( $step_id ) {
+			case self::ONBOARDING_STEP_PAYMENT_METHODS:
+				// Check that we have at least one piece of data.
+				if ( ! isset( $request_data['payment_methods'] ) ) {
+					return false;
+				}
+
+				// Check that the data is in the expected format.
+				if ( ! is_array( $request_data['payment_methods'] ) ) {
+					return false;
+				}
+				break;
+			case self::ONBOARDING_STEP_BUSINESS_VERIFICATION:
+				// Check that we have at least one piece of data.
+				if ( ! isset( $request_data['self_assessment'] ) &&
+					! isset( $request_data['sub_steps'] ) ) {
+					return false;
+				}
+
+				// Check that the data is in the expected format.
+				if ( isset( $request_data['self_assessment'] ) && ! is_array( $request_data['self_assessment'] ) ) {
+					return false;
+				}
+				if ( isset( $request_data['sub_steps'] ) && ! is_array( $request_data['sub_steps'] ) ) {
+					return false;
+				}
+				break;
+			default:
+				// If we don't know how to validate the data, we assume it is valid.
+				return true;
+		}
+
+		return true;
 	}
 
 	/**
