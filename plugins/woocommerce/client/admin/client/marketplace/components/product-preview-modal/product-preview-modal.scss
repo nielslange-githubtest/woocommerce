@@ -8,7 +8,8 @@
 	}
 
 	.components-modal__header {
-		background-image: url(../../assets/images/product-preview-modal-header.svg);
+		align-items: flex-start;
+		background-image: url( "../../assets/images/product-preview-modal-header.svg" );
 		background-size: cover;
 
 		button {
