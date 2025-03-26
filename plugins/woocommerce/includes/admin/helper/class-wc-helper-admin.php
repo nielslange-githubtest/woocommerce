@@ -228,7 +228,8 @@ class WC_Helper_Admin {
 		) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'API response is missing required elements, or they are in the wrong form.', 'woocommerce' )
+					'message' => __( 'API response is missing required elements, or they are in the wrong form.',
+						'woocommerce' )
 				),
 				500
 			);
@@ -236,7 +237,7 @@ class WC_Helper_Admin {
 
 		$sanitized_product_preview = array(
 			'css'  => WC_Helper_Sanitization::sanitize_css( $product_preview['css'] ),
-			'html' => wp_kses_post( $product_preview['html'] ),
+			'html' => WC_Helper_Sanitization::sanitize_html( $product_preview['html'] ),
 		);
 
 		wp_send_json( $sanitized_product_preview );

@@ -209,4 +209,37 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 		$this->assertStringContainsString( 'woocommerce.com/logo.png', $sanitized );
 		$this->assertStringContainsString( '/images/good.jpg', $sanitized );
 	}
+
+	/**
+	 * Test asterisk selector preservation
+	 */
+	public function test_asterisk_selector_preservation() {
+		$css_with_asterisks = '
+            * { box-sizing: border-box; }
+            div > * { margin: 0; }
+            div, * { padding: 0; }
+            *.special { color: blue; }
+            div > *.item { font-weight: bold; }
+            p *:not(span) { text-decoration: underline; }
+            .modal__main > *, .modal__sidebar > * { margin-bottom: 12px; }
+            .selector > * + * { margin-top: 10px; }
+            h2 ~ * { font-weight: normal; }
+            section > *[hidden] { display: none; }
+        ';
+
+		$sanitized = WC_Helper_Sanitization::sanitize_css($css_with_asterisks);
+
+		// Check that all asterisk patterns are preserved
+		$this->assertStringContainsString('* {', $sanitized, 'Universal selector should be preserved');
+		$this->assertStringContainsString('div > *', $sanitized, 'Child universal selector should be preserved');
+		$this->assertStringContainsString('div, *', $sanitized, 'Comma-separated universal selector should be preserved');
+		$this->assertStringContainsString('*.special', $sanitized, 'Class-qualified universal selector should be preserved');
+		$this->assertStringContainsString('*.item', $sanitized, 'Nested class-qualified universal selector should be preserved');
+		$this->assertStringContainsString('*:not', $sanitized, 'Universal selector with pseudo-class should be preserved');
+		$this->assertStringContainsString('.modal__main > *', $sanitized, 'Child universal selector with class should be preserved');
+		$this->assertStringContainsString('.modal__sidebar > *', $sanitized, 'Second child universal selector with class should be preserved');
+		$this->assertStringContainsString('* + *', $sanitized, 'Adjacent sibling universal selector should be preserved');
+		$this->assertStringContainsString('~ *', $sanitized, 'General sibling universal selector should be preserved');
+		$this->assertStringContainsString('*[hidden]', $sanitized, 'Universal selector with attribute should be preserved');
+	}
 }

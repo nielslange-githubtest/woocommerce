@@ -57,6 +57,9 @@ class WC_Helper_Sanitization {
 			$css
 		);
 
+		// Preserve all asterisks by temporarily replacing them
+		$css = str_replace('*', '__PRESERVED_ASTERISK__', $css);
+
 		// Remove HTML tags and PHP
 		$css = wp_strip_all_tags( $css );
 
@@ -67,11 +70,158 @@ class WC_Helper_Sanitization {
 		// Block other potentially dangerous protocols
 		$css = preg_replace( '/(behavior|eval|calc|mocha)(\s*:|\s*\()/i', 'blocked', $css );
 
+		// Restore all asterisks
+		$css = str_replace('__PRESERVED_ASTERISK__', '*', $css);
+
 		// We assume relative and root-relative URLs are safe because they point to resources on the same domain.
 
 		// Limit size of CSS to prevent DoS
 		$css = substr( $css, 0, 100000 );
 
 		return $css;
+	}
+
+	/**
+	 * Sanitize HTML content allowing a subset of SVG elements.
+	 *
+	 * @param string $html The HTML to sanitize.
+	 *
+	 * @return string Sanitized HTML with SVG support.
+	 */
+	public static function sanitize_html( $html ) {
+
+		$allowed_html = wp_kses_allowed_html( 'post' );
+
+		// Selected SVG tags and attributes
+		$svg_tags = self::wc_kses_safe_svg_tags();
+		$allowed_html = array_merge( $allowed_html, $svg_tags );
+
+		return wp_kses( self::wc_pre_sanitize_svg( $html ), $allowed_html );
+	}
+
+	/**
+	 * Sanitize SVG content before processing with wp_kses.
+	 */
+	public static function wc_pre_sanitize_svg( $content ) {
+		// Remove any xlink:href attributes containing javascript:
+		$content = preg_replace( '/xlink:href\s*=\s*(["\'])\s*javascript:.*?\1/i', '', $content );
+
+		// Remove foreignObject elements (can contain arbitrary HTML)
+		$content = preg_replace( '/<foreignObject\b[^>]*>.*?<\/foreignObject>/is', '', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Add limited SVG support to wp_kses_post with XSS protection.
+	 *
+	 * @return array
+	 */
+	public static function wc_kses_safe_svg_tags() {
+		// SVG elements and attributes - security focused
+		return array(
+			'svg'            => array(
+				'class'               => true,
+				'aria-hidden'         => true,
+				'aria-labelledby'     => true,
+				'role'                => true,
+				'xmlns'               => true,
+				'width'               => true,
+				'height'              => true,
+				'viewbox'             => true,
+				'viewBox'             => true,
+				'preserveAspectRatio' => true,
+				'fill'                => true,
+				'stroke'              => true,
+				'stroke-width'        => true,
+				'stroke-linecap'      => true,
+				'stroke-linejoin'     => true,
+				// Explicitly exclude dangerous attributes
+				'onload'              => false,
+				'onclick'             => false,
+			),
+			'g'              => array(
+				'fill'      => true,
+				'transform' => true,
+				'stroke'    => true,
+			),
+			'title'          => array(
+				'title' => true,
+			),
+			'path'           => array(
+				'd'               => true,
+				'fill'            => true,
+				'transform'       => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			),
+			'polyline'       => array(
+				'points'       => true,
+				'fill'         => true,
+				'stroke'       => true,
+				'stroke-width' => true,
+			),
+			'polygon'        => array(
+				'points'       => true,
+				'fill'         => true,
+				'stroke'       => true,
+				'stroke-width' => true,
+			),
+			'circle'         => array(
+				'cx'           => true,
+				'cy'           => true,
+				'r'            => true,
+				'fill'         => true,
+				'stroke'       => true,
+				'stroke-width' => true,
+			),
+			'rect'           => array(
+				'x'            => true,
+				'y'            => true,
+				'width'        => true,
+				'height'       => true,
+				'fill'         => true,
+				'stroke'       => true,
+				'stroke-width' => true,
+				'rx'           => true,
+				'ry'           => true,
+			),
+			'line'           => array(
+				'x1'           => true,
+				'y1'           => true,
+				'x2'           => true,
+				'y2'           => true,
+				'stroke'       => true,
+				'stroke-width' => true,
+			),
+			'defs'           => array(),
+			'linearGradient' => array(
+				'id'            => true,
+				'x1'            => true,
+				'y1'            => true,
+				'x2'            => true,
+				'y2'            => true,
+				'gradientUnits' => true,
+			),
+			'radialGradient' => array(
+				'id'            => true,
+				'cx'            => true,
+				'cy'            => true,
+				'r'             => true,
+				'gradientUnits' => true,
+			),
+			'stop'           => array(
+				'offset'       => true,
+				'stop-color'   => true,
+				'stop-opacity' => true,
+				// Remove style which can contain JavaScript
+				'style'        => false,
+			),
+			// Removed potentially risky elements
+			// 'use' - can reference external content
+			// 'mask' - not commonly needed and adds complexity
+		);
 	}
 }
