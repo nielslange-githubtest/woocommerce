@@ -44,11 +44,8 @@ export const ValidationInputError = ( {
 	return (
 		<div className="wc-block-components-validation-error" role="alert">
 			<p id={ validationErrorId }>
-				<Icon
-					icon={ warning }
-					onPointerEnterCapture={ undefined }
-					onPointerLeaveCapture={ undefined }
-				/>
+				{ /* @ts-expect-error - TS wants the Icon component to define svg specific props, but it's not always SVG */ }
+				<Icon icon={ warning } />
 				<span>{ errorMessage }</span>
 			</p>
 		</div>
