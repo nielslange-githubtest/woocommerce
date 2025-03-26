@@ -120,7 +120,10 @@ class Controller extends AbstractBlock {
 	 * @return boolean
 	 */
 	private function is_block_compatible( $block_name ) {
-		WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		if ( ! $block_type ) {
+			return false;
+		}
 		/*
 		* Client side navigation can be true in two states:
 		*  - supports.interactivity = true;
