@@ -117,14 +117,13 @@ class Tax extends Task {
 			$wc_connect_taxes_enabled    = get_option( 'wc_connect_taxes_enabled' );
 			$is_wc_connect_taxes_enabled = ( $wc_connect_taxes_enabled === 'yes' ) || ( $wc_connect_taxes_enabled === true ); // seems that in some places boolean is used, and other places 'yes' | 'no' is used
 
-
 			// phpcs:ignore WooCommerce.Commenting.CommentHooks.MissingHookComment -- We will replace this with a formal system by WC 9.6 so lets not advertise it yet.
 			$third_party_complete = apply_filters( 'woocommerce_admin_third_party_tax_setup_complete', false );
 
 			$this->is_complete_result = $is_wc_connect_taxes_enabled ||
-			                            $third_party_complete ||
-			                            ! wc_tax_enabled() ||
-			                            $this->has_existing_tax_rates();
+				$third_party_complete ||
+				! wc_tax_enabled() ||
+				$this->has_existing_tax_rates();
 		}
 
 		return $this->is_complete_result;
