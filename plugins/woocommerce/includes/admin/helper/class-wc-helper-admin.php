@@ -235,7 +235,7 @@ class WC_Helper_Admin {
 					'message' => __(
 						'API response is missing required elements, or they are in the wrong form.',
 						'woocommerce'
-					)
+					),
 				),
 				500
 			);

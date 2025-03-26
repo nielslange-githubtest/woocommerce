@@ -339,8 +339,8 @@ class WC_Admin_Addons {
 			 */
 			do_action( 'woocommerce_page_wc_addons_connection_error', $response_code );
 
-			/* translators: 1: Context (e.g. 'featured', 'product-preview') 2: HTTP error code */
 			$message = sprintf(
+				/* translators: 1: Context (e.g. 'featured', 'product-preview') 2: HTTP error code */
 				__( 'Our request to the %1$s API got error code %2$d.', 'woocommerce' ),
 				$context,
 				$response_code
@@ -359,8 +359,8 @@ class WC_Admin_Addons {
 			 */
 			do_action( 'woocommerce_page_wc_addons_connection_error', 'Empty or malformed response' );
 
-			/* translators: %s: Context (e.g. 'featured', 'product-preview') */
 			$message = sprintf(
+				/* translators: %s: Context (e.g. 'featured', 'product-preview') */
 				__( 'Our request to the %s API got a malformed response.', 'woocommerce' ),
 				$context
 			);
