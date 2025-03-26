@@ -1,3 +1,8 @@
+/**
+ * Extended list of tags and attributes for sanitizing product preview HTML.
+ * Dompurify automatically allows data and aria attributes.
+ */
+
 const sanitizeHtmlConfig = {
 	allowedTags: [
 		'a',
