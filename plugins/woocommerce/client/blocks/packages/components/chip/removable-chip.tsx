@@ -4,10 +4,10 @@
 import clsx from 'clsx';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import type { HTMLAttributes } from 'react';
+import type { ComponentProps } from 'react';
 
 declare module '@wordpress/icons' {
-	interface IconProps extends HTMLAttributes< HTMLElement > {
+	interface IconProps extends Partial< ComponentProps< 'div' > > {
 		icon: JSX.Element;
 		size?: number;
 	}
