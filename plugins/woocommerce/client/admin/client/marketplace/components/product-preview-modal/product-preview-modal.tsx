@@ -10,7 +10,7 @@ import { Spinner } from '@woocommerce/components';
  * Internal dependencies
  */
 import { fetchProductPreview } from '../../utils/functions';
-import { sanitizeHtmlExtended } from '~/lib/sanitize-html';
+import sanitizeHtmlExtended from '~/lib/sanitize-html/sanitize-html-extended.js';
 import sanitizeHtmlConfig from './product-preview-sanitize-html-config';
 import './product-preview-modal.scss';
 
