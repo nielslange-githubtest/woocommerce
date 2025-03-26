@@ -11,6 +11,7 @@ import { Spinner } from '@woocommerce/components';
  */
 import { fetchProductPreview } from '../../utils/functions';
 import { sanitizeHtmlExtended } from '~/lib/sanitize-html';
+import sanitizeHtmlConfig from './product-preview-sanitize-html-config';
 import './product-preview-modal.scss';
 
 interface ProductPreviewModalProps {
@@ -105,7 +106,8 @@ export default function ProductPreviewModal( {
 				}
 
 				const sanitizedHtmlObj = sanitizeHtmlExtended(
-					previewData.html
+					previewData.html,
+					sanitizeHtmlConfig
 				) as { __html?: string };
 				const sanitizedHtml = sanitizedHtmlObj?.__html ?? '';
 
