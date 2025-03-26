@@ -484,7 +484,7 @@ class WooPaymentsService {
 		}
 
 		// Check if the test account creation is already in progress.
-		if ( ! empty( $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress', false ) ) ) {
+		if ( ! empty( $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress' ) ) ) {
 			return array(
 				'message' => __( 'Test account creation is already in progress.', 'woocommerce' ),
 			);
@@ -503,7 +503,7 @@ class WooPaymentsService {
 		}
 
 		// Mark the test account step as in progress.
-		$this->save_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress', true );
+		$this->save_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress', [] );
 
 		// Call the WooPayments API to initialize the test account.
 		$response = Utils::rest_endpoint_post_request(
@@ -516,7 +516,7 @@ class WooPaymentsService {
 		);
 
 		// Mark the test account step as NOT in progress.
-		$this->save_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress', false );
+		$this->save_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_TEST_ACCOUNT, $location, 'in_progress', [] );
 
 		if ( is_wp_error( $response ) ) {
 			throw new Exception( esc_html( $response->get_error_message() ), esc_attr( $response->get_error_code() ) );
