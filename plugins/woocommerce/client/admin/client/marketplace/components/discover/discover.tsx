@@ -46,10 +46,6 @@ export default function Discover(): JSX.Element | null {
 	useEffect( () => {
 		setIsLoading( true );
 
-		fetchProductPreview().then( ( response ) => {
-			console.log( response );
-		} );
-
 		fetchDiscoverPageData()
 			.then(
 				( response: Array< ProductGroup > | { success: boolean } ) => {
