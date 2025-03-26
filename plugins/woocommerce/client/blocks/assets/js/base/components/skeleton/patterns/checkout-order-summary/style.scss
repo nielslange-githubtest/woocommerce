@@ -10,8 +10,10 @@
 		border-top: none;
 
 		&:first-child {
+			/* stylelint-disable declaration-colon-newline-after */
 			border-top: 1px solid
 				color-mix(in srgb, currentColor 10%, transparent);
+			/* stylelint-enable */
 			border-bottom: none;
 		}
 
