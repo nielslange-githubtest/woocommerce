@@ -121,44 +121,6 @@ const TestAccountStep = ( {
 
 	const urlParams = new URLSearchParams( window.location.search );
 
-	const determineTrackingSource = () => {
-		// If we have a source query param in the current request, use that.
-		const urlSource = urlParams.get( 'source' )?.replace( /[^\w-]+/g, '' );
-		if ( !! urlSource && 'unknown' !== urlSource ) {
-			return urlSource;
-		}
-
-		// Next, search for a source in the Connect URL as that is determined server-side and it is reliable.
-		if ( connectUrl.includes( 'source=' ) ) {
-			const url = new URL( connectUrl );
-			const source = url.searchParams.get( 'source' );
-			if ( !! source && 'unknown' !== source ) {
-				return source;
-			}
-		}
-		// Finally, make some guesses based on the 'from' query param.
-		// We generally should not reach this step, but it's a fallback with reliable guesses.
-		const urlFrom = urlParams.get( 'from' ) || '';
-		let sourceGuess = 'wcpay-connect-page';
-		switch ( urlFrom ) {
-			case 'WCADMIN_PAYMENT_TASK':
-				sourceGuess = 'wcadmin-payment-task';
-				break;
-			case 'WCADMIN_PAYMENT_SETTINGS':
-				sourceGuess = 'wcadmin-settings-page';
-				break;
-			case 'WCADMIN_PAYMENT_INCENTIVE':
-				sourceGuess = 'wcadmin-incentive-page';
-				break;
-		}
-
-		return sourceGuess;
-	};
-
-	const determineTrackingFrom = () => {
-		return urlParams.get( 'from' )?.replace( /[^\w-]+/g, '' ) || '';
-	};
-
 	const checkAccountStatus = ( extraQueryArgs = {} ) => {
 		// Fetch account status from the cache.
 		apiFetch( {
@@ -185,7 +147,7 @@ const TestAccountStep = ( {
 				const queryArgs = {
 					test_drive: 'true',
 					'wcpay-sandbox-success': 'true',
-					source: determineTrackingSource(),
+					source: '',
 					from: 'WCPAY_CONNECT',
 					redirect_to_settings_page:
 						urlParams.get( 'redirect_to_settings_page' ) || '',
