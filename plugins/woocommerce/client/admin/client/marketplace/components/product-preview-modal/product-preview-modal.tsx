@@ -19,7 +19,7 @@ interface ProductPreviewModalProps {
 	productIcon: string;
 	productId: number;
 	onOpen?: () => void;
-	onClose?: () => void;
+	onClose?: ( closeType?: string ) => void;
 }
 
 export default function ProductPreviewModal( {
@@ -31,11 +31,55 @@ export default function ProductPreviewModal( {
 	onClose,
 }: ProductPreviewModalProps ) {
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ previewContent, setPreviewContent ] = useState< {
+	const [ previewContent, setPreviewContent ] = useState<{
 		html: string;
 		css: string;
 	} | null >( null );
 	const [ error, setError ] = useState< string | null >( null );
+
+	const closeModal = ( closeType = '' ) => {
+		if ( onClose ) {
+			onClose( closeType );
+		}
+	};
+
+	const handleContentInteraction = ( event: Event ) => {
+		const target = event.target as HTMLElement;
+		const link = target.closest( 'a' );
+		if ( link ) {
+			const trackType = link.getAttribute( 'data-iam-tracks' );
+			if ( trackType === 'buy_now' ) {
+				closeModal(
+					'marketplace_product_preview_modal_dismissed_buy_now'
+				);
+			}
+
+			if ( trackType === 'see_more' ) {
+				closeModal(
+					'marketplace_product_preview_modal_dismissed_see_more'
+				);
+			}
+		}
+	};
+
+	// Add event listener for content interactions
+	useEffect( () => {
+		const contentElement = document.querySelector(
+			'.woocommerce-marketplace__product-preview-modal__content'
+		);
+		if ( contentElement ) {
+			contentElement.addEventListener(
+				'click',
+				handleContentInteraction
+			);
+			return () => {
+				contentElement.removeEventListener(
+					'click',
+					handleContentInteraction
+				);
+			};
+		}
+	}, [] );
 
 	// Fetch preview content and record event when the modal mounts
 	useEffect( () => {
@@ -73,12 +117,6 @@ export default function ProductPreviewModal( {
 		}
 	}, [ onOpen, productId ] );
 
-	const closeModal = () => {
-		if ( onClose ) {
-			onClose();
-		}
-	};
-
 	const productHeader = (
 		<div className="woocommerce-marketplace__product-preview-modal__header">
 			<img
@@ -100,7 +138,9 @@ export default function ProductPreviewModal( {
 
 	return (
 		<Modal
-			onRequestClose={ closeModal }
+			onRequestClose={ () =>
+				closeModal( 'marketplace_product_preview_modal_dismissed' )
+			}
 			className="woocommerce-marketplace__product-preview-modal"
 			closeButtonLabel={ __( 'Close product preview', 'woocommerce' ) }
 			isFullScreen

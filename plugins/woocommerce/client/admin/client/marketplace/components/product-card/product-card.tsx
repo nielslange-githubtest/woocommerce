@@ -177,7 +177,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 		recordTracksEvent( 'marketplace_product_preview_modal_opened', data );
 	};
 
-	const handleModalClose = () => {
+	const handleModalClose = ( closeType?: string ) => {
 		const data: ExtraProperties = {
 			product_id: product.id,
 			product_name: product.title,
@@ -185,10 +185,10 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 			product_type: type,
 		};
 
-		recordTracksEvent(
-			'marketplace_product_preview_modal_dismissed',
-			data
-		);
+		const tracksEvent =
+			closeType || 'marketplace_product_preview_modal_dismissed';
+
+		recordTracksEvent( tracksEvent, data );
 		setIsPreviewModalOpen( false );
 	};
 
