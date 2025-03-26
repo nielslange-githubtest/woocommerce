@@ -18,6 +18,16 @@ class AddToCartWithOptionsVariationSelectorAttributeOptions extends AbstractBloc
 	protected $block_name = 'add-to-cart-with-options-variation-selector-attribute-options';
 
 	/**
+	 * Disable the frontend script for this block type, it's built with script modules.
+	 *
+	 * @param string $key Data to get, or default to everything.
+	 * @return array|string|null
+	 */
+	protected function get_block_type_script( $key = null ) {
+		return null;
+	}
+
+	/**
 	 * Get the block's attributes.
 	 *
 	 * @param array $attributes Block attributes. Default empty array.
