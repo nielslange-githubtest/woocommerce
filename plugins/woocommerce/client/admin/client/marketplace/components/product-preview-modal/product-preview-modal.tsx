@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Modal } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Spinner } from '@woocommerce/components';
 
@@ -33,39 +33,49 @@ export default function ProductPreviewModal( {
 	onClose,
 }: ProductPreviewModalProps ) {
 	const [ isLoading, setIsLoading ] = useState( true );
-	const [ previewContent, setPreviewContent ] = useState<{
+	const [ previewContent, setPreviewContent ] = useState< {
 		html: string;
 		css: string;
 	} | null >( null );
 	const [ error, setError ] = useState< string | null >( null );
 
-	const closeModal = ( closeType = '' ) => {
-		if ( onClose ) {
-			onClose( closeType );
-		}
-	};
-
-	const handleContentInteraction = ( event: Event ) => {
-		const target = event.target as HTMLElement;
-		const link = target.closest( 'a' );
-		if ( link ) {
-			const trackType = link.getAttribute( 'data-iam-tracks' );
-			if ( trackType === 'buy_now' ) {
-				closeModal(
-					'marketplace_product_preview_modal_dismissed_buy_now'
-				);
+	const closeModal = useCallback(
+		( closeType = '' ) => {
+			if ( onClose ) {
+				onClose( closeType );
 			}
-
-			if ( trackType === 'see_more' ) {
-				closeModal(
-					'marketplace_product_preview_modal_dismissed_see_more'
-				);
-			}
-		}
-	};
+			// Return focus to the triggering element after a small delay
+			// to ensure layout shifts have completed
+			setTimeout( () => {
+				if ( triggerRef.current ) {
+					triggerRef.current.focus();
+				}
+			}, 100 );
+		},
+		[ onClose, triggerRef ]
+	);
 
 	// Add event listener for content interactions
 	useEffect( () => {
+		const handleContentInteraction = ( event: Event ) => {
+			const target = event.target as HTMLElement;
+			const link = target.closest( 'a' );
+			if ( link ) {
+				const trackType = link.getAttribute( 'data-iam-tracks' );
+				if ( trackType === 'buy_now' ) {
+					closeModal(
+						'marketplace_product_preview_modal_buy_now_clicked'
+					);
+				}
+
+				if ( trackType === 'see_more' ) {
+					closeModal(
+						'marketplace_product_preview_modal_see_more_clicked'
+					);
+				}
+			}
+		};
+
 		const contentElement = document.querySelector(
 			'.woocommerce-marketplace__product-preview-modal__content'
 		);
@@ -81,7 +91,7 @@ export default function ProductPreviewModal( {
 				);
 			};
 		}
-	}, [] );
+	}, [ closeModal ] );
 
 	// Fetch preview content and record event when the modal mounts
 	useEffect( () => {
@@ -118,19 +128,6 @@ export default function ProductPreviewModal( {
 			onOpen();
 		}
 	}, [ onOpen, productId ] );
-
-	const closeModal = () => {
-		if ( onClose ) {
-			onClose();
-		}
-		// Return focus to the triggering element after a small delay
-		// to ensure layout shifts have completed
-		setTimeout( () => {
-			if ( triggerRef.current ) {
-				triggerRef.current.focus();
-			}
-		}, 100 );
-	};
 
 	const productHeader = (
 		<div className="woocommerce-marketplace__product-preview-modal__header">
