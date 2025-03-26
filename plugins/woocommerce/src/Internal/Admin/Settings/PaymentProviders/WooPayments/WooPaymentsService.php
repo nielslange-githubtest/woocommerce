@@ -118,11 +118,11 @@ class WooPaymentsService {
 			'status'         => $this->get_onboarding_step_status( self::ONBOARDING_STEP_PAYMENT_METHODS, $location ),
 			'errors'         => array(),
 			'actions'        => array(
-				'start'    => array(
+				'start'  => array(
 					'type' => self::ACTION_TYPE_REST,
 					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_PAYMENT_METHODS . '/start' ),
 				),
-				'save'     => array(
+				'save'   => array(
 					'type' => self::ACTION_TYPE_REST,
 					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_PAYMENT_METHODS . '/save' ),
 				),
