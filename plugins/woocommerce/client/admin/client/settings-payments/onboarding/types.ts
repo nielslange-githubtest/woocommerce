@@ -69,6 +69,7 @@ export interface WooPaymentsProviderOnboardingStep {
 	context?: {
 		payment_methods: RecommendedPaymentMethod[];
 	};
+	errors?: string[];
 }
 
 /**
