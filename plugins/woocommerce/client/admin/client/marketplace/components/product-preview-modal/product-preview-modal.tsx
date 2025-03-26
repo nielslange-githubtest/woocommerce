@@ -18,6 +18,7 @@ interface ProductPreviewModalProps {
 	productVendor: JSX.Element | string | null;
 	productIcon: string;
 	productId: number;
+	triggerRef: React.RefObject< HTMLAnchorElement >;
 	onOpen?: () => void;
 	onClose?: ( closeType?: string ) => void;
 }
@@ -27,6 +28,7 @@ export default function ProductPreviewModal( {
 	productVendor,
 	productIcon,
 	productId,
+	triggerRef,
 	onOpen,
 	onClose,
 }: ProductPreviewModalProps ) {
@@ -116,6 +118,19 @@ export default function ProductPreviewModal( {
 			onOpen();
 		}
 	}, [ onOpen, productId ] );
+
+	const closeModal = () => {
+		if ( onClose ) {
+			onClose();
+		}
+		// Return focus to the triggering element after a small delay
+		// to ensure layout shifts have completed
+		setTimeout( () => {
+			if ( triggerRef.current ) {
+				triggerRef.current.focus();
+			}
+		}, 100 );
+	};
 
 	const productHeader = (
 		<div className="woocommerce-marketplace__product-preview-modal__header">

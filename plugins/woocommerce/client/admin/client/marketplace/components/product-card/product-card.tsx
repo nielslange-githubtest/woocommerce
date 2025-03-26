@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { ExtraProperties, queueRecordEvent } from '@woocommerce/tracks';
 import { useQuery } from '@woocommerce/navigation';
 import { decodeEntities } from '@wordpress/html-entities';
-import { useState, useContext } from '@wordpress/element';
+import { useState, useContext, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -33,6 +33,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 	const { isLoading, type } = props;
 	const query = useQuery();
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
+	const linkRef = useRef< HTMLAnchorElement >( null );
 	// Get the product if provided; if not provided, render a skeleton loader
 	const product = props.product ?? {
 		id: null,
@@ -205,6 +206,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 	const CardLink = () => {
 		return (
 			<a
+				ref={ linkRef }
 				className="woocommerce-marketplace__product-card__link"
 				href={ productUrl() }
 				rel="noopener noreferrer"
@@ -378,6 +380,7 @@ function ProductCard( props: ProductCardProps ): JSX.Element {
 					onOpen={ handleModalOpen }
 					onClose={ handleModalClose }
 					productId={ product.id as number }
+					triggerRef={ linkRef }
 				/>
 			) }
 		</>
