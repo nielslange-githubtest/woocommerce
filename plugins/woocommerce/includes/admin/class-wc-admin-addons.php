@@ -52,9 +52,8 @@ class WC_Admin_Addons {
 	/**
 	 * Fetch markup and other info for the preview of a product.
 	 *
-	 * @param int $product_id
-	 *
-	 * @return array|WP_Error
+	 * @param int $product_id The ID of the product to fetch preview for.
+	 * @return array|WP_Error Preview data or error object.
 	 */
 	public static function fetch_product_preview( int $product_id ) {
 		$url = 'https://woocommerce.com/wp-json/wccom-extensions/1.0/product-previews?product_id=' . $product_id;
@@ -312,7 +311,12 @@ class WC_Admin_Addons {
 	 */
 	private static function process_api_response( $response, $context = 'api', $associative = false ) {
 		if ( is_wp_error( $response ) ) {
-			do_action( 'woocommerce_page_wc-addons_connection_error', $response->get_error_message() );
+			/**
+			 * Hook fired when there is a connection error with WooCommerce.com.
+			 *
+			 * @param string $error_message The error message.
+			 */
+			do_action( 'woocommerce_page_wc_addons_connection_error', $response->get_error_message() );
 
 			$message = self::is_ssl_error( $response->get_error_message() )
 				? __( 'We encountered an SSL error. Please ensure your site supports TLS version 1.2 or above.',
@@ -324,17 +328,16 @@ class WC_Admin_Addons {
 
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $response_code ) {
-			do_action( 'woocommerce_page_wc-addons_connection_error', $response_code );
+			/**
+			 * Hook fired when there is a connection error with WooCommerce.com.
+			 *
+			 * @param int $response_code The HTTP response code.
+			 */
+			do_action( 'woocommerce_page_wc_addons_connection_error', $response_code );
 
-			/* translators: %d: HTTP error code. */
+			/* translators: 1: Context (e.g. 'featured', 'product-preview') 2: HTTP error code */
 			$message = sprintf(
-				esc_html(
-				/* translators: Error code  */
-					__(
-						'Our request to the %s API got error code %d.',
-						'woocommerce'
-					)
-				),
+				__( 'Our request to the %1$s API got error code %2$d.', 'woocommerce' ),
 				$context,
 				$response_code
 			);
@@ -344,7 +347,14 @@ class WC_Admin_Addons {
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), $associative );
 		if ( empty( $data ) || ! is_array( $data ) ) {
-			do_action( 'woocommerce_page_wc-addons_connection_error', 'Empty or malformed response' );
+			/**
+			 * Hook fired when there is a connection error with WooCommerce.com.
+			 *
+			 * @param string $error_message The error message.
+			 */
+			do_action( 'woocommerce_page_wc_addons_connection_error', 'Empty or malformed response' );
+
+			/* translators: %s: Context (e.g. 'featured', 'product-preview') */
 			$message = sprintf(
 				__( 'Our request to the %s API got a malformed response.', 'woocommerce' ),
 				$context
@@ -390,8 +400,8 @@ class WC_Admin_Addons {
 			}
 		}
 
-		// Check if URL already has
-		$connector = strpos( $url, '?' ) !== false ? '&' : '?';
+		// Check if URL already has query parameters.
+		$connector    = strpos( $url, '?' ) !== false ? '&' : '?';
 		$query_string = ! empty( $parameters ) ? $connector . http_build_query( $parameters ) : '';
 
 		return wp_safe_remote_get(

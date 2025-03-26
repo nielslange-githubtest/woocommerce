@@ -199,7 +199,7 @@ class WC_Helper_Admin {
 		if ( ! $product_id ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Missing product ID', 'woocommerce' )
+					'message' => __( 'Missing product ID', 'woocommerce' ),
 				),
 				400
 			);
@@ -217,19 +217,23 @@ class WC_Helper_Admin {
 		}
 
 		if ( is_wp_error( $product_preview ) ) {
-			wp_send_json_error( array( 'message' => $product_preview->get_error_message() ) );
+			wp_send_json_error(
+				array(
+					'message' => $product_preview->get_error_message(),
+				)
+			);
 		}
 
 		if (
-			! isset ( $product_preview['css'] )
+			! isset( $product_preview['css'] )
 			|| ! is_string( $product_preview['css'] )
-			|| ! isset ( $product_preview['html'] )
+			|| ! isset( $product_preview['html'] )
 			|| ! is_string( $product_preview['html'] )
 		) {
 			wp_send_json_error(
 				array(
 					'message' => __( 'API response is missing required elements, or they are in the wrong form.',
-						'woocommerce' )
+						'woocommerce' ),
 				),
 				500
 			);

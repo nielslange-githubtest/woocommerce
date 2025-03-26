@@ -1,3 +1,5 @@
+declare(strict_types=1);
+
 <?php
 /**
  * Unit tests for WC_Helper_Sanitization class
@@ -46,21 +48,21 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 	 * Test URL domain whitelisting
 	 */
 	public function test_url_domain_whitelisting() {
-		$allowed_domains = [
+		$allowed_domains = array(
 			'https://woocommerce.com/image.jpg',
 			'https://wordpress.com/image.jpg',
 			'https://cdn.woocommerce.com/image.jpg',
 			'https://s0.wp.com/image.jpg',
 			'https://woocommerce.test/image.jpg',
-		];
+		);
 
-		$disallowed_domains = [
+		$disallowed_domains = array(
 			'https://evil.com/image.jpg',
 			'https://woocommerce.evil.com/image.jpg',
 			'https://wordpress.org/image.jpg',
-		];
+		);
 
-		// Test allowed domains
+		// Test allowed domains.
 		foreach ( $allowed_domains as $url ) {
 			$css       = ".logo { background-image: url('$url'); }";
 			$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
@@ -68,14 +70,17 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 			$this->assertStringContainsString( $url, $sanitized, "Allowed domain $url should remain unchanged" );
 		}
 
-		// Test disallowed domains
+		// Test disallowed domains.
 		foreach ( $disallowed_domains as $url ) {
 			$css       = ".logo { background-image: url('$url'); }";
 			$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
 
 			$this->assertStringNotContainsString( $url, $sanitized, "Disallowed domain $url should be blocked" );
-			$this->assertStringContainsString( '#blocked-url', $sanitized,
-				"Disallowed URLs should be replaced with #blocked-url" );
+			$this->assertStringContainsString(
+				'#blocked-url',
+				$sanitized,
+				'Disallowed URLs should be replaced with #blocked-url'
+			);
 		}
 	}
 
@@ -96,11 +101,14 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 		$css       = '.dangerous { background: expression(alert(1)); color: red; }';
 		$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
 
-		$this->assertStringNotContainsString( 'expression(alert(1))', $sanitized,
-			'JavaScript expressions should be removed' );
+		$this->assertStringNotContainsString(
+			'expression(alert(1))',
+			$sanitized,
+			'JavaScript expressions should be removed'
+		);
 		$this->assertStringContainsString( 'color: red', $sanitized, 'Valid CSS should remain' );
 
-		// Test javascript: protocol
+		// Test javascript: protocol.
 		$css       = '.evil { background-image: url(javascript:alert(1)); }';
 		$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
 
@@ -111,7 +119,7 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 	 * Test dangerous function sanitization
 	 */
 	public function test_dangerous_function_sanitization() {
-		$dangerous_functions = [ 'behavior', 'eval', 'calc', 'mocha' ];
+		$dangerous_functions = array( 'behavior', 'eval', 'calc', 'mocha' );
 
 		foreach ( $dangerous_functions as $func ) {
 			$css       = ".danger { $func: something; }";
@@ -126,11 +134,11 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 	 * Test relative URL preservation
 	 */
 	public function test_relative_url_preservation() {
-		$relative_urls = [
+		$relative_urls = array(
 			'/images/logo.png',
 			'../assets/icon.svg',
 			'./style.css',
-		];
+		);
 
 		foreach ( $relative_urls as $url ) {
 			$css       = ".logo { background-image: url('$url'); }";
@@ -144,7 +152,7 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 	 * Test size limitation
 	 */
 	public function test_size_limitation() {
-		// Generate CSS that exceeds the size limit
+		// Generate CSS that exceeds the size limit.
 		$large_css = str_repeat( '.a{color:red;}', 20000 );
 		$sanitized = WC_Helper_Sanitization::sanitize_css( $large_css );
 
@@ -155,18 +163,24 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 	 * Test edge cases
 	 */
 	public function test_edge_cases() {
-		// Empty input
+		// Empty input.
 		$this->assertEquals( '', WC_Helper_Sanitization::sanitize_css( '' ), 'Empty CSS should remain empty' );
 
-		// Null input (though PHP would typically convert this to empty string)
-		$this->assertEquals( '', WC_Helper_Sanitization::sanitize_css( null ),
-			'Null CSS should be handled gracefully' );
+		// Null input (though PHP would typically convert this to empty string).
+		$this->assertEquals(
+			'',
+			WC_Helper_Sanitization::sanitize_css( null ),
+			'Null CSS should be handled gracefully'
+		);
 
-		// Non-string input
-		$this->assertEquals( '', WC_Helper_Sanitization::sanitize_css( 123 ),
-			'Non-string CSS should be handled gracefully' );
+		// Non-string input.
+		$this->assertEquals(
+			'',
+			WC_Helper_Sanitization::sanitize_css( 123 ),
+			'Non-string CSS should be handled gracefully'
+		);
 
-		// Input with only dangerous content
+		// Input with only dangerous content.
 		$css       = '@import url("bad.css");';
 		$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
 		$this->assertEquals( '', trim( $sanitized ), 'CSS with only dangerous content should be effectively emptied' );
@@ -197,7 +211,7 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 
 		$sanitized = WC_Helper_Sanitization::sanitize_css( $css );
 
-		// Check what should be gone
+		// Check what should be gone.
 		$this->assertStringNotContainsString( '@import', $sanitized );
 		$this->assertStringNotContainsString( '<script>', $sanitized );
 		$this->assertStringNotContainsString( 'behavior:', $sanitized );
@@ -205,7 +219,7 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
 		$this->assertStringNotContainsString( 'expression', $sanitized );
 		$this->assertStringNotContainsString( 'evil.com', $sanitized );
 
-		// Check what should remain
+		// Check what should remain.
 		$this->assertStringContainsString( 'woocommerce.com/logo.png', $sanitized );
 		$this->assertStringContainsString( '/images/good.jpg', $sanitized );
 	}
@@ -227,19 +241,19 @@ class WC_Helper_Sanitization_Test extends WC_Unit_Test_Case {
             section > *[hidden] { display: none; }
         ';
 
-		$sanitized = WC_Helper_Sanitization::sanitize_css($css_with_asterisks);
+		$sanitized = WC_Helper_Sanitization::sanitize_css( $css_with_asterisks );
 
-		// Check that all asterisk patterns are preserved
-		$this->assertStringContainsString('* {', $sanitized, 'Universal selector should be preserved');
-		$this->assertStringContainsString('div > *', $sanitized, 'Child universal selector should be preserved');
-		$this->assertStringContainsString('div, *', $sanitized, 'Comma-separated universal selector should be preserved');
-		$this->assertStringContainsString('*.special', $sanitized, 'Class-qualified universal selector should be preserved');
-		$this->assertStringContainsString('*.item', $sanitized, 'Nested class-qualified universal selector should be preserved');
-		$this->assertStringContainsString('*:not', $sanitized, 'Universal selector with pseudo-class should be preserved');
-		$this->assertStringContainsString('.modal__main > *', $sanitized, 'Child universal selector with class should be preserved');
-		$this->assertStringContainsString('.modal__sidebar > *', $sanitized, 'Second child universal selector with class should be preserved');
-		$this->assertStringContainsString('* + *', $sanitized, 'Adjacent sibling universal selector should be preserved');
-		$this->assertStringContainsString('~ *', $sanitized, 'General sibling universal selector should be preserved');
-		$this->assertStringContainsString('*[hidden]', $sanitized, 'Universal selector with attribute should be preserved');
+		// Check that all asterisk patterns are preserved.
+		$this->assertStringContainsString( '* {', $sanitized, 'Universal selector should be preserved.' );
+		$this->assertStringContainsString( 'div > *', $sanitized, 'Child universal selector should be preserved.' );
+		$this->assertStringContainsString( 'div, *', $sanitized, 'Comma-separated universal selector should be preserved.' );
+		$this->assertStringContainsString( '*.special', $sanitized, 'Class-qualified universal selector should be preserved.' );
+		$this->assertStringContainsString( '*.item', $sanitized, 'Nested class-qualified universal selector should be preserved.' );
+		$this->assertStringContainsString( '*:not', $sanitized, 'Universal selector with pseudo-class should be preserved.' );
+		$this->assertStringContainsString( '.modal__main > *', $sanitized, 'Child universal selector with class should be preserved.' );
+		$this->assertStringContainsString( '.modal__sidebar > *', $sanitized, 'Second child universal selector with class should be preserved.' );
+		$this->assertStringContainsString( '* + *', $sanitized, 'Adjacent sibling universal selector should be preserved.' );
+		$this->assertStringContainsString( '~ *', $sanitized, 'General sibling universal selector should be preserved.' );
+		$this->assertStringContainsString( '*[hidden]', $sanitized, 'Universal selector with attribute should be preserved.' );
 	}
 }

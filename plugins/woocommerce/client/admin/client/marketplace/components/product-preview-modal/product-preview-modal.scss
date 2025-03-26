@@ -8,7 +8,7 @@
 	}
 
 	.components-modal__header {
-		background-image: url( "../../assets/images/product-preview-modal-header.svg" );
+		background-image: url(../../assets/images/product-preview-modal-header.svg);
 		background-size: cover;
 
 		button {
@@ -41,14 +41,14 @@
 
 	&__header-content h1 {
 		margin: 0;
-		font-size:  $grid-unit-40;
+		font-size: $grid-unit-40;
 		line-height: 1;
 	}
 
 	&__vendor {
 		display: flex;
 		gap: $grid-unit-05;
-		margin:  $grid-unit-10 0 0;
+		margin: $grid-unit-10 0 0;
 		font-size: 14px;
 
 		& a {
@@ -66,7 +66,7 @@
 	}
 
 	&__divider {
-		margin:  $grid-unit-40 0;
+		margin: $grid-unit-40 0;
 	}
 
 	&__loading {
