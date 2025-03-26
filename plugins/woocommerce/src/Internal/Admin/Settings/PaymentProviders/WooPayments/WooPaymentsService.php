@@ -260,25 +260,15 @@ class WooPaymentsService {
 				}
 				break;
 			case self::ONBOARDING_STEP_TEST_ACCOUNT:
-				if ( ! $this->has_account() ) {
-					return self::ONBOARDING_STEP_STATUS_NOT_STARTED;
-				}
-
 				// A valid, fully onboarded account that is a test account marks this step as complete.
 				if ( $this->has_valid_account() && $this->has_test_account() ) {
 					return self::ONBOARDING_STEP_STATUS_COMPLETED;
 				}
 				break;
 			case self::ONBOARDING_STEP_BUSINESS_VERIFICATION:
-				// If no account or the current account is a test account,
-				// then we didn't start the live account business verification.
-				if ( ! $this->has_account() || $this->has_test_account() ) {
-					return self::ONBOARDING_STEP_STATUS_NOT_STARTED;
-				}
-
 				// If the current account is fully onboarded and is not a test account,
 				// we consider the business verification step as completed.
-				if ( $this->has_valid_account() ) {
+				if ( $this->has_valid_account() && ! $this->has_test_account() ) {
 					return self::ONBOARDING_STEP_STATUS_COMPLETED;
 				}
 				break;
