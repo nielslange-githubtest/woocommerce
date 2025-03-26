@@ -10,6 +10,7 @@ import { Spinner } from '@woocommerce/components';
  * Internal dependencies
  */
 import { fetchProductPreview } from '../../utils/functions';
+import { sanitizeHtmlExtended } from '~/lib/sanitize-html';
 import './product-preview-modal.scss';
 
 interface ProductPreviewModalProps {
@@ -47,8 +48,13 @@ export default function ProductPreviewModal( {
 					throw new Error( 'Invalid preview data structure' );
 				}
 
+				const sanitizedHtmlObj = sanitizeHtmlExtended(
+					previewData.html
+				) as { __html?: string };
+				const sanitizedHtml = sanitizedHtmlObj?.__html ?? '';
+
 				setPreviewContent( {
-					html: previewData.html,
+					html: sanitizedHtml,
 					css: previewData.css,
 				} );
 				setError( null );

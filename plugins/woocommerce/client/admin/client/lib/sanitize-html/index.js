@@ -59,18 +59,24 @@ const EXTENDED_ALLOWED_TAGS = [
 /**
  * Default allowed HTML attributes for extended sanitization.
  */
-const EXTENDED_ALLOWED_ATTRIBUTES = {
-	// Global attributes
-	'*': [ 'class', 'id', 'style', 'title', 'role', 'data-*', 'aria-*' ],
-
-	// Specific element attributes
-	a: [ 'href', 'target', 'rel' ],
-	button: [ 'type', 'disabled' ],
-	img: [ 'src', 'alt', 'width', 'height', 'loading', 'srcset', 'sizes' ],
-	table: [ 'width', 'border', 'cellpadding', 'cellspacing' ],
-	td: [ 'colspan', 'rowspan', 'headers', 'width' ],
-	th: [ 'colspan', 'rowspan', 'headers', 'scope', 'width' ],
-};
+const EXTENDED_ALLOWED_ATTRIBUTES = [
+	'alt',
+	'border',
+	'class',
+	'download',
+	'href',
+	'id',
+	'height',
+	'name',
+	'rel',
+	'role',
+	'sizes',
+	'srcset',
+	'style',
+	'target',
+	'title',
+	'width',
+];
 
 /**
  * Extended HTML sanitization with a broader allowlist of tags and attributes.
@@ -81,7 +87,7 @@ const EXTENDED_ALLOWED_ATTRIBUTES = {
  * @param {Object} config Optional configuration to extend/override defaults.
  * @param {string[]} config.allowedTags Array of allowed HTML tags.
  * @param {Object} config.allowedAttributes Object of allowed attributes by tag.
- * @return {string} Sanitized HTML.
+ * @return {Object} Object with sanitized HTML in _html property.
  */
 export function sanitizeHtmlExtended( html, config = {} ) {
 	if ( ! html ) {
