@@ -8,7 +8,7 @@ import { recordEvent } from '@woocommerce/tracks';
  * Internal dependencies
  */
 import ProductList from '../product-list/product-list';
-import { fetchDiscoverPageData, fetchProductPreview, ProductGroup } from '../../utils/functions';
+import { fetchDiscoverPageData, ProductGroup } from '../../utils/functions';
 import ProductLoader from '../product-loader/product-loader';
 import { MarketplaceContext } from '../../contexts/marketplace-context';
 import { ProductType } from '../product-list/types';
