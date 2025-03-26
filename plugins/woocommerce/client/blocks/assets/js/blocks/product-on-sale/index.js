@@ -31,7 +31,9 @@ registerBlockType( 'woocommerce/product-on-sale', {
 		'woocommerce'
 	),
 	supports: {
-		interactivity: false,
+		interactivity: {
+			clientNavigation: false,
+		},
 		align: [ 'wide', 'full' ],
 		html: false,
 		inserter: false,
