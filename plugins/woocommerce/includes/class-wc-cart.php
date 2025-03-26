@@ -987,16 +987,16 @@ class WC_Cart extends WC_Legacy_Cart {
 	}
 
 	/**
-	 * Generate a unique ID for the cart item being added.
+	 * Generate a cart item ID based on product details.
 	 *
-	 * @param int   $product_id - id of the product the key is being generated for.
-	 * @param int   $variation_id of the product the key is being generated for.
-	 * @param array $variation data for the cart item.
-	 * @param array $cart_item_data other cart item data passed which affects this items uniqueness in the cart.
-	 * @return string cart item key
+	 * @param int   $product_id   ID of the product.
+	 * @param int   $variation_id ID of the variation.
+	 * @param array $variation    Attribute values.
+	 * @param array $cart_item_data Extra cart item data.
+	 * @return string Generated cart item ID (MD5 hash).
 	 */
 	public function generate_cart_id( $product_id, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
-		return CartUtils::generate_cart_id( $product_id, $variation_id, $variation, $cart_item_data );
+		return CartUtils::generate_cart_item_id( $product_id, $variation_id, $variation, $cart_item_data );
 	}
 
 	/**

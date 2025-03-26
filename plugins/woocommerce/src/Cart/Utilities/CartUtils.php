@@ -12,15 +12,15 @@ use WC_Product;
  */
 class CartUtils {
 	/**
-	 * Generate a cart ID based on product details.
+	 * Generate a cart item ID based on product details.
 	 *
 	 * @param int   $product_id   ID of the product.
 	 * @param int   $variation_id ID of the variation.
 	 * @param array $variation    Attribute values.
 	 * @param array $cart_item_data Extra cart item data.
-	 * @return string Generated cart ID (MD5 hash).
+	 * @return string Generated cart item ID (MD5 hash).
 	 */
-	public static function generate_cart_id( $product_id, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
+	public static function generate_cart_item_id( $product_id, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
 		$id_parts = array( $product_id );
 
 		if ( $variation_id && 0 !== $variation_id ) {
@@ -28,37 +28,26 @@ class CartUtils {
 		}
 
 		if ( is_array( $variation ) && ! empty( $variation ) ) {
-			$variation_key = '';
-			foreach ( $variation as $key => $value ) {
-				$variation_key .= trim( $key ) . trim( $value );
-			}
-			$id_parts[] = $variation_key;
+			$id_parts[] = self::generate_variation_key( $variation );
 		}
 
 		if ( is_array( $cart_item_data ) && ! empty( $cart_item_data ) ) {
-			$cart_item_data_key = '';
-			foreach ( $cart_item_data as $key => $value ) {
-				if ( is_array( $value ) || is_object( $value ) ) {
-					$value = http_build_query( $value );
-				}
-				$cart_item_data_key .= trim( $key ) . trim( $value );
-			}
-			$id_parts[] = $cart_item_data_key;
+			$id_parts[] = self::generate_cart_item_data_key( $cart_item_data );
 		}
 
-		$cart_id = md5( implode( '_', $id_parts ) );
+		$cart_item_id = md5( implode( '_', $id_parts ) );
 
 		/**
 		 * Filter to adjust the cart item ID.
 		 *
 		 * @since 2.0.0
-		 * @param string $cart_id      Generated cart ID (MD5 hash).
+		 * @param string $cart_item_id Generated cart item ID (MD5 hash).
 		 * @param int    $product_id   ID of the product.
 		 * @param int    $variation_id ID of the variation.
 		 * @param array  $variation    Attribute values.
 		 * @param array  $cart_item_data Extra cart item data.
 		 */
-		return apply_filters( 'woocommerce_cart_id', $cart_id, $product_id, $variation_id, $variation, $cart_item_data );
+		return apply_filters( 'woocommerce_cart_id', $cart_item_id, $product_id, $variation_id, $variation, $cart_item_data );
 	}
 
 	/**
