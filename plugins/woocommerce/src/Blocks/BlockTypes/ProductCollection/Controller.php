@@ -120,32 +120,15 @@ class Controller extends AbstractBlock {
 	 * @return boolean
 	 */
 	private function is_block_compatible( $block_name ) {
-		// Check for explicitly unsupported blocks.
-		$unsupported_blocks = array(
-			'core/post-content',
-			'woocommerce/mini-cart',
-			'woocommerce/featured-product',
-			'woocommerce/active-filters',
-			'woocommerce/price-filter',
-			'woocommerce/stock-filter',
-			'woocommerce/attribute-filter',
-			'woocommerce/rating-filter',
-		);
-
-		if ( in_array( $block_name, $unsupported_blocks, true ) ) {
-			return false;
-		}
-
-		// Check for supported prefixes.
-		if (
-			str_starts_with( $block_name, 'core/' ) ||
-			str_starts_with( $block_name, 'woocommerce/' )
-		) {
-			return true;
-		}
-
-		// Otherwise block is unsupported.
-		return false;
+		WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		/*
+		* Client side navigation can be true in two states:
+		*  - supports.interactivity = true;
+		*  - supports.interactivity.clientNavigation = true;
+		*/
+		$is_interactivity_client_navigation_supported = ( isset( $block_type->supports['interactivity']['clientNavigation'] ) && true === $block_type->supports['interactivity']['clientNavigation'] );
+		$is_interactivity_supported                   = ( isset( $block_type->supports['interactivity'] ) && true === $block_type->supports['interactivity'] );
+		return $is_interactivity_client_navigation_supported || $is_interactivity_supported;
 	}
 
 	/**
