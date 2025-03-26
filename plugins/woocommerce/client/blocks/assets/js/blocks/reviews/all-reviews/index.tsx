@@ -34,7 +34,9 @@ registerBlockType( 'woocommerce/all-reviews', {
 	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
 	description: __( 'Show a list of all product reviews.', 'woocommerce' ),
 	supports: {
-		interactivity: false,
+		interactivity: {
+			clientNavigation: false,
+		},
 		html: false,
 		color: {
 			background: false,
