@@ -43,7 +43,8 @@ describe( 'sanitizeHtmlExtended', () => {
 	test( 'should allow extended set of HTML tags and attributes', () => {
 		// domPurify adds tbody and changes order of attributes
 		expect( sanitizeHtmlExtended( html ) ).toEqual( {
-			__html: '<div class="container"><h1>Title</h1><img alt="Test"' +
+			__html:
+				'<div class="container"><h1>Title</h1><img alt="Test"' +
 				' src="test.jpg"><table><tbody><tr><td>Cell</td></tr></tbody></table></div>',
 		} );
 	} );
