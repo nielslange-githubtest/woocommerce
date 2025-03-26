@@ -57,7 +57,7 @@ class WC_Admin_Addons {
 	 * @return array|WP_Error
 	 */
 	public static function fetch_product_preview( int $product_id ) {
-		$url = 'https://woocommerce.test/wp-json/wccom-extensions/1.0/product-previews?product_id=' . $product_id;
+		$url = 'https://woocommerce.com/wp-json/wccom-extensions/1.0/product-previews?product_id=' . $product_id;
 
 		$fetch_options = array(
 			'locale' => true,
