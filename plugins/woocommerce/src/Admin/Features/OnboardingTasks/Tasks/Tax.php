@@ -13,6 +13,8 @@ use Automattic\WooCommerce\Internal\Admin\WCAdminAssets;
  */
 class Tax extends Task {
 
+	private const TAX_RATE_EXISTS_CACHE_KEY = 'woocommerce_onboarding_task_tax_rates_exist';
+
 	/**
 	 * Used to cache is_complete() method result.
 	 *
@@ -28,7 +30,8 @@ class Tax extends Task {
 	public function __construct( $task_list ) {
 		parent::__construct( $task_list );
 		add_action( 'admin_enqueue_scripts', array( $this, 'possibly_add_return_notice_script' ) );
-		add_action( 'woocommerce_tax_rate_added', array( $this, 'track_actioned_on_tax_rate_added' ) );
+		add_action( 'woocommerce_tax_rate_added', array( $this, 'on_tax_rate_added' ) );
+		add_action( 'woocommerce_tax_rate_deleted', array( $this, 'on_tax_rate_deleted' ) );
 	}
 
 	/**
@@ -114,18 +117,14 @@ class Tax extends Task {
 			$wc_connect_taxes_enabled    = get_option( 'wc_connect_taxes_enabled' );
 			$is_wc_connect_taxes_enabled = ( $wc_connect_taxes_enabled === 'yes' ) || ( $wc_connect_taxes_enabled === true ); // seems that in some places boolean is used, and other places 'yes' | 'no' is used
 
+
 			// phpcs:ignore WooCommerce.Commenting.CommentHooks.MissingHookComment -- We will replace this with a formal system by WC 9.6 so lets not advertise it yet.
 			$third_party_complete = apply_filters( 'woocommerce_admin_third_party_tax_setup_complete', false );
 
 			$this->is_complete_result = $is_wc_connect_taxes_enabled ||
-				$third_party_complete ||
-				false !== get_option( 'woocommerce_no_sales_tax' ) ||
-				$this->is_actioned();
-
-			if ( ! $this->is_complete_result && $this->has_existing_tax_rates() ) {
-				$this->mark_actioned();
-				$this->is_complete_result = true;
-			}
+			                            $third_party_complete ||
+			                            ! wc_tax_enabled() ||
+			                            $this->has_existing_tax_rates();
 		}
 
 		return $this->is_complete_result;
@@ -138,12 +137,11 @@ class Tax extends Task {
 	 */
 	private function has_existing_tax_rates() {
 		global $wpdb;
-
-		$has_existing_tax_rates = wp_cache_get( 'woocommerce_onboarding_task_tax_rates_exist' );
+		$has_existing_tax_rates = wp_cache_get( self::TAX_RATE_EXISTS_CACHE_KEY );
 		if ( false === $has_existing_tax_rates ) {
 			$rate_exists            = (bool) $wpdb->get_var( "SELECT 1 FROM {$wpdb->prefix}woocommerce_tax_rates limit 1" );
 			$has_existing_tax_rates = $rate_exists ? 'yes' : 'no';
-			wp_cache_set( 'woocommerce_onboarding_task_tax_rates_exist', $has_existing_tax_rates );
+			wp_cache_set( self::TAX_RATE_EXISTS_CACHE_KEY, $has_existing_tax_rates );
 		}
 
 		return 'yes' === $has_existing_tax_rates;
@@ -154,8 +152,18 @@ class Tax extends Task {
 	 *
 	 * @return void
 	 */
-	public function track_actioned_on_tax_rate_added() {
+	public function on_tax_rate_added() {
 		$this->mark_actioned();
+		wp_cache_delete( self::TAX_RATE_EXISTS_CACHE_KEY );
+	}
+
+	/**
+	 * Clears the tax rate exists cache when a tax rate is deleted. Called from the `woocommerce_tax_rate_added` hook.
+	 *
+	 * @return void
+	 */
+	public function on_tax_rate_deleted() {
+		wp_cache_delete( self::TAX_RATE_EXISTS_CACHE_KEY );
 	}
 
 	/**
