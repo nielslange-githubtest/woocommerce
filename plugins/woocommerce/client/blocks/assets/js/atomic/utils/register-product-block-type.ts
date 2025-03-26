@@ -241,6 +241,8 @@ export class BlockRegistrationManager {
 				`Failed to unregister block ${ blockName }:`,
 				error
 			);
+			// @ts-expect-error - remoteLogging is not typed
+			window?.wc?.remoteLogging?.captureException( error );
 		}
 	}
 
@@ -264,6 +266,7 @@ export class BlockRegistrationManager {
 		} = config;
 
 		try {
+			throw new Error( 'Testing the remote error logging' );
 			// Check if block is already registered
 			const key = variationName || blockName;
 			if ( this.hasAttemptedRegistration( key ) ) {
@@ -303,6 +306,8 @@ export class BlockRegistrationManager {
 		} catch ( error ) {
 			// eslint-disable-next-line no-console
 			console.error( `Failed to register block ${ blockName }:`, error );
+			// @ts-expect-error - remoteLogging is not typed
+			window?.wc?.remoteLogging?.captureException( error );
 		}
 	}
 
