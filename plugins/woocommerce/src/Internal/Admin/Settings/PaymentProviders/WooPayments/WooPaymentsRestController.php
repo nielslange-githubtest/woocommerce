@@ -195,6 +195,12 @@ class WooPaymentsRestController extends RestApiControllerBase {
 							'required'          => false,
 							'validate_callback' => fn( $value, $request ) => $this->check_location_arg( $value, $request ),
 						),
+						'source'   => array(
+							'description'       => __( 'The upmost entry point from where the merchant entered the onboarding flow.', 'woocommerce' ),
+							'type'              => 'string',
+							'required'          => false,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
 					),
 				),
 			),
@@ -502,11 +508,11 @@ class WooPaymentsRestController extends RestApiControllerBase {
 			$location = $this->payments->get_country();
 		}
 
-		// Mark the step as started, if not already.
-		$this->woopayments->set_onboarding_step_started( WooPaymentsService::ONBOARDING_STEP_TEST_ACCOUNT, $location );
-
 		try {
-			$result = $this->woopayments->onboarding_test_account_init( $location );
+			// Mark the step as started, if not already.
+			$this->woopayments->set_onboarding_step_started( WooPaymentsService::ONBOARDING_STEP_TEST_ACCOUNT, $location );
+
+			$result = $this->woopayments->onboarding_test_account_init( $location, $request->get_param( 'source' ) ?? '' );
 		} catch ( Exception $e ) {
 			return new WP_Error( 'woocommerce_rest_woopayments_onboarding_error', $e->getMessage(), array( 'status' => 500 ) );
 		}

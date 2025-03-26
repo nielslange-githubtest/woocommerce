@@ -478,13 +478,15 @@ class WooPaymentsService {
 	/**
 	 * Initialize the test account for onboarding.
 	 *
-	 * @param string $location The location for which we are onboarding.
-	 *                         This is a ISO 3166-1 alpha-2 country code.
+	 * @param string $location        The location for which we are onboarding.
+	 *                                This is a ISO 3166-1 alpha-2 country code.
+	 * @param string $tracking_source Optional. The tracking source for the test account creation.
+	 *                                If not provided, it will identify the source as the WC Admin Payments settings.
 	 *
 	 * @return array|\WP_Error The result of the test account initialization.
 	 * @throws Exception If there was an error initializing the test account.
 	 */
-	public function onboarding_test_account_init( string $location ) {
+	public function onboarding_test_account_init( string $location, string $tracking_source = '' ) {
 		// Nothing to do if we already have a valid test account.
 		if ( $this->has_account() && $this->has_test_account() ) {
 			return array(
