@@ -57,6 +57,11 @@
 			-webkit-line-clamp: 1;
 			text-decoration: none;
 			overflow: hidden;
+			color: $woo-purple-50;
+
+			&:hover {
+				color: $woo-purple-70;
+			}
 		}
 	}
 
