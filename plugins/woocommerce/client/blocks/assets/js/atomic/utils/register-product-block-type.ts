@@ -266,7 +266,6 @@ export class BlockRegistrationManager {
 		} = config;
 
 		try {
-			throw new Error( 'Testing the remote error logging' );
 			// Check if block is already registered
 			const key = variationName || blockName;
 			if ( this.hasAttemptedRegistration( key ) ) {
