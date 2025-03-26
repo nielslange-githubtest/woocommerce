@@ -2,10 +2,10 @@
  * External dependencies
  */
 import React, { useState, useRef, useEffect } from 'react';
-
 import apiFetch from '@wordpress/api-fetch';
 import { Loader } from '@woocommerce/onboarding';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -51,6 +51,7 @@ const TestAccountStep = () => {
 	const { currentStep, refreshOnboardingSteps } = useOnboardingContext();
 	const [ testDriveLoaderProgress, setTestDriveLoaderProgress ] =
 		useState( 5 );
+	const [ errorMessage, setErrorMessage ] = useState< string | undefined >();
 
 	// Create a reference object.
 	const loaderProgressRef = useRef( testDriveLoaderProgress );
@@ -69,6 +70,8 @@ const TestAccountStep = () => {
 			apiFetch( {
 				url: currentStep?.actions?.init?.href,
 				method: 'POST',
+			} ).catch( ( response ) => {
+				setErrorMessage( response.message );
 			} );
 
 			// Create a polling function to check the status of the test account setup.
@@ -94,8 +97,13 @@ const TestAccountStep = () => {
 			const interval = setInterval( checkTestAccountStatus, 2500 );
 			return () => clearInterval( interval );
 		}
+
+		if ( currentStep?.errors?.[ 0 ] ) {
+			setErrorMessage( currentStep.errors[ 0 ] );
+		}
 	}, [
 		currentStep?.status,
+		currentStep?.errors,
 		currentStep?.actions?.init?.href,
 		currentStep?.actions?.check?.href,
 		refreshOnboardingSteps,
@@ -104,6 +112,15 @@ const TestAccountStep = () => {
 	return (
 		<div className="woocommerce-payments-test-account-step">
 			<WooPaymentsStepHeader onClose={ () => {} } />
+			{ errorMessage && (
+				<Notice
+					status="error"
+					isDismissible={ false }
+					className="woocommerce-payments-test-account-step__error"
+				>
+					{ errorMessage }
+				</Notice>
+			) }
 			<TestDriveLoader progress={ testDriveLoaderProgress } />
 		</div>
 	);
