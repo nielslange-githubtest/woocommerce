@@ -10,6 +10,7 @@
 
 use Automattic\WooCommerce\Utilities\I18nUtil;
 use Automattic\WooCommerce\Utilities\NumberUtil;
+use Automattic\WooCommerce\Cart\Utilities\CartUtils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -1285,7 +1286,7 @@ function wc_format_stock_for_display( $product ) {
  * @return string
  */
 function wc_format_stock_quantity_for_display( $stock_quantity, $product ) {
-	return apply_filters( 'woocommerce_format_stock_quantity', $stock_quantity, $product );
+	return CartUtils::format_stock_quantity_for_display( $stock_quantity, $product );
 }
 
 /**

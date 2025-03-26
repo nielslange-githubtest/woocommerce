@@ -13,6 +13,7 @@ use Automattic\WooCommerce\Enums\ProductStatus;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\Utilities\DiscountsUtil;
 use Automattic\WooCommerce\Utilities\NumberUtil;
+use Automattic\WooCommerce\Cart\Utilities\CartUtils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -995,33 +996,7 @@ class WC_Cart extends WC_Legacy_Cart {
 	 * @return string cart item key
 	 */
 	public function generate_cart_id( $product_id, $variation_id = 0, $variation = array(), $cart_item_data = array() ) {
-		$id_parts = array( $product_id );
-
-		if ( $variation_id && 0 !== $variation_id ) {
-			$id_parts[] = $variation_id;
-		}
-
-		if ( is_array( $variation ) && ! empty( $variation ) ) {
-			$variation_key = '';
-			foreach ( $variation as $key => $value ) {
-				$variation_key .= trim( $key ) . trim( $value );
-			}
-			$id_parts[] = $variation_key;
-		}
-
-		if ( is_array( $cart_item_data ) && ! empty( $cart_item_data ) ) {
-			$cart_item_data_key = '';
-			foreach ( $cart_item_data as $key => $value ) {
-				if ( is_array( $value ) || is_object( $value ) ) {
-					$value = http_build_query( $value );
-				}
-				$cart_item_data_key .= trim( $key ) . trim( $value );
-
-			}
-			$id_parts[] = $cart_item_data_key;
-		}
-
-		return apply_filters( 'woocommerce_cart_id', md5( implode( '_', $id_parts ) ), $product_id, $variation_id, $variation, $cart_item_data );
+		return CartUtils::generate_cart_id( $product_id, $variation_id, $variation, $cart_item_data );
 	}
 
 	/**

@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\WooCommerce\Enums\OrderStatus;
 use Automattic\WooCommerce\Enums\ProductType;
 use Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils;
+use Automattic\WooCommerce\Cart\Utilities\CartUtils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -564,24 +565,12 @@ function wc_shipping_methods_have_changed( $key, $package ) {
 }
 
 /**
- * Gets a hash of important product data that when changed should cause cart items to be invalidated.
+ * Get a cart item data hash for use when comparing between carts.
  *
- * The woocommerce_cart_item_data_to_validate filter can be used to add custom properties.
- *
- * @param WC_Product $product Product object.
+ * @since 6.7.0
+ * @param object $product WC_Product object.
  * @return string
  */
 function wc_get_cart_item_data_hash( $product ) {
-	return md5(
-		wp_json_encode(
-			apply_filters(
-				'woocommerce_cart_item_data_to_validate',
-				array(
-					'type'       => $product->get_type(),
-					'attributes' => ProductType::VARIATION === $product->get_type() ? $product->get_variation_attributes() : '',
-				),
-				$product
-			)
-		)
-	);
+	return CartUtils::get_cart_item_data_hash( $product );
 }
