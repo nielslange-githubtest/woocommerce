@@ -19,6 +19,11 @@ interface AccountData {
 	status: string;
 }
 
+interface StepCheckResponse {
+	status: string;
+	success: boolean;
+}
+
 const TestDriveLoader: React.FunctionComponent< {
 	progress: number;
 } > = ( { progress } ) => (
@@ -89,8 +94,8 @@ const TestAccountStep = ( {
 					method: 'POST',
 				} ).then( ( response ) => {
 					if (
-						( response as { status: string; success: boolean } )
-							?.status === 'completed'
+						( response as StepCheckResponse )?.status ===
+						'completed'
 					) {
 						// Refresh the onboarding steps to get the latest status.
 						refreshOnboardingSteps();
