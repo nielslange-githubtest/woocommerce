@@ -103,7 +103,7 @@ export default function ProductPreviewModal( {
 			onRequestClose={ closeModal }
 			className="woocommerce-marketplace__product-preview-modal"
 			closeButtonLabel={ __( 'Close product preview', 'woocommerce' ) }
-			size="large"
+			isFullScreen
 			focusOnMount="firstElement"
 		>
 			{ productHeader }

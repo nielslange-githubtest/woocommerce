@@ -1,9 +1,14 @@
 @import "../../stylesheets/_variables.scss";
 
 .woocommerce-marketplace__product-preview-modal {
+	max-width: 1500px !important;
+
+	@media ( max-width: 599px ) {
+		border-radius: 0 !important;
+	}
 
 	.components-modal__header {
-		background-image: url( https://woocommerce.com/wp-content/themes/woo/images/helper-api/woo-official-banner.png );
+		background-image: url( "../../assets/images/product-preview-modal-header.svg" );
 		background-size: cover;
 
 		button {
