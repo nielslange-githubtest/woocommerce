@@ -3,30 +3,7 @@
  */
 import { useSelect } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-
-const unsupportedBlocks = [
-	'core/post-content',
-	'woocommerce/mini-cart',
-	'woocommerce/featured-product',
-];
-const supportedPrefixes = [ 'core/', 'woocommerce/' ];
-
-const isBlockSupported = ( blockName: string ) => {
-	// Check for explicitly unsupported blocks
-	if ( unsupportedBlocks.includes( blockName ) ) {
-		return false;
-	}
-
-	// Check for supported prefixes
-	if (
-		supportedPrefixes.find( ( prefix ) => blockName.startsWith( prefix ) )
-	) {
-		return true;
-	}
-
-	// Otherwise block is unsupported
-	return false;
-};
+import { getBlockSupport } from '@wordpress/blocks';
 
 export const useUnsupportedBlocks = ( clientId: string ): boolean =>
 	useSelect(
@@ -39,8 +16,28 @@ export const useUnsupportedBlocks = ( clientId: string ): boolean =>
 			const hasUnsupportedBlocks =
 				getClientIdsOfDescendants( clientId ).find(
 					( blockId: string ) => {
+						/*
+						 * Client side navigation can be true in two states:
+						 *  - supports.interactivity = true;
+						 *  - supports.interactivity.clientNavigation = true;
+						 */
 						const blockName = getBlockName( blockId );
-						const supported = isBlockSupported( blockName );
+						const blockSupportsInteractivity = Object.is(
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore interactivity is not typed parameter of BlockSupports
+							getBlockSupport( blockName, 'interactivity' ),
+							true
+						);
+						const blockSupportsInteractivityClientNavigation =
+							getBlockSupport(
+								blockName,
+								// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+								// @ts-ignore interactivity.clientNavigation is not typed parameter of BlockSupports
+								'interactivity.clientNavigation'
+							);
+						const supported =
+							blockSupportsInteractivity ||
+							blockSupportsInteractivityClientNavigation;
 						return ! supported;
 					}
 				) || false;
