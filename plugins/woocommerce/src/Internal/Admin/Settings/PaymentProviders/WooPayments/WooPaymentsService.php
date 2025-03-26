@@ -208,6 +208,7 @@ class WooPaymentsService {
 			'errors'         => array(),
 			'context'        => array(
 				'fields'          => $this->get_onboarding_kyc_fields(),
+				'sub_steps'       => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'sub_steps' ),
 				'self_assessment' => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'self_assessment' ),
 			),
 		);
