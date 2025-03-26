@@ -3,7 +3,7 @@
  */
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { ProductNoticeSkeleton } from '@woocommerce/base-components/skeleton/patterns/product-notice-skeleton';
+import { ProductNoticeSkeleton } from '@woocommerce/base-components/skeleton/patterns/product-notice';
 import { BlockEditProps } from '@wordpress/blocks';
 import { Disabled, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';

@@ -4,8 +4,9 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
 import { BlockEditProps } from '@wordpress/blocks';
+
 import { Disabled } from '@wordpress/components';
-import { ProductNoticeSkeleton } from '@woocommerce/base-components/skeleton/patterns/product-notice-skeleton';
+import { ProductNoticeSkeleton } from '@woocommerce/base-components/skeleton/patterns/product-notice';
 import { useProductDataContext } from '@woocommerce/shared-context';
 import {
 	BlockControls,

@@ -7,7 +7,7 @@
 // To display .wc-block-components-skeleton__element in Storybook,
 // we cannot nest it within .wc-block-components-skeleton.
 .wc-block-components-skeleton__element {
-	background: color-mix(in srgb, currentColor 10%, transparent);
+	background: color-mix(in srgb, currentColor 5%, transparent);
 	border-radius: $universal-border-radius;
 	position: relative;
 	overflow: hidden;
@@ -20,7 +20,7 @@
 		background: linear-gradient(
 			90deg,
 			transparent 0%,
-			color-mix(in srgb, currentColor 20%, white) 50%,
+			color-mix(in srgb, currentColor 5%, transparent) 50%,
 			transparent 100%
 		);
 		animation: wc-skeleton-shimmer 1.25s infinite;

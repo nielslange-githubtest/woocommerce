@@ -7,11 +7,9 @@ import { Meta, StoryObj } from '@storybook/react';
  * Internal dependencies
  */
 import { Skeleton, SkeletonProps } from '../';
-import { ProductNoticeSkeleton as ProductNoticeSkeletonComponent } from '../patterns/product-notice-skeleton';
-import { CartExpressPaymentsSkeleton as CartExpressPaymentsSkeletonComponent } from '../patterns/cart-express-payments-skeleton';
-import { CheckoutExpressPaymentsSkeleton as CheckoutExpressPaymentsSkeletonComponent } from '../patterns/checkout-express-payments-skeleton';
+
 export default {
-	title: 'Base Components/Skeleton',
+	title: 'Base Components/Skeleton/Base',
 	component: Skeleton,
 	argTypes: {
 		width: { control: 'text' },
@@ -27,7 +25,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					'Skeleton is a placeholder component used during loading states.',
+					'Base skeletons provide foundational building blocks for all skeleton components.',
 			},
 		},
 	},
@@ -87,48 +85,6 @@ export const NoBorderRadius: StoryObj< SkeletonProps > = {
 		docs: {
 			description: {
 				story: 'The base skeleton component without a border radius.',
-			},
-		},
-	},
-};
-
-export const ProductNoticeSkeleton: StoryObj = {
-	render: () => <ProductNoticeSkeletonComponent />,
-	parameters: {
-		docs: {
-			source: {
-				code: '<ProductNoticeSkeleton />',
-			},
-			description: {
-				story: 'The Skeleton pattern for the product notices.',
-			},
-		},
-	},
-};
-
-export const CartExpressPaymentsSkeleton: StoryObj = {
-	render: () => <CartExpressPaymentsSkeletonComponent />,
-	parameters: {
-		docs: {
-			source: {
-				code: '<CartExpressPayments />',
-			},
-			description: {
-				story: 'The Skeleton pattern for the Express Payments on the Cart block.',
-			},
-		},
-	},
-};
-
-export const CheckoutExpressPaymentsSkeleton: StoryObj = {
-	render: () => <CheckoutExpressPaymentsSkeletonComponent />,
-	parameters: {
-		docs: {
-			source: {
-				code: '<CheckoutExpressPaymentsSkeleton />',
-			},
-			description: {
-				story: 'The Skeleton pattern for the Express Payments on the Checkout block.',
 			},
 		},
 	},

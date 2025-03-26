@@ -14,12 +14,14 @@ export interface SkeletonProps {
 	height?: string;
 	borderRadius?: string;
 	className?: string;
+	maxWidth?: string;
 }
 
 export const Skeleton = ( {
 	tag: Tag = 'div',
 	width = '100%',
-	height = '1em',
+	height = '8px',
+	maxWidth = '',
 	className = '',
 	borderRadius = '',
 }: SkeletonProps ): JSX.Element => {
@@ -34,6 +36,7 @@ export const Skeleton = ( {
 				width,
 				height,
 				borderRadius,
+				maxWidth,
 			} }
 		/>
 	);
