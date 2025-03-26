@@ -41,7 +41,7 @@ export interface WooPaymentsProviderOnboardingStep {
 	label: string;
 	path?: string;
 	order: number;
-	status?: 'completed' | 'incomplete';
+	status?: 'not_started' | 'in_progress' | 'completed';
 	dependencies?: string[];
 	actions?: {
 		save?: {
