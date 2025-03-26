@@ -1,0 +1,4 @@
+Significance: minor
+Type: dev
+
+Add a GH workflow to comment on Rubik issues with no priority label
