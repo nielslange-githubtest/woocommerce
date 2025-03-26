@@ -1,11 +1,11 @@
 <?php
-declare(strict_types=1);
-
 /**
  * Unit tests for WC_Helper_Sanitization class
  *
  * @package WooCommerce\Tests\Admin\Helper
  */
+
+declare(strict_types=1);
 
 /**
  * Class WC_Helper_Sanitization_Test

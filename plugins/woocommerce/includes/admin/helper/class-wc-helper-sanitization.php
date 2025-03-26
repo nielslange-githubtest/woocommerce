@@ -1,11 +1,11 @@
 <?php
-declare(strict_types=1);
-
 /**
  * WooCommerce Admin Sanitization Helper
  *
  * @package WooCommerce\Admin\Helper
  */
+
+declare(strict_types=1);
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

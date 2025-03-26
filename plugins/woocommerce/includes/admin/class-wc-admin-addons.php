@@ -314,13 +314,16 @@ class WC_Admin_Addons {
 			/**
 			 * Hook fired when there is a connection error with WooCommerce.com.
 			 *
+			 * @since 6.1.0
 			 * @param string $error_message The error message.
 			 */
 			do_action( 'woocommerce_page_wc_addons_connection_error', $response->get_error_message() );
 
 			$message = self::is_ssl_error( $response->get_error_message() )
-				? __( 'We encountered an SSL error. Please ensure your site supports TLS version 1.2 or above.',
-					'woocommerce' )
+				? __(
+					'We encountered an SSL error. Please ensure your site supports TLS version 1.2 or above.',
+					'woocommerce'
+				)
 				: $response->get_error_message();
 
 			return new WP_Error( 'wc-addons-connection-error', $message );
@@ -331,6 +334,7 @@ class WC_Admin_Addons {
 			/**
 			 * Hook fired when there is a connection error with WooCommerce.com.
 			 *
+			 * @since 6.1.0
 			 * @param int $response_code The HTTP response code.
 			 */
 			do_action( 'woocommerce_page_wc_addons_connection_error', $response_code );
@@ -350,6 +354,7 @@ class WC_Admin_Addons {
 			/**
 			 * Hook fired when there is a connection error with WooCommerce.com.
 			 *
+			 * @since 6.1.0
 			 * @param string $error_message The error message.
 			 */
 			do_action( 'woocommerce_page_wc_addons_connection_error', 'Empty or malformed response' );
