@@ -145,8 +145,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ true }
 						productId={ productWithImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 					/>
@@ -180,8 +178,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ true }
 						productId={ productWithoutImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 					/>
@@ -213,8 +209,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ false }
 						productId={ productWithImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 					/>
@@ -243,8 +237,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ false }
 						productId={ productWithoutImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 					/>
@@ -271,8 +263,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ true }
 						productId={ productWithoutImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 					/>
@@ -298,8 +288,6 @@ describe( 'Product Image Block', () => {
 					<Block
 						showProductLink={ true }
 						productId={ productWithImages.id }
-						showSaleBadge={ false }
-						saleBadgeAlign={ 'left' }
 						imageSizing={ ImageSizing.SINGLE }
 						isDescendentOfQueryLoop={ false }
 						isEditor={ true }

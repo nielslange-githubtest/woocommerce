@@ -61,16 +61,13 @@ const v1 = {
 	},
 	isEligible: ( attributes ) => attributes.showSaleBadge !== undefined,
 	migrate: ( attributes ) => {
-		// Add a sale badge as an inner block if it is enabled.
+		// Remove the sale badge attributes and convert it to an inner block if it is set.
 		const { showSaleBadge, saleBadgeAlign, ...restAttributes } = attributes;
 		if ( ! showSaleBadge ) {
 			return [ restAttributes ];
 		}
 
 		// Place the badge into a row so that we can set the alignment.
-		const saleBadgeBlock = createBlock( 'woocommerce/product-sale-badge', {
-			productId: attributes.productId,
-		} );
 		const badgeRow = createBlock(
 			'core/group',
 			{
@@ -80,7 +77,11 @@ const v1 = {
 					justifyContent: saleBadgeAlign,
 				},
 			},
-			[ saleBadgeBlock ]
+			[
+				createBlock( 'woocommerce/product-sale-badge', {
+					productId: attributes.productId,
+				} ),
+			]
 		);
 
 		return [ restAttributes, [ badgeRow ] ];

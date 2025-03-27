@@ -38,10 +38,8 @@ const CartCrossSellsProduct = ( {
 					<div>
 						<ProductImage
 							className={ '' }
-							showSaleBadge={ true }
 							productId={ product.id }
 							showProductLink={ true }
-							saleBadgeAlign={ 'left' }
 							imageSizing={ ImageSizing.SINGLE }
 							isDescendentOfQueryLoop={ false }
 							scale={ 'cover' }
