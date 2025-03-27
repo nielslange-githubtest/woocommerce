@@ -299,7 +299,7 @@ const stylingEntriesArray = Object.entries(
 ).filter( ( [ blockName ] ) => {
 	// TODO - we need to fix style building for script modules to happen within that build instead of here.
 	// If this block introduces a style import it will **not** be built currently.
-	return ! blockName === 'add-to-cart-with-options';
+	return blockName !== 'add-to-cart-with-options';
 } );
 
 // convert back to object
