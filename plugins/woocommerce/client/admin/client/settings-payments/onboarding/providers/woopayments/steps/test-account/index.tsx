@@ -52,6 +52,7 @@ const TestAccountStep = () => {
 	const [ testDriveLoaderProgress, setTestDriveLoaderProgress ] =
 		useState( 5 );
 	const [ errorMessage, setErrorMessage ] = useState< string | undefined >();
+	const [ retryCounter, setRetryCounter ] = useState( 0 );
 
 	// Create a reference object.
 	const loaderProgressRef = useRef( testDriveLoaderProgress );
@@ -107,6 +108,7 @@ const TestAccountStep = () => {
 		currentStep?.actions?.init?.href,
 		currentStep?.actions?.check?.href,
 		refreshOnboardingSteps,
+		retryCounter,
 	] );
 
 	return (
