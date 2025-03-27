@@ -54,7 +54,7 @@ export function Layout( {
 						The NavigableRegion must always be rendered and not use
 						`inert` otherwise `useNavigateRegions` will fail.
 						NOTE: NavigableRegion has been removed and will be replaced
-						with the new component from @automattic/site-admin.
+						with the new component from @automattic/site-admin, see https://github.com/Automattic/wp-calypso/issues/99795.
 					*/ }
 					{ ( ! isMobileViewport || ! areas.mobile ) && (
 						<AnimatePresence>
@@ -74,7 +74,7 @@ export function Layout( {
 								className="woocommerce-site-layout__sidebar a8c-site-admin-sidebar"
 							>
 								<SidebarContent
-									shouldAnimate={ false }
+									shouldAnimate={ true }
 									routeKey={ routeKey }
 								>
 									{ areas.sidebar }

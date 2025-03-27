@@ -17,6 +17,7 @@ import {
 	removeAction,
 } from '@wordpress/hooks';
 import { useLocation } from '@automattic/site-admin';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -92,14 +93,55 @@ const getLegacyRoute = (
 	settingsPage: SettingsPage,
 	settingsData: SettingsData
 ): Route => {
+	const isPrimary =
+		activeSection === 'default' &&
+		Object.keys( settingsData.pages[ activePage ].sections ).length === 1;
+
+	const primarySidebarItems = Object.keys( settingsData.pages ).map(
+		( slug ) => {
+			const {
+				label,
+				icon = 'settings',
+				sections,
+			} = settingsData.pages[ slug ];
+			const to = addQueryArgs( 'wc-settings', { tab: slug } );
+			const withChevron = Object.keys( sections ).length > 1;
+			const isCurrent = slug === activePage;
+
+			return {
+				slug,
+				label,
+				icon,
+				to,
+				withChevron,
+				isCurrent,
+			};
+		}
+	);
+
+	const secondarySidebarItems = Object.keys(
+		settingsData.pages[ activePage ].sections
+	).map( ( slug ) => {
+		const { label } = settingsData.pages[ activePage ].sections[ slug ];
+		const to = addQueryArgs( 'wc-settings', {
+			tab: activePage,
+			section: slug,
+		} );
+		const isCurrent = slug === activeSection;
+		return { slug, label, to, withChevron: false, isCurrent };
+	} );
+
+	const sidebarItems = isPrimary
+		? primarySidebarItems
+		: secondarySidebarItems;
+
 	return {
 		key: activePage,
 		areas: {
 			sidebar: (
 				<Sidebar
-					activePage={ activePage }
-					pages={ settingsData.pages }
 					pageTitle={ __( 'Store settings', 'woocommerce' ) }
+					sidebarItems={ sidebarItems }
 				/>
 			),
 			content: (

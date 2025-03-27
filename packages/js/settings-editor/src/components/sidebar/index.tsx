@@ -12,48 +12,19 @@ import {
 
 const { Icon, ...icons } = IconPackage;
 
-const SidebarNavigationScreenContent = ( {
-	activePage,
-	pages,
-}: {
-	activePage: string;
-	pages: SettingsPages;
-} ) => {
-	return (
-		<ItemGroup>
-			{ Object.keys( pages ).map( ( slug ) => {
-				const { label, icon } = pages[ slug ];
-				const isCurrentPage = activePage === slug;
-				const to = isCurrentPage
-					? undefined
-					: addQueryArgs( 'wc-settings', { tab: slug } );
-				return (
-					<SidebarNavigationItem
-						icon={
-							icons[ icon as keyof typeof icons ] ||
-							icons.settings
-						}
-						aria-current={ isCurrentPage }
-						uid={ slug }
-						key={ slug }
-						to={ to }
-					>
-						{ label }
-					</SidebarNavigationItem>
-				);
-			} ) }
-		</ItemGroup>
-	);
-};
-
 export const Sidebar = ( {
-	activePage,
-	pages,
 	pageTitle,
+	sidebarItems,
 }: {
-	activePage: string;
-	pages: SettingsPages;
 	pageTitle: string;
+	sidebarItems: Array< {
+		slug: string;
+		label: string;
+		to: string;
+		isCurrent: boolean;
+		withChevron: boolean;
+		icon?: string;
+	} >;
 } ) => {
 	return (
 		<SidebarNavigationScreen
@@ -61,10 +32,31 @@ export const Sidebar = ( {
 			isRoot
 			exitLink={ addQueryArgs( 'admin.php', { page: 'wc-admin' } ) }
 			content={
-				<SidebarNavigationScreenContent
-					activePage={ activePage }
-					pages={ pages }
-				/>
+				<ItemGroup>
+					{ sidebarItems.map( ( item ) => {
+						const {
+							label,
+							icon,
+							isCurrent,
+							to,
+							withChevron,
+							slug,
+						} = item;
+
+						return (
+							<SidebarNavigationItem
+								icon={ icons[ icon as keyof typeof icons ] }
+								aria-current={ isCurrent }
+								uid={ slug }
+								key={ slug }
+								to={ to }
+								suffix={ withChevron ? 'CHEVRON' : undefined }
+							>
+								{ label }
+							</SidebarNavigationItem>
+						);
+					} ) }
+				</ItemGroup>
 			}
 		/>
 	);
