@@ -341,17 +341,6 @@ class Api {
 	}
 
 	/**
-	 * Returns the appropriate asset path for the script module build.
-	 *
-	 * @param   string $filename  Filename for asset path (without extension).
-	 * @param   string $type      File type (.css or .js).
-	 * @return  string             The generated path.
-	 */
-	public function get_script_module_asset_build_path( $filename, $type = 'js' ) {
-		return "assets/client/blocks/woocommerce/$filename.$type";
-	}
-
-	/**
 	 * Adds an inline script, once.
 	 *
 	 * @param string $handle Script handle.

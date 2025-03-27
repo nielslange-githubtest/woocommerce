@@ -10,7 +10,7 @@ use Automattic\WooCommerce\Enums\ProductType;
 /**
  * ProductButton class.
  */
-class ProductButton extends AbstractBlock {
+class ProductButton extends AbstractInteractivityAPIBlock {
 
 	/**
 	 * Block name.
@@ -26,17 +26,6 @@ class ProductButton extends AbstractBlock {
 	 * @var array
 	 */
 	private static $cart = null;
-
-
-	/**
-	 * Disable frontend script for this block type, it's a script module.
-	 *
-	 * @param string $key Data to get, or default to everything.
-	 * @return array|string|null
-	 */
-	protected function get_block_type_script( $key = null ) {
-		return null;
-	}
 
 	/**
 	 * Register the context.

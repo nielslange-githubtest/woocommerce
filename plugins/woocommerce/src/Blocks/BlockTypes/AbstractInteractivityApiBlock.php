@@ -47,7 +47,7 @@ abstract class AbstractInteractivityAPIBlock extends AbstractBlock {
 	 */
 	protected function get_block_type_style() {
 		$style_handle = $this->get_full_block_name() . '-style';
-		$this->asset_api->register_style( $style_handle, $this->asset_api->get_script_module_asset_build_path( $this->block_name, 'css' ), [], 'all', true );
+		$this->asset_api->register_style( $style_handle, $this->asset_api->get_block_asset_build_path( $style_handle, 'css' ), [], 'all', true );
 
 		return [ 'wc-blocks-style', $style_handle ];
 	}
