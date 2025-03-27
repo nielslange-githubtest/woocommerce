@@ -91,7 +91,7 @@ class ProductFilters extends AbstractBlock {
 			''
 		);
 		$interactivity_context = array(
-			'params'        => $filter_params,
+			'params'        => count( $filter_params ) > 0 ? $filter_params : new \stdClass(),
 			'activeFilters' => $active_filters,
 		);
 
