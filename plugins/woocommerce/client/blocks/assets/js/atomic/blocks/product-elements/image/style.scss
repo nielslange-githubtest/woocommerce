@@ -57,6 +57,9 @@
 	position: absolute;
 	left: 0;
 	top: 0;
+	width: calc( 100% - $gap-smaller );
+	height: calc( 100% - $gap-smaller );
+	padding: $gap-smaller * 0.5;
 }
 
 .is-loading .wc-block-components-product-image {

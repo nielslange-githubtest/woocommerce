@@ -19,7 +19,6 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import ProductSaleBadge from '../sale-badge/block';
 import './style.scss';
 import { BlockAttributes, ImageSizing } from './types';
 
@@ -108,8 +107,6 @@ export const Block = ( props: Props ): JSX.Element | null => {
 		className,
 		imageSizing = ImageSizing.SINGLE,
 		showProductLink = true,
-		showSaleBadge,
-		saleBadgeAlign = 'right',
 		height,
 		width,
 		scale,
@@ -181,12 +178,6 @@ export const Block = ( props: Props ): JSX.Element | null => {
 			>
 				<EditorWrapper>
 					<ParentComponent { ...( showProductLink && anchorProps ) }>
-						{ !! showSaleBadge && (
-							<ProductSaleBadge
-								align={ saleBadgeAlign }
-								{ ...restProps }
-							/>
-						) }
 						<Image
 							fallbackAlt={ decodeEntities( product.name ) }
 							image={ image }

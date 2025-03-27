@@ -36,22 +36,12 @@ import { BlockAttributes, ImageSizing } from './types';
 import { ImageSizeSettings } from './image-size-settings';
 import { useIsDescendentOfSingleProductBlock } from '../shared/use-is-descendent-of-single-product-block';
 
-type SaleBadgeAlignProps = 'left' | 'center' | 'right';
-
 const Edit = ( {
 	attributes,
 	setAttributes,
 	context,
 }: BlockEditProps< BlockAttributes > & { context: Context } ): JSX.Element => {
-	const {
-		showProductLink,
-		imageSizing,
-		showSaleBadge,
-		saleBadgeAlign,
-		width,
-		height,
-		scale,
-	} = attributes;
+	const { showProductLink, imageSizing, width, height, scale } = attributes;
 	const blockProps = useBlockProps( { style: { width, height } } );
 	const isDescendentOfQueryLoop = Number.isFinite( context.queryId );
 	const { isDescendentOfSingleProductBlock } =
@@ -100,45 +90,6 @@ const Edit = ( {
 							} )
 						}
 					/>
-					<ToggleControl
-						label={ __( 'Show On-Sale Badge', 'woocommerce' ) }
-						help={ __(
-							'Display a “sale” badge if the product is on-sale.',
-							'woocommerce'
-						) }
-						checked={ showSaleBadge }
-						onChange={ () =>
-							setAttributes( {
-								showSaleBadge: ! showSaleBadge,
-							} )
-						}
-					/>
-					{ showSaleBadge && (
-						<ToggleGroupControl
-							label={ __(
-								'Sale Badge Alignment',
-								'woocommerce'
-							) }
-							isBlock
-							value={ saleBadgeAlign }
-							onChange={ ( value: SaleBadgeAlignProps ) =>
-								setAttributes( { saleBadgeAlign: value } )
-							}
-						>
-							<ToggleGroupControlOption
-								value="left"
-								label={ __( 'Left', 'woocommerce' ) }
-							/>
-							<ToggleGroupControlOption
-								value="center"
-								label={ __( 'Center', 'woocommerce' ) }
-							/>
-							<ToggleGroupControlOption
-								value="right"
-								label={ __( 'Right', 'woocommerce' ) }
-							/>
-						</ToggleGroupControl>
-					) }
 					<ToggleGroupControl
 						label={ __( 'Image Sizing', 'woocommerce' ) }
 						isBlock

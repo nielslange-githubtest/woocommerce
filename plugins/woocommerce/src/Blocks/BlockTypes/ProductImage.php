@@ -73,8 +73,6 @@ class ProductImage extends AbstractBlock {
 		// These should match what's set in JS `registerBlockType`.
 		$defaults = array(
 			'showProductLink'         => true,
-			'showSaleBadge'           => true,
-			'saleBadgeAlign'          => 'right',
 			'imageSizing'             => 'single',
 			'productId'               => 'number',
 			'isDescendentOfQueryLoop' => 'false',
@@ -230,24 +228,31 @@ class ProductImage extends AbstractBlock {
 			)
 		);
 
-		if ( $product ) {
-			return sprintf(
-				'<div %1$s>
-					%2$s
-					<div class="wc-block-components-product-image-inner-blocks">
-						%3$s
-					</div>
-				</div>',
-				$wrapper_attributes,
-				$this->render_anchor(
-					$product,
-					$this->render_on_sale_badge( $product, $parsed_attributes ),
-					$this->render_image( $product, $parsed_attributes ),
-					$parsed_attributes
-				),
-				$content
-			);
-
+		if ( ! $product instanceof \WC_Product ) {
+			return;
 		}
+
+		// Support older versions of the block that use `showSaleBadge` instead of inner blocks.
+		$sale_badge = '';
+		if ( isset( $parsed_attributes['showSaleBadge'] ) ) {
+			$sale_badge = $this->render_on_sale_badge( $product, $parsed_attributes );
+		}
+
+		return sprintf(
+			'<div %1$s>
+				%2$s
+				<div class="wc-block-components-product-image-inner-blocks">
+					%3$s
+				</div>
+			</div>',
+			$wrapper_attributes,
+			$this->render_anchor(
+				$product,
+				$sale_badge,
+				$this->render_image( $product, $parsed_attributes ),
+				$parsed_attributes
+			),
+			$content
+		);
 	}
 }

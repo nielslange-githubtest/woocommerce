@@ -12,6 +12,7 @@ import { BLOCK_ICON as icon } from './constants';
 import { supports } from './supports';
 import sharedConfig from '../shared/config';
 import metadata from './block.json';
+import deprecated from './deprecated';
 
 registerBlockType( metadata, {
 	...sharedConfig,
@@ -21,4 +22,5 @@ registerBlockType( metadata, {
 	save: () => {
 		return <InnerBlocks.Content />;
 	},
+	deprecated,
 } );
