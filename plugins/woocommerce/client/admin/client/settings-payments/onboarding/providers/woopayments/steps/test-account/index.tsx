@@ -116,8 +116,26 @@ const TestAccountStep = () => {
 			<WooPaymentsStepHeader onClose={ () => {} } />
 			{ errorMessage && (
 				<Notice
-					status="error"
+					status="warning"
 					isDismissible={ false }
+					actions={ [
+						{
+							label: __( 'Try Again', 'woocommerce' ),
+							variant: 'primary',
+							onClick: () => {
+								// Increment the retry counter to trigger the test account setup again.
+								setRetryCounter( ( prev ) => prev + 1 );
+								setErrorMessage( undefined );
+							},
+						},
+						{
+							label: __( 'Cancel', 'woocommerce' ),
+							variant: 'secondary',
+							className:
+								'woocommerce-payments-test-account-step__error-cancel-button',
+							onClick: () => {},
+						},
+					] }
 					className="woocommerce-payments-test-account-step__error"
 				>
 					<p className="woocommerce-payments-test-account-step__error-message">
