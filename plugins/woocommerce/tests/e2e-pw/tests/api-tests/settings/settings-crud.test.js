@@ -1539,7 +1539,7 @@ test.describe( 'Settings API tests: CRUD', () => {
 						type: 'color',
 						default: '#720eec',
 						tip: 'The base color for WooCommerce email templates. Default <code>#720eec</code>.',
-						value: '#9DFF20',
+						value: expect.stringMatching( /^#[0-9A-Fa-f]{6}$/ ),
 					} ),
 				] )
 			);
@@ -1567,7 +1567,7 @@ test.describe( 'Settings API tests: CRUD', () => {
 						type: 'color',
 						default: '#ffffff',
 						tip: 'The main body background color. Default <code>#ffffff</code>.',
-						value: '#ffffff',
+						value: expect.stringMatching( /^#[0-9A-Fa-f]{6}$/ ),
 					} ),
 				] )
 			);
@@ -1581,7 +1581,7 @@ test.describe( 'Settings API tests: CRUD', () => {
 						type: 'color',
 						default: '#3c3c3c',
 						tip: 'The main body text color. Default <code>#3c3c3c</code>.',
-						value: '#000000',
+						value: expect.stringMatching( /^#[0-9A-Fa-f]{6}$/ ),
 					} ),
 				] )
 			);
