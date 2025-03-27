@@ -185,7 +185,7 @@
 		"@wordpress/prettier-config": "1.4.0",
 		"@wordpress/private-apis": "wp-6.7",
 		"@wordpress/rich-text": "wp-6.6",
-		"@wordpress/scripts": "30.6.0",
+		"@wordpress/scripts": "30.13.0",
 		"@wordpress/stylelint-config": "^21.36.0",
 		"ajv-cli": "3.3.x",
 		"allure-playwright": "^2.9.2",
