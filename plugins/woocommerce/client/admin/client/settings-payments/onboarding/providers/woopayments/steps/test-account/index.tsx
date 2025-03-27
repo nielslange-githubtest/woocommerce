@@ -118,7 +118,9 @@ const TestAccountStep = () => {
 					isDismissible={ false }
 					className="woocommerce-payments-test-account-step__error"
 				>
-					{ errorMessage }
+					<p className="woocommerce-payments-test-account-step__error-message">
+						{ errorMessage }
+					</p>
 				</Notice>
 			) }
 			<TestDriveLoader progress={ testDriveLoaderProgress } />
