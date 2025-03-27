@@ -208,9 +208,10 @@ class WooPaymentsService {
 			'status'         => $this->get_onboarding_step_status( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location ),
 			'errors'         => array(),
 			'context'        => array(
-				'fields'          => $this->get_onboarding_kyc_fields(),
-				'sub_steps'       => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'sub_steps' ),
-				'self_assessment' => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'self_assessment' ),
+				'fields'            => $this->get_onboarding_kyc_fields(),
+				'sub_steps'         => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'sub_steps' ),
+				'self_assessment'   => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'self_assessment' ),
+				'overview_page_url' => $this->get_overview_page_url(),
 			),
 		);
 
@@ -1014,11 +1015,36 @@ class WooPaymentsService {
 	 */
 	private function get_onboarding_kyc_fallback_url(): string {
 		if ( class_exists( '\WC_Payments_Account' ) && is_callable( '\WC_Payments_Account::get_connect_url' ) ) {
-			$connect_url = \WC_Payments_Account::get_connect_url( self::FROM_NOX_IN_CONTEXT_ONBOARDING );
-		} else {
-			$connect_url = $this->provider->get_onboarding_url( $this->get_payment_gateway(), Utils::wc_payments_settings_url( self::ONBOARDING_PATH_BASE ) );
+			return \WC_Payments_Account::get_connect_url( self::FROM_NOX_IN_CONTEXT_ONBOARDING );
 		}
 
-		return $connect_url;
+		// Fall back to the provider onboarding URL.
+		return $this->provider->get_onboarding_url( $this->get_payment_gateway(), Utils::wc_payments_settings_url( self::ONBOARDING_PATH_BASE ) );
+	}
+
+	/**
+	 * Get the WooPayments Overview page URL.
+	 *
+	 * @return string The WooPayments Overview page URL.
+	 */
+	private function get_overview_page_url(): string {
+		if ( class_exists( '\WC_Payments_Account' ) && is_callable( '\WC_Payments_Account::get_overview_page_url' ) ) {
+			return add_query_arg(
+				array(
+					'from' => self::FROM_NOX_IN_CONTEXT_ONBOARDING,
+				),
+				\WC_Payments_Account::get_overview_page_url()
+			);
+		}
+
+		// Fall back to the known WooPayments Overview page URL.
+		return add_query_arg(
+			array(
+				'page' => 'wc-admin',
+				'path' => '/payments/overview',
+				'from' => self::FROM_NOX_IN_CONTEXT_ONBOARDING,
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 }
