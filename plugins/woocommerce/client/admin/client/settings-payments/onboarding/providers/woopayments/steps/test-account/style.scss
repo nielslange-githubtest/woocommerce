@@ -27,6 +27,27 @@
 	}
 
 	&__error {
-		margin: $gap-small $gap;
+		margin: $gap-small auto;
+		width: 90%;
+		max-width: 648px;
+
+		&-message {
+			margin-top: 0;
+		}
+
+		// Force the Cancel button to display as a link given it's not supported by the Notice component
+		&-cancel-button.is-secondary {
+			box-shadow: none;
+
+			&:hover {
+				box-shadow: none !important;
+			}
+		}
+
+		.components-notice__actions {
+			button {
+				margin-left: 0;
+			}
+		}
 	}
 }
