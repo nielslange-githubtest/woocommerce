@@ -18,13 +18,13 @@ function findInteractivityBlockAssets( dir, additionalPatterns = [] ) {
 
 			if ( blockJson.supports && blockJson.supports.interactivity ) {
 				const blockDir = path.dirname( fullPath );
-				const adjacentFiles = additionalPatterns.flatMap( ( pattern ) =>
+				const assets = additionalPatterns.flatMap( ( pattern ) =>
 					glob.sync( pattern, { cwd: blockDir, absolute: true } )
 				);
 				results.push( {
 					blockName: blockJson.name,
 					blockJson: fullPath,
-					adjacentFiles,
+					assets,
 				} );
 			}
 		}

@@ -23,59 +23,24 @@ const interactivityBlocks = findInteractivityBlockAssets(
 	[ 'frontend.*s', 'style.scss' ]
 );
 
-const scriptModuleEntries = interactivityBlocks.map( ( b ) => {
-	return {
-		[ b.blockName ]: b.adjacentFiles.find( ( f ) =>
-			f.includes( 'frontend' )
-		),
-	};
-} );
+const scriptModuleEntries = interactivityBlocks.reduce( ( acc, block ) => {
+	const frontendFile = block.assets.find( ( f ) => f.includes( 'frontend' ) );
+	if ( frontendFile ) {
+		acc[ block.blockName ] = frontendFile;
+	}
+	return acc;
+}, {} );
 
-const styleEntries = interactivityBlocks.map( ( b ) => {
-	return {
-		[ `${ b.blockName }-style` ]: b.adjacentFiles.find( ( f ) =>
-			f.includes( 'style' )
-		),
-	};
-} );
+const styleEntries = interactivityBlocks.reduce( ( acc, block ) => {
+	const styleFile = block.assets.find( ( f ) => f.includes( 'style' ) );
+	if ( styleFile ) {
+		acc[ `${ block.blockName }-style` ] = styleFile;
+	}
+	return acc;
+}, {} );
 
 const entries = {
 	// Blocks
-	// 'woocommerce/product-button':
-	// 	'./assets/js/atomic/blocks/product-elements/button/frontend.ts',
-	// 'woocommerce/product-gallery':
-	// 	'./assets/js/blocks/product-gallery/frontend.ts',
-	// 'woocommerce/product-gallery-large-image':
-	// 	'./assets/js/blocks/product-gallery/inner-blocks/product-gallery-large-image/frontend.ts',
-	// 'woocommerce/product-collection':
-	// 	'./assets/js/blocks/product-collection/frontend.ts',
-	// 'woocommerce/product-filters':
-	// 	'./assets/js/blocks/product-filters/frontend.ts',
-	// 'woocommerce/product-filter-active':
-	// 	'./assets/js/blocks/product-filters/inner-blocks/active-filters/frontend.ts',
-	// 'woocommerce/product-filter-checkbox-list':
-	// 	'./assets/js/blocks/product-filters/inner-blocks/checkbox-list/frontend.ts',
-	// 'woocommerce/product-filter-chips':
-	// 	'./assets/js/blocks/product-filters/inner-blocks/chips/frontend.ts',
-	// 'woocommerce/product-filter-price':
-	// 	'./assets/js/blocks/product-filters/inner-blocks/price-filter/frontend.ts',
-	// 'woocommerce/product-filter-price-slider':
-	// 	'./assets/js/blocks/product-filters/inner-blocks/price-slider/frontend.ts',
-	// 'woocommerce/accordion-group':
-	// 	'./assets/js/blocks/accordion/accordion-group/frontend.js',
-	// 'woocommerce/add-to-cart-form':
-	// 	'./assets/js/blocks/product-elements/add-to-cart-form/frontend.ts',
-	// 'woocommerce/add-to-cart-with-options':
-	// 	'./assets/js/blocks/add-to-cart-with-options/frontend.ts',
-	// 'woocommerce/add-to-cart-with-options-grouped-product-selector':
-	// 	'./assets/js/blocks/add-to-cart-with-options/grouped-product-selector/frontend.ts',
-	// 'woocommerce/add-to-cart-with-options-quantity-selector':
-	// 	'./assets/js/blocks/add-to-cart-with-options/quantity-selector/frontend.ts',
-	// 'woocommerce/add-to-cart-with-options-variation-selector':
-	// 	'./assets/js/blocks/add-to-cart-with-options/variation-selector/frontend.ts',
-	// 'woocommerce/add-to-cart-with-options-variation-selector-attribute-options':
-	// 	'./assets/js/blocks/add-to-cart-with-options/variation-selector/attribute-options/frontend.ts',
-
 	...scriptModuleEntries,
 	...styleEntries,
 
