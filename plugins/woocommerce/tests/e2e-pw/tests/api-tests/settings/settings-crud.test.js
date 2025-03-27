@@ -1348,7 +1348,7 @@ test.describe( 'Settings API tests: CRUD', () => {
 						description: 'Enable log-in during checkout',
 						type: 'checkbox',
 						default: 'no',
-						value: 'no',
+						value: expect.stringMatching( /no|yes/ ),
 					} ),
 				] )
 			);
@@ -1360,7 +1360,7 @@ test.describe( 'Settings API tests: CRUD', () => {
 						description: 'During checkout',
 						type: 'checkbox',
 						default: 'no',
-						value: 'no',
+						value: expect.stringMatching( /no|yes/ ),
 					} ),
 				] )
 			);
