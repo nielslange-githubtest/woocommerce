@@ -217,23 +217,27 @@ class WooPaymentsService {
 		// If the step is not completed, we need to add the actions.
 		if ( self::ONBOARDING_STEP_STATUS_COMPLETED !== $business_verification_step_details['status'] ) {
 			$business_verification_step_details['actions'] = array(
-				'start'                  => array(
+				'start'                => array(
 					'type' => self::ACTION_TYPE_REST,
 					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/start' ),
 				),
-				'save'                   => array(
+				'save'                 => array(
 					'type' => self::ACTION_TYPE_REST,
 					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/save' ),
 				),
-				'session_start'          => array(
+				'kyc_session'          => array(
 					'type' => self::ACTION_TYPE_REST,
-					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/session/start' ),
+					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/kyc_session' ),
 				),
-				'session_start_fallback' => array(
+				'kyc_session_finish'   => array(
+					'type' => self::ACTION_TYPE_REST,
+					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/kyc_session/finish' ),
+				),
+				'kyc_fallback' => array(
 					'type' => self::ACTION_TYPE_REDIRECT,
-					'href' => $this->get_onboarding_fallback_url(),
+					'href' => $this->get_onboarding_kyc_fallback_url(),
 				),
-				'finish'                 => array(
+				'finish'               => array(
 					'type' => self::ACTION_TYPE_REST,
 					'href' => rest_url( trailingslashit( $rest_path ) . self::ONBOARDING_STEP_BUSINESS_VERIFICATION . '/finish' ),
 				),
@@ -685,7 +689,7 @@ class WooPaymentsService {
 			'/wc/v3/payments/onboarding/kyc/finalize',
 			array(
 				'source' => ! empty( $source ) ? $source : self::FROM_PAYMENT_SETTINGS,
-				'from'   => self::FROM_PAYMENT_SETTINGS,
+				'from'   => self::FROM_NOX_IN_CONTEXT_ONBOARDING,
 			)
 		);
 
@@ -1008,7 +1012,7 @@ class WooPaymentsService {
 	 *
 	 * @return string The fallback URL for the embedded KYC flow.
 	 */
-	private function get_onboarding_fallback_url(): string {
+	private function get_onboarding_kyc_fallback_url(): string {
 		if ( class_exists( '\WC_Payments_Account' ) && is_callable( '\WC_Payments_Account::get_connect_url' ) ) {
 			$connect_url = \WC_Payments_Account::get_connect_url( self::FROM_NOX_IN_CONTEXT_ONBOARDING );
 		} else {
