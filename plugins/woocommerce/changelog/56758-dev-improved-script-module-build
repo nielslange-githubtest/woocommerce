@@ -1,0 +1,4 @@
+Significance: minor
+Type: dev
+
+Introduce AbstractInteractivityAPI block and improve script module build to support interactivity API blocks.
