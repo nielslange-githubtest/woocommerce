@@ -15,7 +15,6 @@ export const CartSkeleton = () => {
 			</div>
 			<div className="wc-block-components-sidebar">
 				<CartOrderSummarySkeletonComponent />
-				<CartExpressPaymentsSkeletonComponent />
 			</div>
 		</div>
 	);

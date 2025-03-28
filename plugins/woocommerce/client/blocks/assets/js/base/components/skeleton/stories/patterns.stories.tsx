@@ -18,7 +18,7 @@ import { CheckoutShippingSkeletonPrimary as CheckoutShippingSkeletonPrimaryCompo
 import { CheckoutShippingSkeletonAdditional as CheckoutShippingSkeletonAdditionalComponent } from '../patterns/checkout-shipping-additional';
 import { CheckoutPaymentSkeleton as CheckoutPaymentSkeletonComponent } from '../patterns/checkout-payment';
 import { CheckoutOrderSummarySkeleton as CheckoutOrderSummarySkeletonComponent } from '../patterns/checkout-order-summary';
-
+import { CheckoutOrderSummaryMobileSkeleton as CheckoutOrderSummaryMobileSkeletonComponent } from '../patterns/checkout-order-summary-mobile';
 export default {
 	title: 'Base Components/Skeleton/Patterns',
 	component: Skeleton,
@@ -221,6 +221,21 @@ export const CheckoutOrderSummarySkeleton: StoryObj = {
 			},
 			description: {
 				story: 'The skeleton pattern for the Order Summary section on the Checkout block.',
+			},
+		},
+	},
+};
+
+export const CheckoutOrderSummaryMobileSkeleton: StoryObj = {
+	render: () => <CheckoutOrderSummaryMobileSkeletonComponent />,
+	storyName: 'Checkout Order Summary Mobile skeleton',
+	parameters: {
+		docs: {
+			source: {
+				code: '<CheckoutOrderSummaryMobileSkeleton />',
+			},
+			description: {
+				story: 'The skeleton pattern for the Order Summary section on the Checkout block on mobile.',
 			},
 		},
 	},
