@@ -708,7 +708,9 @@ test.describe(
 			await page.getByRole( 'button', { name: 'Place order' } ).click();
 
 			await expect(
-				page.getByText( 'Usage limit for coupon "email-restricted" has been reached.' )
+				page.getByText(
+					'Usage limit for coupon "email-restricted" has been reached.'
+				)
 			).toBeVisible();
 
 			// clean up the order we just made
