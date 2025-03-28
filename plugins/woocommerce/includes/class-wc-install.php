@@ -237,8 +237,15 @@ class WC_Install {
 		'7.7.0' => array(
 			'wc_update_770_remove_multichannel_marketing_feature_options',
 		),
+		'7.9.0' => array(
+			'wc_update_790_blockified_product_grid_block',
+		),
 		'8.1.0' => array(
 			'wc_update_810_migrate_transactional_metadata_for_hpos',
+		),
+		'8.3.0' => array(
+			'wc_update_830_rename_checkout_template',
+			'wc_update_830_rename_cart_template',
 		),
 		'8.6.0' => array(
 			'wc_update_860_remove_recommended_marketing_plugins_transient',
@@ -276,6 +283,12 @@ class WC_Install {
 		),
 		'9.8.0' => array(
 			'wc_update_980_remove_order_attribution_install_banner_dismissed_option',
+		),
+		'9.9.0' => array(
+			'wc_update_990_update_primary_key_to_composite_in_order_product_lookup_table',
+			'wc_update_990_add_old_refunded_order_items_to_product_lookup_table',
+			'wc_update_990_remove_wc_count_comments_transient',
+			'wc_update_990_remove_email_notes',
 		),
 	);
 
@@ -1781,7 +1794,7 @@ CREATE TABLE {$wpdb->prefix}wc_order_product_lookup (
 	product_id bigint(20) unsigned NOT NULL,
 	variation_id bigint(20) unsigned NOT NULL,
 	customer_id bigint(20) unsigned NULL,
-	date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+	date_created datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	product_qty int(11) NOT NULL,
 	product_net_revenue double DEFAULT 0 NOT NULL,
 	product_gross_revenue double DEFAULT 0 NOT NULL,
@@ -1789,11 +1802,12 @@ CREATE TABLE {$wpdb->prefix}wc_order_product_lookup (
 	tax_amount double DEFAULT 0 NOT NULL,
 	shipping_amount double DEFAULT 0 NOT NULL,
 	shipping_tax_amount double DEFAULT 0 NOT NULL,
-	PRIMARY KEY  (order_item_id),
+	PRIMARY KEY  (order_item_id, order_id),
 	KEY order_id (order_id),
 	KEY product_id (product_id),
 	KEY customer_id (customer_id),
-	KEY date_created (date_created)
+	KEY date_created (date_created),
+	KEY customer_product_date (customer_id, product_id, date_created)
 ) $collate;
 CREATE TABLE {$wpdb->prefix}wc_order_tax_lookup (
 	order_id bigint(20) unsigned NOT NULL,

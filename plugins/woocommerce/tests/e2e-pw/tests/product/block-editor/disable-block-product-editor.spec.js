@@ -52,8 +52,6 @@ test.describe.serial(
 			}
 		} );
 
-		test.skip( 'Temporary skip for 9.8' );
-
 		test.skip(
 			isNewProductEditorEnabled && isTrackingSupposedToBeEnabled,
 			'The block product editor is not being tested'

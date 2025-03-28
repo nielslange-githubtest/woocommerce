@@ -152,6 +152,28 @@ Displays an on-sale badge if the product is on-sale.
 -	**Supports:** 
 -	**Attributes:** isDescendentOfQueryLoop, isDescendentOfSingleProductTemplate, productId
 
+## Product SKU - woocommerce/product-sku
+
+Displays the SKU of a product.
+
+-	**Name:** woocommerce/product-sku
+-	**Category:** woocommerce-product-elements
+-   **Ancestor:** woocommerce/product-meta,woocommerce/all-products,woocommerce/single-product,woocommerce/product-template,core/post-template
+-   **Parent:** 
+-	**Supports:** 
+-	**Attributes:** isDescendantOfAllProducts, isDescendentOfQueryLoop, isDescendentOfSingleProductBlock, isDescendentOfSingleProductTemplate, prefix, productId, showProductSelector, suffix
+
+## Product Stock Indicator - woocommerce/product-stock-indicator
+
+Display product stock status.
+
+-	**Name:** woocommerce/product-stock-indicator
+-	**Category:** 
+-   **Ancestor:** 
+-   **Parent:** 
+-	**Supports:** 
+-	**Attributes:** isDescendantOfAllProducts, isDescendentOfQueryLoop
+
 ## Product Summary - woocommerce/product-summary
 
 Display a short description about a product.
@@ -227,7 +249,7 @@ Create an "Add To Cart" composition by using blocks
 -   **Ancestor:** 
 -   **Parent:** 
 -	**Supports:** interactivity
--	**Attributes:** 
+-	**Attributes:** isDescendantOfAddToCartWithOptions
 
 ## Grouped Product Selector (Experimental) - woocommerce/add-to-cart-with-options-grouped-product-selector
 
@@ -238,6 +260,17 @@ Display a group of products that can be added to the cart.
 -   **Ancestor:** woocommerce/add-to-cart-with-options
 -   **Parent:** 
 -	**Supports:** 
+-	**Attributes:** 
+
+## Grouped Product Selector Item CTA (Experimental) - woocommerce/add-to-cart-with-options-grouped-product-selector-item-cta
+
+A CTA for a child product within the Grouped Product Selector block. Depending on the product type and properties, this might be a button, a checkbox or a link.
+
+-	**Name:** woocommerce/add-to-cart-with-options-grouped-product-selector-item-cta
+-	**Category:** woocommerce-product-elements
+-   **Ancestor:** woocommerce/add-to-cart-with-options-grouped-product-selector-item
+-   **Parent:** 
+-	**Supports:** ~~inserter~~
 -	**Attributes:** 
 
 ## Grouped Product Selector Item Template (Experimental) - woocommerce/add-to-cart-with-options-grouped-product-selector-item
@@ -261,6 +294,39 @@ Display an input field to select the number of products to add to cart.
 -   **Parent:** 
 -	**Supports:** 
 -	**Attributes:** quantitySelectorStyle
+
+## Variation Selector Item Template (Experimental) - woocommerce/add-to-cart-with-options-variation-selector-item
+
+A list item template that represents an attribute within the Variation Selector block.
+
+-	**Name:** woocommerce/add-to-cart-with-options-variation-selector-item
+-	**Category:** woocommerce-product-elements
+-   **Ancestor:** woocommerce/add-to-cart-with-options-variation-selector
+-   **Parent:** 
+-	**Supports:** ~~inserter~~
+-	**Attributes:** 
+
+## Variation Selector Attribute Name (Experimental) - woocommerce/add-to-cart-with-options-variation-selector-attribute-name
+
+The name of a given variable product attribute.
+
+-	**Name:** woocommerce/add-to-cart-with-options-variation-selector-attribute-name
+-	**Category:** woocommerce-product-elements
+-   **Ancestor:** woocommerce/add-to-cart-with-options-variation-selector-item
+-   **Parent:** 
+-	**Supports:** color (background, gradients, text), spacing (padding), typography (fontSize, lineHeight), ~~alignWide~~, ~~align~~, ~~inserter~~
+-	**Attributes:** 
+
+## Variation Selector Attribute Options (Experimental) - woocommerce/add-to-cart-with-options-variation-selector-attribute-options
+
+The attribute options of a given variable product attribute.
+
+-	**Name:** woocommerce/add-to-cart-with-options-variation-selector-attribute-options
+-	**Category:** woocommerce-product-elements
+-   **Ancestor:** woocommerce/add-to-cart-with-options-variation-selector-item
+-   **Parent:** 
+-	**Supports:** ~~inserter~~
+-	**Attributes:** style
 
 ## Variation Selector (Experimental) - woocommerce/add-to-cart-with-options-variation-selector
 
@@ -831,7 +897,7 @@ Visually highlight a product category and encourage prompt action.
 -	**Category:** woocommerce
 -   **Ancestor:** 
 -   **Parent:** 
--	**Supports:** align (full, wide), color (background, text), spacing (padding), ~~html~~
+-	**Supports:** align (full, wide), ariaLabel, color (background, text), spacing (padding), ~~html~~
 -	**Attributes:** alt, categoryId, contentAlign, dimRatio, editMode, focalPoint, hasParallax, imageFit, isRepeated, linkText, mediaId, mediaSrc, minHeight, overlayColor, overlayGradient, previewCategory, showDesc
 
 ## Featured Product - woocommerce/featured-product
@@ -842,7 +908,7 @@ Highlight a product or variation.
 -	**Category:** woocommerce
 -   **Ancestor:** 
 -   **Parent:** 
--	**Supports:** align (full, wide), color (background, text), multiple, spacing (padding), ~~html~~
+-	**Supports:** align (full, wide), ariaLabel, color (background, text), multiple, spacing (padding), ~~html~~
 -	**Attributes:** alt, contentAlign, dimRatio, editMode, focalPoint, hasParallax, imageFit, isRepeated, linkText, mediaId, mediaSrc, minHeight, overlayColor, overlayGradient, previewProduct, productId, showDesc, showPrice
 
 ## Filter Block - woocommerce/filter-wrapper
@@ -853,7 +919,7 @@ Highlight a product or variation.
 -	**Category:** woocommerce
 -   **Ancestor:** 
 -   **Parent:** 
--	**Supports:** 
+-	**Supports:** ~~inserter~~
 -	**Attributes:** filterType, heading
 
 ## Hand-picked Products - woocommerce/handpicked-products
@@ -1230,15 +1296,26 @@ The contents of this block will display when there are no products found.
 -	**Supports:** align, color (background, gradients, link, text), typography (fontSize, lineHeight), ~~html~~, ~~reusable~~
 -	**Attributes:** 
 
+## Product Description - woocommerce/product-description
+
+Displays the description of the product.
+
+-	**Name:** woocommerce/product-description
+-	**Category:** woocommerce
+-   **Ancestor:** woocommerce/single-product,woocommerce/product-template,core/post-template
+-   **Parent:** 
+-	**Supports:** align (full, wide), background (backgroundImage, backgroundSize), color (background, gradients, heading, link, text), dimensions (minHeight), layout, spacing (blockGap, margin, padding), typography (fontSize, lineHeight), ~~html~~
+-	**Attributes:** 
+
 ## Blockified Product Details - woocommerce/blockified-product-details
 
 Display a product's description, attributes, and reviews
 
 -	**Name:** woocommerce/blockified-product-details
 -	**Category:** woocommerce
--   **Ancestor:** 
+-   **Ancestor:** woocommerce/single-product,woocommerce/product-template,core/post-template
 -   **Parent:** 
--	**Supports:** 
+-	**Supports:** align (full, wide)
 -	**Attributes:** 
 
 ## Add to Cart with Options - woocommerce/add-to-cart-form
@@ -1252,7 +1329,7 @@ Display a button so the customer can add a product to their cart. Options will a
 -	**Supports:** interactivity
 -	**Attributes:** quantitySelectorStyle
 
-## Product Filters (Experimental) - woocommerce/product-filters
+## Product Filters - woocommerce/product-filters
 
 Let shoppers filter products displayed on the page.
 
@@ -1263,7 +1340,7 @@ Let shoppers filter products displayed on the page.
 -	**Supports:** align, color (background, button, heading, text, ~~enableContrastChecker~~), inserter, interactivity, layout (default, ~~allowEditing~~), multiple, spacing (blockGap), typography (fontSize)
 -	**Attributes:** isPreview
 
-## Active (Experimental) - woocommerce/product-filter-active
+## Active - woocommerce/product-filter-active
 
 Display the currently active filters.
 
@@ -1274,7 +1351,7 @@ Display the currently active filters.
 -	**Supports:** interactivity, spacing (margin, padding, ~~blockGap~~)
 -	**Attributes:** 
 
-## Attribute (Experimental) - woocommerce/product-filter-attribute
+## Attribute - woocommerce/product-filter-attribute
 
 Enable customers to filter the product grid by selecting one or more attributes, such as color.
 
@@ -1293,7 +1370,7 @@ Display a list of filter options.
 -	**Category:** woocommerce
 -   **Ancestor:** woocommerce/product-filter-attribute,woocommerce/product-filter-status
 -   **Parent:** 
--	**Supports:** color (background, text, ~~enableContrastChecker~~)
+-	**Supports:** color (background, text, ~~enableContrastChecker~~), interactivity
 -	**Attributes:** customOptionElement, customOptionElementBorder, customOptionElementSelected, optionElement, optionElementBorder, optionElementSelected
 
 ## Chips - woocommerce/product-filter-chips
@@ -1304,10 +1381,10 @@ Display filter options as chips.
 -	**Category:** woocommerce
 -   **Ancestor:** woocommerce/product-filter-attribute,woocommerce/product-filter-status
 -   **Parent:** 
--	**Supports:** 
+-	**Supports:** interactivity
 -	**Attributes:** chipBackground, chipBorder, chipText, customChipBackground, customChipBorder, customChipText, customSelectedChipBackground, customSelectedChipBorder, customSelectedChipText, selectedChipBackground, selectedChipBorder, selectedChipText
 
-## Clear filters (Experimental) - woocommerce/product-filter-clear-button
+## Clear filters - woocommerce/product-filter-clear-button
 
 Allows shoppers to clear active filters.
 
@@ -1318,7 +1395,7 @@ Allows shoppers to clear active filters.
 -	**Supports:** inserter, interactivity
 -	**Attributes:** 
 
-## Price (Experimental) - woocommerce/product-filter-price
+## Price - woocommerce/product-filter-price
 
 Let shoppers filter products by choosing a price range.
 
@@ -1337,10 +1414,10 @@ A slider helps shopper choose a price range.
 -	**Category:** woocommerce
 -   **Ancestor:** woocommerce/product-filter-price
 -   **Parent:** 
--	**Supports:** color (~~background~~, ~~enableContrastChecker~~, ~~text~~), ~~html~~
+-	**Supports:** color (~~background~~, ~~enableContrastChecker~~, ~~text~~), interactivity, ~~html~~
 -	**Attributes:** customSlider, customSliderHandle, customSliderHandleBorder, inlineInput, showInputFields, slider, sliderHandle, sliderHandleBorder
 
-## Rating (Experimental) - woocommerce/product-filter-rating
+## Rating - woocommerce/product-filter-rating
 
 Enable customers to filter the product collection by rating.
 
@@ -1359,10 +1436,10 @@ Display removable active filters as chips.
 -	**Category:** woocommerce
 -   **Ancestor:** woocommerce/product-filter-active
 -   **Parent:** 
--	**Supports:** layout (default, ~~allowInheriting~~, ~~allowJustification~~, ~~allowSwitching~~, ~~allowVerticalAlignment~~)
+-	**Supports:** interactivity, layout (default, ~~allowInheriting~~, ~~allowSwitching~~, ~~allowVerticalAlignment~~)
 -	**Attributes:** chipBackground, chipBorder, chipText, customChipBackground, customChipBorder, customChipText
 
-## Status (Experimental) - woocommerce/product-filter-status
+## Status - woocommerce/product-filter-status
 
 Let shoppers filter products by choosing stock status.
 
@@ -1406,17 +1483,6 @@ Display next and previous buttons.
 -	**Supports:** layout (allowVerticalAlignment, default, ~~allowInheriting~~, ~~allowJustification~~, ~~allowOrientation~~)
 -	**Attributes:** 
 
-## Pager - woocommerce/product-gallery-pager
-
-Display the gallery pager in format "current image/total images".
-
--	**Name:** woocommerce/product-gallery-pager
--	**Category:** woocommerce
--   **Ancestor:** woocommerce/product-gallery
--   **Parent:** 
--	**Supports:** color (background, text), spacing (margin, padding), typography (fontSize, lineHeight, textAlign)
--	**Attributes:** 
-
 ## Thumbnails - woocommerce/product-gallery-thumbnails
 
 Display the Thumbnails of a product.
@@ -1426,7 +1492,7 @@ Display the Thumbnails of a product.
 -   **Ancestor:** woocommerce/product-gallery
 -   **Parent:** 
 -	**Supports:** spacing (margin)
--	**Attributes:** numberOfThumbnails
+-	**Attributes:** thumbnailSize
 
 ## Newest Products - woocommerce/product-new
 
@@ -1449,6 +1515,39 @@ Display the number of products on the archive page or search result page.
 -   **Parent:** 
 -	**Supports:** color (text, ~~background~~), typography (fontSize)
 -	**Attributes:** 
+
+## Blockified Product Reviews - woocommerce/blockified-product-reviews
+
+Display a product's reviews
+
+-	**Name:** woocommerce/blockified-product-reviews
+-	**Category:** woocommerce
+-   **Ancestor:** woocommerce/single-product,woocommerce/product-template,core/post-template
+-   **Parent:** 
+-	**Supports:** align (full, wide), color (background, gradients, heading, link, text), spacing (margin, padding), typography (fontSize, lineHeight), ~~html~~
+-	**Attributes:** tagName
+
+## Product Review Rating - woocommerce/product-review-rating
+
+Displays the rating of a product review.
+
+-	**Name:** woocommerce/product-review-rating
+-	**Category:** woocommerce
+-   **Ancestor:** woocommerce/blockified-product-reviews
+-   **Parent:** 
+-	**Supports:** color (background, gradients, text)
+-	**Attributes:** textAlign
+
+## Product Reviews Title - woocommerce/product-reviews-title
+
+Displays a title with the number of reviews.
+
+-	**Name:** woocommerce/product-reviews-title
+-	**Category:** woocommerce
+-   **Ancestor:** woocommerce/blockified-product-reviews
+-   **Parent:** 
+-	**Supports:** align, color (background, gradients, text), interactivity (clientNavigation), spacing (margin, padding), typography (fontSize, lineHeight), ~~anchor~~, ~~html~~
+-	**Attributes:** level, levelOptions, showProductTitle, showReviewsCount, textAlign
 
 ## Products by Tag - woocommerce/product-tag
 

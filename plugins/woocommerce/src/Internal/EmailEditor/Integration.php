@@ -4,10 +4,12 @@ declare( strict_types=1 );
 
 namespace Automattic\WooCommerce\Internal\EmailEditor;
 
-use MailPoet\EmailEditor\EmailEditorContainer;
-use MailPoet\EmailEditor\Engine\Dependency_Check;
+use Automattic\WooCommerce\EmailEditor\Email_Editor_Container;
+use Automattic\WooCommerce\EmailEditor\Engine\Dependency_Check;
 use Automattic\WooCommerce\Internal\EmailEditor\EmailPatterns\PatternsController;
 use Automattic\WooCommerce\Internal\EmailEditor\EmailTemplates\TemplatesController;
+use Automattic\WooCommerce\Internal\EmailEditor\WCTransactionalEmails\WCTransactionalEmails;
+use Automattic\WooCommerce\Internal\EmailEditor\WCTransactionalEmails\WCTransactionalEmailPostsManager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,6 +18,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Integration {
 	const EMAIL_POST_TYPE = 'woo_email';
+
+	const WC_EMAIL_TYPE_ID_POST_META_KEY = '_wc_email_type';
 
 	/**
 	 * The email editor page renderer instance.
@@ -35,7 +39,7 @@ class Integration {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$editor_container       = EmailEditorContainer::container();
+		$editor_container       = Email_Editor_Container::container();
 		$this->dependency_check = $editor_container->get( Dependency_Check::class );
 	}
 
@@ -50,7 +54,7 @@ class Integration {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'initialize' ) );
+		add_action( 'woocommerce_init', array( $this, 'initialize' ) );
 	}
 
 	/**
@@ -69,6 +73,8 @@ class Integration {
 		$container->get( PatternsController::class );
 		$container->get( TemplatesController::class );
 		$container->get( PersonalizationTagManager::class );
+		$container->get( BlockEmailRenderer::class );
+		$container->get( WCTransactionalEmails::class );
 		$this->editor_page_renderer = $container->get( PageRenderer::class );
 	}
 
@@ -76,9 +82,10 @@ class Integration {
 	 * Register hooks for the integration.
 	 */
 	public function register_hooks() {
-		add_filter( 'mailpoet_email_editor_post_types', array( $this, 'add_email_post_type' ) );
-		add_filter( 'mailpoet_is_email_editor_page', array( $this, 'is_editor_page' ), 10, 1 );
+		add_filter( 'woocommerce_email_editor_post_types', array( $this, 'add_email_post_type' ) );
+		add_filter( 'woocommerce_is_email_editor_page', array( $this, 'is_editor_page' ), 10, 1 );
 		add_filter( 'replace_editor', array( $this, 'replace_editor' ), 10, 2 );
+		add_action( 'before_delete_post', array( $this, 'delete_email_template_associated_with_email_editor_post' ), 10, 2 );
 	}
 
 	/**
@@ -91,7 +98,7 @@ class Integration {
 		$post_types[] = array(
 			'name' => self::EMAIL_POST_TYPE,
 			'args' => array(
-				'labels'       => array(
+				'labels'   => array(
 					'name'          => __( 'Woo Emails', 'woocommerce' ),
 					'singular_name' => __( 'Woo Email', 'woocommerce' ),
 					'add_new_item'  => __( 'Add New Woo Email', 'woocommerce' ),
@@ -100,12 +107,8 @@ class Integration {
 					'view_item'     => __( 'View Woo Email', 'woocommerce' ),
 					'search_items'  => __( 'Search Woo Emails', 'woocommerce' ),
 				),
-				'rewrite'      => array( 'slug' => self::EMAIL_POST_TYPE ),
-				'supports'     => array( 'title', 'editor' ),
-				'public'       => true,
-				'show_ui'      => true,  // Showing in the admin UI is temporary, it will be removed in the future.
-				'show_in_menu' => true,
-				'show_in_rest' => true,
+				'rewrite'  => array( 'slug' => self::EMAIL_POST_TYPE ),
+				'supports' => array( 'title', 'editor' ),
 			),
 		);
 		return $post_types;
@@ -145,5 +148,25 @@ class Integration {
 			return true;
 		}
 		return $replace;
+	}
+
+	/**
+	 * Delete the email template associated with the email editor post when the post is permanently deleted.
+	 *
+	 * @param int     $post_id The post ID.
+	 * @param WP_Post $post    The post object.
+	 */
+	public function delete_email_template_associated_with_email_editor_post( $post_id, $post ) {
+		if ( self::EMAIL_POST_TYPE !== $post->post_type ) {
+			return;
+		}
+
+		$email_type = get_post_meta( $post_id, self::WC_EMAIL_TYPE_ID_POST_META_KEY, true );
+
+		if ( empty( $email_type ) ) {
+			return;
+		}
+
+		WCTransactionalEmailPostsManager::get_instance()->delete_email_template( $email_type );
 	}
 }
