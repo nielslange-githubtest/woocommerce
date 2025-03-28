@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createElement } from '@wordpress/element';
-import clsx from 'clsx';
+
 import {
 	__experimentalHeading as Heading,
 	__experimentalHStack as HStack,

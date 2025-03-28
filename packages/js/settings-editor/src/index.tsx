@@ -50,8 +50,7 @@ const removeSettingsScripts = ( scripts: HTMLScriptElement[] ) => {
 };
 
 const SettingsApp = () => {
-	const { route, settingsPage, tabs, activeSection, activePage } =
-		useActiveRoute();
+	const { route, settingsPage, activeSection, activePage } = useActiveRoute();
 	const { settingsScripts } = useContext( SettingsDataContext );
 
 	useEffect( () => {
@@ -77,7 +76,6 @@ const SettingsApp = () => {
 		<Layout
 			route={ route }
 			settingsPage={ settingsPage }
-			tabs={ tabs }
 			activeSection={ activeSection }
 		/>
 	);
