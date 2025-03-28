@@ -65,7 +65,7 @@ class RemoteInboxNotificationsEngine extends RemoteSpecsEngine {
 						'woocommerce_run_on_woocommerce_admin_updated',
 						array(),
 						'woocommerce-remote-inbox-engine',
-						ActionQueuePriority::HIGH
+						ActionQueuePriority::URGENT
 					);
 				}
 			}

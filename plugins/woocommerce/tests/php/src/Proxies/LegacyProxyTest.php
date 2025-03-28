@@ -6,7 +6,6 @@
 namespace Automattic\WooCommerce\Tests\Proxies;
 
 use Automattic\WooCommerce\Internal\DependencyManagement\Definition;
-use Automattic\WooCommerce\Internal\Queue\QueueProxy;
 use Automattic\WooCommerce\Proxies\LegacyProxy;
 use Automattic\WooCommerce\Tests\Internal\DependencyManagement\ExampleClasses\DependencyClass;
 use Foo\Bar\ClassWithNonWooNamespace;
@@ -87,7 +86,7 @@ class LegacyProxyTest extends \WC_Unit_Test_Case {
 	 */
 	public function test_get_instance_of_wc_queue_interface_gets_an_instance_of_the_appropriate_class() {
 		$instance = $this->sut->get_instance_of( \WC_Queue_Interface::class, 34 );
-		$this->assertInstanceOf( QueueProxy::class, $instance );
+		$this->assertInstanceOf( \WC_Queue_Interface::class, $instance );
 	}
 
 	/**
