@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Admin\Notes\Notes;
 use Automattic\WooCommerce\Admin\PluginsProvider\PluginsProvider;
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
 use Automattic\WooCommerce\Internal\Admin\Onboarding\OnboardingProfile;
 use Automattic\WooCommerce\Admin\Notes\Note;
 use Automattic\WooCommerce\Admin\RemoteSpecs\RemoteSpecsEngine;
@@ -63,7 +64,8 @@ class RemoteInboxNotificationsEngine extends RemoteSpecsEngine {
 					$queue->add(
 						'woocommerce_run_on_woocommerce_admin_updated',
 						array(),
-						'woocommerce-remote-inbox-engine'
+						'woocommerce-remote-inbox-engine',
+						ActionQueuePriority::HIGH
 					);
 				}
 			}

@@ -5,6 +5,8 @@
 
 namespace Automattic\WooCommerce\Internal;
 
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -32,7 +34,8 @@ class AssignDefaultCategory {
 		WC()->queue()->add(
 			'wc_schedule_update_product_default_cat',
 			array(),
-			'wc_update_product_default_cat'
+			'wc_update_product_default_cat',
+			ActionQueuePriority::HIGH
 		);
 	}
 

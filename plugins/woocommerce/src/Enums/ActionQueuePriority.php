@@ -10,6 +10,9 @@ namespace Automattic\WooCommerce\Enums;
 final class ActionQueuePriority {
 	/**
 	 * For the tasks which should be picked from the queue first. Use wisely.
+	 * Suitable for:
+	 * - plugins installation/activation + associated schedule hooks
+	 * - core installation/update + associated schedule hooks
 	 *
 	 * @var int
 	 */

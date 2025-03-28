@@ -8,6 +8,8 @@
  * @since   3.6.0
  */
 
+use Automattic\WooCommerce\Enums\ActionQueuePriority;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -201,7 +203,7 @@ class WC_Marketplace_Suggestions {
 			$next  = $queue->get_next( 'woocommerce_update_marketplace_suggestions' );
 			if ( ! $next ) {
 				$queue->cancel_all( 'woocommerce_update_marketplace_suggestions' );
-				$queue->add( 'woocommerce_update_marketplace_suggestions' );
+				$queue->add( 'woocommerce_update_marketplace_suggestions', array(), '', ActionQueuePriority::HIGH );
 			}
 		}
 
