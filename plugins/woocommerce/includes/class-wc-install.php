@@ -453,7 +453,7 @@ class WC_Install {
 					'update_callback' => $callback,
 				),
 				'woocommerce-db-updates',
-				ActionQueuePriority::HIGH
+				ActionQueuePriority::URGENT
 			);
 		}
 	}
@@ -751,7 +751,7 @@ class WC_Install {
 							'update_callback' => $update_callback,
 						),
 						'woocommerce-db-updates',
-						ActionQueuePriority::HIGH
+						ActionQueuePriority::URGENT
 					);
 					++$loop;
 				}
@@ -760,17 +760,19 @@ class WC_Install {
 
 		// After the callbacks finish, update the db version to the current WC version.
 		$current_wc_version = WC()->version;
-		if ( version_compare( $current_db_version, $current_wc_version, '<' ) &&
-			! WC()->queue()->get_next( 'woocommerce_update_db_to_current_version' ) ) {
-			WC()->queue()->schedule_single(
-				time() + $loop,
-				'woocommerce_update_db_to_current_version',
-				array(
-					'version' => $current_wc_version,
-				),
-				'woocommerce-db-updates',
-				ActionQueuePriority::HIGH
-			);
+		if ( version_compare( $current_db_version, $current_wc_version, '<' )) {
+			$queue = WC()->queue();
+			if ( ! $queue->get_next( 'woocommerce_update_db_to_current_version' ) ) {
+				$queue->schedule_single(
+					time() + $loop,
+					'woocommerce_update_db_to_current_version',
+					array(
+						'version' => $current_wc_version,
+					),
+					'woocommerce-db-updates',
+					ActionQueuePriority::URGENT
+				);
+			}
 		}
 	}
 

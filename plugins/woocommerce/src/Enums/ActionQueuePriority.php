@@ -9,28 +9,28 @@ namespace Automattic\WooCommerce\Enums;
  */
 final class ActionQueuePriority {
 	/**
-	 * For the tasks which should be picked from the queue first. Use wisely
+	 * For the tasks which should be picked from the queue first. Use wisely.
 	 *
 	 * @var int
 	 */
 	public const URGENT = 0;
 
 	/**
-	 * For the tasks with high/elevated priority. Value chosen as NORMAL^0;
+	 * For the tasks with high/elevated priority. Value chosen as NORMAL^0.
 	 *
 	 * @var int
 	 */
 	public const HIGH = 1;
 
 	/**
-	 * For the tasks with normal priority. Value chosen as NORMAL^1;
+	 * For the tasks with normal priority. Value chosen as NORMAL^1.
 	 *
 	 * @var int
 	 */
 	public const NORMAL = 10;
 
 	/**
-	 * For the tasks with normal priority. Value chosen as NORMAL^2;
+	 * For the tasks with normal priority. Value chosen as NORMAL^2.
 	 *
 	 * @var int
 	 */

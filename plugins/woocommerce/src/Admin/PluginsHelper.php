@@ -440,7 +440,7 @@ class PluginsHelper {
 			'woocommerce_plugins_install_callback',
 			array( $plugins ),
 			'',
-			ActionQueuePriority::HIGH
+			ActionQueuePriority::URGENT
 		);
 
 		return $job_id;
@@ -554,7 +554,7 @@ class PluginsHelper {
 			'woocommerce_plugins_activate_callback',
 			array( $plugins, $job_id ),
 			'',
-			ActionQueuePriority::HIGH
+			ActionQueuePriority::URGENT
 		);
 
 		return $job_id;
