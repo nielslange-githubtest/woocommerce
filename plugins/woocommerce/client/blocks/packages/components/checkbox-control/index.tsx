@@ -79,6 +79,7 @@ export const CheckboxControl = forwardRef<
 						aria-invalid={ hasError === true }
 						checked={ checked }
 						disabled={ disabled }
+						value={ value }
 						{ ...rest }
 					/>
 					<svg
