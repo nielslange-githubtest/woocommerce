@@ -42,7 +42,7 @@ class ProductButton extends AbstractInteractivityAPIBlock {
 	 */
 	protected function enqueue_assets( array $attributes, $content, $block ) {
 		parent::enqueue_assets( $attributes, $content, $block );
-		if ( wc_current_theme_is_fse_theme() ) {
+		if ( wp_is_block_theme() ) {
 			add_action(
 				'wp_enqueue_scripts',
 				array( $this, 'dequeue_add_to_cart_scripts' )
