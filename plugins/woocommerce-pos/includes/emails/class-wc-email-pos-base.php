@@ -43,61 +43,6 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 			}
 			
 			parent::__construct();
-
-			// Add POS-specific settings to form fields
-			add_action('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'init_pos_form_fields'));
-		}
-
-		/**
-		 * Initialize POS-specific form fields that are shared across all POS email templates
-		 *
-		 * @param array $form_fields Existing form fields
-		 * @return array Modified form fields
-		 */
-		public function init_pos_form_fields($form_fields) {
-			$placeholder_text = sprintf( __( 'Available placeholders: %s', 'woocommerce-pos' ), '<code>' . esc_html( implode( '</code>, <code>', array_keys( $this->placeholders ) ) ) . '</code>' );
-			$pos_fields = array(
-				'pos_section_start' => array(
-					'title'       => __('POS Store Details', 'woocommerce-pos'),
-					'type'        => 'title',
-					'description' => __('These settings are shared across all POS email templates and shown below the main email content.', 'woocommerce-pos'),
-				),
-				'pos_store_email'   => array(
-					'title'       => __('Store Email', 'woocommerce-pos'),
-					'type'        => 'text',
-					'description' => __('Email address to appear in the contact details section.', 'woocommerce-pos'),
-					'placeholder' => '',
-					'default'     => $this->get_default_pos_store_email(),
-					'desc_tip'    => true,
-				),
-				'pos_store_phone_number' => array(
-					'title'       => __('Store Phone Number', 'woocommerce-pos'),
-					'type'        => 'text',
-					'description' => __('Phone number that will appear on POS receipts.', 'woocommerce-pos'),
-					'placeholder' => '',
-					'default'     => '',
-					'desc_tip'    => true,
-				),
-				'pos_store_address' => array(
-					'title'       => __('Store Address', 'woocommerce-pos'),
-					'type'        => 'textarea',
-					'description' => __('The address that will appear on POS receipts.', 'woocommerce-pos'),
-					'placeholder' => '',
-					'default'     => $this->get_default_pos_store_address(),
-					'desc_tip'    => true,
-				),
-				'refund_returns_policy' => array(
-					'title'       => __('Refund & Returns Policy', 'woocommerce-pos'),
-					'type'        => 'textarea',
-					'description' => __('Policy that will appear on POS receipts.', 'woocommerce-pos'). ' ' . $placeholder_text,
-					'placeholder' => $this->get_refund_returns_policy_placeholder(),
-					'default'     => '',
-					'desc_tip'    => true,
-				),
-			);
-
-			// Add POS fields after the email settings
-			return array_merge($form_fields, $pos_fields);
 		}
 
 		/**
@@ -107,17 +52,8 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 */
 		protected function get_pos_store_email() {
 			return $this->format_string(
-				$this->get_option('pos_store_email', $this->get_default_pos_store_email())
+				get_option('wc_pos_store_email', WC_POS_Settings_Defaults::get_default_store_email())
 			);
-		}
-
-		/**
-		 * Get the store email text.
-		 *
-		 * @return string
-		 */
-		protected function get_default_pos_store_email() {
-			return $this->get_store_email();
 		}
 
 		/**
@@ -127,7 +63,7 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 */
 		protected function get_pos_store_phone_number() {
 			return $this->format_string(
-				$this->get_option('pos_store_phone_number', '')
+				get_option('wc_pos_store_phone')
 			);
 		}
 
@@ -138,27 +74,8 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 */
 		protected function get_pos_store_address() {
 			return $this->format_string(
-				$this->get_option('pos_store_address', $this->get_default_pos_store_address())
+				get_option('wc_pos_store_address', WC_POS_Settings_Defaults::get_default_store_address())
 			);
-		}
-
-		/**
-		 * Get the store address text.
-		 *
-		 * @return string
-		 */
-		protected function get_default_pos_store_address() {
-			return $this->get_store_address();
-		}
-		
-		/**
-		 * Placeholder of the refund & returns policy content.
-		 *
-		 * @since 1.0.0
-		 * @return string
-		 */
-		protected function get_refund_returns_policy_placeholder() {
-			return __( 'Brief statement about the refund & returns policy', 'woocommerce-pos' );
 		}
 
 		/**
@@ -168,19 +85,8 @@ if ( ! class_exists( 'WC_Email_POS_Base', false ) ) :
 		 */
 		protected function get_refund_returns_policy() {
 			return $this->format_string(
-				$this->get_option('refund_returns_policy', '')
+				get_option('wc_pos_refund_returns_policy')
 			);
-		}
-
-		/**
-		 * Return the name of the option in the WP DB.
-		 * This is shared across all POS email templates.
-		 *
-		 * @since 2.6.0
-		 * @return string
-		 */
-		public function get_option_key() {
-			return $this->plugin_id . 'pos_email_options';
 		}
 
 		public function order_item_quantity( $quantity_display, $item ) {

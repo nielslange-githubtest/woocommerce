@@ -77,12 +77,17 @@ class WC_POS {
 		// Disable default refund emails for POS orders.
 		add_filter( 'woocommerce_email_enabled_customer_partially_refunded_order', array( $this, 'disable_default_refund_email_for_pos_order' ), 10, 3 );
 		add_filter( 'woocommerce_email_enabled_customer_refunded_order', array( $this, 'disable_default_refund_email_for_pos_order' ), 10, 3 );
+
+		// POS settings page.
+		add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_settings_page' ) );
 	}
 
 	/**
 	 * Include required files.
 	 */
 	private function includes() {
+		// Include the defaults class.
+		require_once WC_POS_PLUGIN_DIR . 'includes/admin/settings/class-wc-pos-settings-defaults.php';
 		// We'll load the email class only in the register_emails method
 		// No need to include it here
 	}
@@ -203,6 +208,17 @@ class WC_POS {
 		}
 		return $enabled;
 	}
+
+	/**
+     * Add settings page to WooCommerce settings.
+     *
+     * @param array $settings Array of WC_Settings_Page classes.
+     * @return array
+     */
+    public function add_settings_page( $settings ) {
+        $settings[] = include WC_POS_PLUGIN_DIR . 'includes/admin/settings/class-wc-settings-pos.php';
+        return $settings;
+    }
 }
 
 /**
