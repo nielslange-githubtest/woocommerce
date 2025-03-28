@@ -94,7 +94,7 @@ export const RemovableChip = ( {
 			{ ...props }
 			{ ...chipProps }
 			className={ clsx( className, 'is-removable' ) }
-			element={ removeOnAnyClick ? 'button' : props.element || 'span' }
+			element={ removeOnAnyClick ? 'button' : props.element || 'li' }
 			screenReaderText={ screenReaderText }
 			text={ text }
 		>
