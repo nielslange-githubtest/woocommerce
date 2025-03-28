@@ -3,6 +3,7 @@
  */
 const { omit } = require( 'lodash' );
 const glob = require( 'glob' );
+const { scriptModuleEntries } = require( './webpack-interactivity-entries' );
 
 // List of blocks that should be used as webpack entry points. They are expected
 // to be in `/assets/js/blocks/[BLOCK_NAME]`. If they are not, their relative
@@ -251,38 +252,17 @@ const getBlockEntries = ( relativePath, blockEntries = blocks ) => {
 	);
 };
 
-// `blocks` entries are used to build styles **and** JS, but for
-// frontend JS of these blocks we use a script modules build so
-// we skip building their JS files in the old build.
-// The script modules build handles them in
+// Script modules blocks (and styles) are handled in
 // webpack-config-interactivity-blocks-frontend.js.
-const frontendScriptModuleBlocksToSkip = [
-	'product-gallery',
-	'product-gallery-large-image',
-	'store-notices',
-	'product-collection',
-	'product-filters',
-	'product-filter-status',
-	'product-filter-price',
-	'product-filter-attribute',
-	'product-filter-rating',
-	'product-filter-active',
-	'product-filter-removable-chips',
-	'add-to-cart-form',
-	'add-to-cart-with-options',
-	'add-to-cart-with-options-quantity-selector',
-	'add-to-cart-with-options-variation-selector',
-	'add-to-cart-with-options-variation-selector-attribute-options',
-	'add-to-cart-with-options-grouped-product-selector',
-	'add-to-cart-with-options-grouped-product-selector-item',
-	'accordion-group',
-];
+const frontendScriptModuleBlocksToSkip = Object.keys( scriptModuleEntries );
 
 const frontendEntries = getBlockEntries( 'frontend.{t,j}s{,x}', {
 	...Object.fromEntries(
 		Object.entries( { ...blocks, ...genericBlocks } ).filter(
 			( [ blockName ] ) => {
-				return ! frontendScriptModuleBlocksToSkip.includes( blockName );
+				return ! frontendScriptModuleBlocksToSkip.includes(
+					`woocommerce/${ blockName }`
+				);
 			}
 		)
 	),

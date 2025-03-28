@@ -33,6 +33,28 @@ function findInteractivityBlockAssets( dir, additionalPatterns = [] ) {
 	return results;
 }
 
+const interactivityBlocks = findInteractivityBlockAssets(
+	path.resolve( __dirname, '../assets/js' ),
+	[ 'frontend.*s', 'style.scss' ]
+);
+
+const scriptModuleEntries = interactivityBlocks.reduce( ( acc, block ) => {
+	const frontendFile = block.assets.find( ( f ) => f.includes( 'frontend' ) );
+	if ( frontendFile ) {
+		acc[ block.blockName ] = frontendFile;
+	}
+	return acc;
+}, {} );
+
+const styleEntries = interactivityBlocks.reduce( ( acc, block ) => {
+	const styleFile = block.assets.find( ( f ) => f.includes( 'style' ) );
+	if ( styleFile ) {
+		acc[ `${ block.blockName }-style` ] = styleFile;
+	}
+	return acc;
+}, {} );
+
 module.exports = {
-	findInteractivityBlockAssets,
+	scriptModuleEntries,
+	styleEntries,
 };
