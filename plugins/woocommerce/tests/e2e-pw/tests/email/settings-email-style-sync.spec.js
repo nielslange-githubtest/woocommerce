@@ -76,7 +76,9 @@ test.describe( 'Email Style Sync', () => {
 		await expect( autoSyncToggle ).toBeChecked();
 
 		// Save settings
-		await page.locator( 'button.woocommerce-save-button' ).click();
+		const saveButton = page.getByRole( 'button', { name: 'Save changes' } );
+		await saveButton.click();
+		await expect( saveButton ).toBeDisabled();
 
 		// Reload page and check if setting persisted
 		await page.reload();
