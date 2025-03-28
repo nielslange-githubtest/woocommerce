@@ -32,8 +32,8 @@ class WooPaymentsService {
 
 	const NOX_PROFILE_OPTION_KEY = 'woocommerce_woopayments_nox_profile';
 
-	const FROM_PAYMENT_SETTINGS          = 'WCADMIN_PAYMENT_SETTINGS';
-	const FROM_NOX_IN_CONTEXT_ONBOARDING = 'WCADMIN_NOX_IN_CONTEXT_ONBOARDING';
+	const FROM_PAYMENT_SETTINGS = 'WCADMIN_PAYMENT_SETTINGS';
+	const FROM_NOX_IN_CONTEXT   = 'WCADMIN_NOX_IN_CONTEXT';
 
 	/**
 	 * The WooPayments provider instance.
