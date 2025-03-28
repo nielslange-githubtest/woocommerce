@@ -153,7 +153,7 @@ class Tax extends Task {
 	 */
 	public function on_tax_rate_added() {
 		$this->mark_actioned();
-		wp_cache_delete( self::TAX_RATE_EXISTS_CACHE_KEY );
+		wp_cache_set( self::TAX_RATE_EXISTS_CACHE_KEY, 'yes' );
 	}
 
 	/**
