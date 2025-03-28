@@ -236,4 +236,13 @@ final class ProductFilterPrice extends AbstractInteractivityAPIBlock {
 			'max_price' => intval( ceil( floatval( $price_results->max_price ?? 0 ) ) ),
 		);
 	}
+
+	/**
+	 * Get the frontend style handle for this block type.
+	 *
+	 * @return null
+	 */
+	protected function get_block_type_style() {
+		return null;
+	}
 }

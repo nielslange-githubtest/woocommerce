@@ -7,7 +7,7 @@ namespace Automattic\WooCommerce\Blocks\BlockTypes;
 /**
  * Product Filter: Active Block.
  */
-final class ProductFilterActive extends AbstractBlock {
+final class ProductFilterActive extends AbstractInteractivityAPIBlock {
 	/**
 	 * Block name.
 	 *
@@ -27,8 +27,6 @@ final class ProductFilterActive extends AbstractBlock {
 		if ( ! isset( $block->context['activeFilters'] ) ) {
 			return $content;
 		}
-
-		wp_enqueue_script_module( $this->get_full_block_name() );
 
 		$active_filters = $block->context['activeFilters'];
 
