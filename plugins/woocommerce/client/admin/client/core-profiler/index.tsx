@@ -78,8 +78,8 @@ import { useXStateInspect } from '~/xstate';
 import { useComponentFromXStateService } from '~/utils/xstate/useComponentFromService';
 import {
 	CoreProfilerEvents,
-	BusinessLocationEvent,
 	UserProfileEvent,
+	BusinessLocationEvent,
 	BusinessInfoEvent,
 	IntroOptInEvent,
 	PluginsInstallationRequestedEvent,
@@ -110,7 +110,6 @@ export type CoreProfilerStateMachineContext = {
 		sellingPlatforms?: SellingPlatform[] | null;
 	} & Partial< ProfileItems >;
 	pluginsAvailable: ExtensionList[ 'plugins' ] | [];
-	pluginsTruncated: string[];
 	pluginsSelected: ExtensionList[ 'plugins' ][ number ][ 'key' ][];
 	pluginsInstallationErrors: PluginInstallError[];
 	geolocatedLocation: GeolocationResponse | undefined;
@@ -438,7 +437,10 @@ const assignStoreLocation = assign( {
 		context,
 	}: {
 		context: CoreProfilerStateMachineContext;
-		event: BusinessLocationEvent;
+		event: Extract<
+			BusinessLocationEvent,
+			{ type: 'BUSINESS_LOCATION_COMPLETED' }
+		>;
 	} ) => {
 		return {
 			...context.businessInfo,
@@ -558,16 +560,7 @@ const handlePlugins = assign( {
 	}: {
 		event: DoneActorEvent< Extension[] >;
 	} ) => {
-		return event.output.slice( 0, 8 ); // in lieu of a plugin display priority system, we're only showing the first 8 plugins in the recommendations list
-	},
-	pluginsTruncated: ( {
-		event,
-	}: {
-		event: DoneActorEvent< Extension[] >;
-	} ) => {
-		return event.output
-			.slice( 8 )
-			.map( ( plugin ) => plugin.key.replace( ':alt', '' ) );
+		return event.output; // Show all available plugins
 	},
 } );
 
@@ -733,7 +726,6 @@ export const coreProfilerStateMachineDefinition = createMachine( {
 		countries: [] as CountryStateOption[],
 		pluginsAvailable: [],
 		pluginsInstallationErrors: [],
-		pluginsTruncated: [],
 		pluginsSelected: [],
 		loader: {},
 		onboardingProfile: {} as OnboardingProfile,
@@ -1271,20 +1263,54 @@ export const coreProfilerStateMachineDefinition = createMachine( {
 			],
 			states: {
 				preSkipFlowBusinessLocation: {
-					invoke: {
-						src: 'getCountries',
-						onDone: [
-							{
-								actions: [ 'handleCountries' ],
-								target: 'skipFlowBusinessLocation',
+					type: 'parallel',
+					onDone: {
+						target: 'skipFlowBusinessLocation',
+					},
+					states: {
+						getGeolocation: {
+							initial: 'fetching',
+							states: {
+								fetching: {
+									invoke: {
+										input: ( { context } ) => context,
+										src: 'getGeolocation',
+										onDone: {
+											target: 'done',
+											actions: 'handleGeolocation',
+										},
+										onError: {
+											target: 'done',
+										},
+									},
+								},
+								done: { type: 'final' },
 							},
-						],
-						onError: {
-							target: 'skipFlowBusinessLocation',
+						},
+						getCountries: {
+							initial: 'fetching',
+							states: {
+								fetching: {
+									invoke: {
+										src: 'getCountries',
+										onDone: [
+											{
+												actions: 'handleCountries',
+												target: 'done',
+											},
+										],
+										onError: {
+											target: 'done',
+										},
+									},
+								},
+								done: { type: 'final' },
+							},
 						},
 					},
 				},
 				skipFlowBusinessLocation: {
+					id: 'skipFlowBusinessLocation',
 					on: {
 						BUSINESS_LOCATION_COMPLETED: {
 							target: 'postSkipFlowBusinessLocation',
@@ -1295,6 +1321,9 @@ export const coreProfilerStateMachineDefinition = createMachine( {
 									input: { step: 'skip-guided-setup' },
 								} ),
 							],
+						},
+						RETRY_COUNTRIES_LIST: {
+							actions: [ 'reloadPage' ],
 						},
 					},
 					entry: [

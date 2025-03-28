@@ -122,6 +122,10 @@ class Loader {
 			return;
 		}
 
+		if ( PageController::is_modern_settings_page() ) {
+			return;
+		}
+
 		$sections = self::get_embed_breadcrumbs();
 		$sections = is_array( $sections ) ? $sections : array( $sections );
 
@@ -160,7 +164,7 @@ class Loader {
 	 * @param string $admin_body_class Body class to add.
 	 */
 	public static function add_admin_body_classes( $admin_body_class = '' ) {
-		if ( ! PageController::is_admin_or_embed_page() ) {
+		if ( ! PageController::is_admin_or_embed_page() || PageController::is_modern_settings_page() ) {
 			return $admin_body_class;
 		}
 
@@ -168,6 +172,12 @@ class Loader {
 		$classes[] = 'woocommerce-admin-page';
 		if ( PageController::is_embed_page() ) {
 			$classes[] = 'woocommerce-embed-page';
+		}
+
+		// Add page ID as a class.
+		$page_id = PageController::get_instance()->get_current_screen_id();
+		if ( $page_id ) {
+			$classes[] = $page_id;
 		}
 
 		/**
