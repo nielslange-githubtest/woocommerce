@@ -2064,6 +2064,7 @@ $hpos_table_schema;
 
 		$capabilities['core'] = array(
 			'manage_woocommerce',
+			'create_customers',
 			'view_woocommerce_reports',
 		);
 
