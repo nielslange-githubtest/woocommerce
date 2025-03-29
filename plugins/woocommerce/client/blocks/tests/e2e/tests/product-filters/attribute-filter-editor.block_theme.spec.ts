@@ -49,7 +49,7 @@ test.describe( `${ blockData.name }`, () => {
 
 		await expect( block ).toBeVisible();
 
-		await block.click();
+		await editor.selectBlocks( block );
 		await editor.openDocumentSettingsSidebar();
 		await editor.page.getByRole( 'tab', { name: 'Styles' } ).click();
 
