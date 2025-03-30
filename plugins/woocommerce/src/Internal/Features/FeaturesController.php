@@ -420,7 +420,6 @@ class FeaturesController {
 						'woocommerce'
 					),
 					'enabled_by_default' => false,
-					'disable_ui'         => true,
 				),
 			);
 
