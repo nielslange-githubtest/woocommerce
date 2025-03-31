@@ -14,19 +14,24 @@ export type SettingDefinition = {
 	is_dismissed: string;
 };
 
-export type PaymentGateway = {
-	id: string;
-	title: string;
-	description: string;
-	order: number | '';
-	enabled: boolean;
-	method_title: string;
-	method_description: string;
-	method_supports: string[];
-	settings: SettingDefinition;
-	settings_url: string;
-	needs_setup?: boolean;
-};
+export type PaymentGateway< TSettings = Record< string, SettingDefinition > > =
+	{
+		id: string;
+		title: string;
+		description: string;
+		order: number | '';
+		enabled: boolean;
+		method_title: string;
+		method_description: string;
+		method_supports: string[];
+		settings: TSettings;
+		settings_url: string;
+		needs_setup?: boolean;
+	};
+
+export type PaymentGatewayUpdatePayload = PaymentGateway<
+	Record< string, string >
+>;
 
 export type PluginsState = {
 	paymentGateways: PaymentGateway[];
