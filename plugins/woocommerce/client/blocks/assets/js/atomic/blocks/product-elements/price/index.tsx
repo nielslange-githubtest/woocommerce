@@ -9,13 +9,11 @@ import { currencyDollar, Icon } from '@wordpress/icons';
  */
 import sharedConfig from '../shared/config';
 import edit from './edit';
-import { supports } from './supports';
 import metadata from './block.json';
 
 const blockConfig = {
 	...metadata,
 	...sharedConfig,
-	supports,
 	icon: (
 		<Icon
 			icon={ currencyDollar }
