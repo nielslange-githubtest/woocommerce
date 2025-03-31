@@ -7,7 +7,7 @@
 	"keywords": [ "WooCommerce" ],
 	"supports": {
 		"interactivity": {
-			"clientNavigation": false
+			"clientNavigation": true
 		},
 		"multiple": false,
 		"align": [ "wide", "full" ]
