@@ -81,7 +81,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param \WP_REST_Request $request Request details.
 	 * @return bool|\WP_Error
 	 */
-	public function get_preview_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
+	public function get_preview_permissions_check( \WP_REST_Request $request ) {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return new WP_Error(
 				'woocommerce_rest_unauthorized',
@@ -100,7 +100,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param \WP_REST_Request $request Request details.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_preview( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+	public function get_preview( \WP_REST_Request $request ) {
 		$attachment_id  = (int) $request['attachment_id'];
 		$product_id     = (int) $request['product_id'];
 		$requested_size = (string) ($request['size'] ?? 'large');
