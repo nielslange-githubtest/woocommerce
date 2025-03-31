@@ -79,7 +79,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param \WP_REST_Request $request Request details.
 	 * @return bool|\WP_Error
 	 */
-	public function get_preview_permissions_check( $request ) {
+	public function get_preview_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return new WP_Error(
 				'woocommerce_rest_unauthorized',
@@ -98,10 +98,10 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param \WP_REST_Request $request Request details.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_preview( $request ) {
-		$attachment_id  = $request['attachment_id'];
-		$product_id     = $request['product_id'];
-		$requested_size = $request['size'] ?? 'large';
+	public function get_preview( \WP_REST_Request $request ): \WP_Error {
+		$attachment_id  = (int) $request['attachment_id'];
+		$product_id     = (int) $request['product_id'];
+		$requested_size = (string) ($request['size'] ?? 'large');
 
 		$file_path = get_attached_file( $attachment_id );
 		if ( ! $file_path || ! is_readable( $file_path ) ) {
@@ -165,7 +165,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param string $size          Image size.
 	 * @return string Secure admin image URL.
 	 */
-	public function get_admin_image_src_url( $product_id, $attachment_id, $size ) {
+	public function get_admin_image_src_url( int $product_id, int $attachment_id, string $size ): string {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return '';
 		}
