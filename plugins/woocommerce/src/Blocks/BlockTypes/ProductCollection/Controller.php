@@ -124,7 +124,6 @@ class Controller extends AbstractBlock {
 		$unsupported_blocks = array(
 			'core/post-content',
 			'woocommerce/mini-cart',
-			'woocommerce/featured-product',
 			'woocommerce/active-filters',
 			'woocommerce/price-filter',
 			'woocommerce/stock-filter',
