@@ -25,9 +25,6 @@ registerBlockType( metadata, {
 			/>
 		),
 	},
-	supports: {
-		...metadata.supports,
-	},
 	attributes: {
 		...metadata.attributes,
 		...blockAttributes,
