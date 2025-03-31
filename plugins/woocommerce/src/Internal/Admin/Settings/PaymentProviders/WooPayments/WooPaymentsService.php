@@ -3,9 +3,11 @@ declare( strict_types=1 );
 
 namespace Automattic\WooCommerce\Internal\Admin\Settings\PaymentProviders\WooPayments;
 
+use Automattic\Jetpack\Connection\Manager as WPCOM_Connection_Manager;
 use Automattic\WooCommerce\Admin\API\OnboardingPlugins;
 use Automattic\WooCommerce\Internal\Admin\Settings\PaymentProviders;
 use Automattic\WooCommerce\Internal\Admin\Settings\Utils;
+use Automattic\WooCommerce\Proxies\LegacyProxy;
 use Exception;
 use WC_Payments;
 use WP_REST_Request;
@@ -15,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * WooPayments-specific Payments settings page service class.
  */
 class WooPaymentsService {
+
+	const GATEWAY_ID = 'woocommerce_payments';
 
 	const ONBOARDING_PATH_BASE = '/woopayments/onboarding';
 
@@ -36,19 +40,44 @@ class WooPaymentsService {
 	const FROM_NOX_IN_CONTEXT   = 'WCADMIN_NOX_IN_CONTEXT';
 
 	/**
+	 * The PaymentProviders instance.
+	 *
+	 * @var PaymentProviders
+	 */
+	private PaymentProviders $payment_providers;
+
+	/**
+	 * The LegacyProxy instance.
+	 *
+	 * @var LegacyProxy
+	 */
+	private LegacyProxy $proxy;
+
+	/**
+	 * The WPCOM connection manager instance.
+	 *
+	 * @var WPCOM_Connection_Manager|object
+	 */
+	private $wpcom_connection_manager;
+
+	/**
 	 * The WooPayments provider instance.
 	 *
-	 * @var PaymentProviders\WooPayments
+	 * @var PaymentProviders\PaymentGateway
 	 */
-	private PaymentProviders\WooPayments $provider;
+	private PaymentProviders\PaymentGateway $provider;
 
 	/**
 	 * Initialize the class instance.
 	 *
 	 * @internal
 	 */
-	final public function init(): void {
-		$this->provider = new PaymentProviders\WooPayments();
+	final public function init( PaymentProviders $payment_providers, LegacyProxy $proxy): void {
+		$this->payment_providers = $payment_providers;
+		$this->proxy             = $proxy;
+
+		$this->wpcom_connection_manager = $this->proxy->get_instance_of( WPCOM_Connection_Manager::class, 'woocommerce' );
+		$this->provider                 = $this->payment_providers->get_payment_gateway_provider_instance( self::GATEWAY_ID );
 	}
 
 	/**
@@ -998,6 +1027,15 @@ class WooPaymentsService {
 	 */
 	private function get_payment_gateway(): \WC_Payment_Gateway_WCPay {
 		return \WC_Payments::get_gateway();
+	}
+
+	/**
+	 * Get the main payment gateway ID.
+	 *
+	 * @return string The main payment gateway ID.
+	 */
+	private function get_payment_gateway_id(): string {
+		return \WC_Payments::get_gateway()->id;
 	}
 
 	/**
