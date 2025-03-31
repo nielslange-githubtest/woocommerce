@@ -5,19 +5,19 @@ import { createElement } from '@wordpress/element';
 import { Spinner, Button } from '@wordpress/components';
 import { close } from '@wordpress/icons';
 
-type SelectSuffixProps = {
+type SuffixProps = {
 	isLoading: boolean;
 	isFetching: boolean;
 	value: string;
 	onRemove: () => void;
 };
 
-export const SelectSuffix = ( {
+export const Suffix = ( {
 	isLoading,
 	isFetching,
 	value,
 	onRemove,
-}: SelectSuffixProps ) => {
+}: SuffixProps ) => {
 	if ( isLoading || isFetching ) {
 		return <Spinner />;
 	}
