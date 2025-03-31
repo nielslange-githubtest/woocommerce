@@ -58,12 +58,15 @@ test.describe( 'Email Style Sync', () => {
 	test( 'Auto-sync toggle in email settings works correctly', async ( {
 		page,
 	} ) => {
-		// Navigate to WooCommerce email settings
-		await page.goto( 'wp-admin/admin.php?page=wc-settings&tab=email' );
-
 		const autoSyncToggle = page.locator(
 			'.wc-settings-email-color-palette-auto-sync input[type="checkbox"]'
 		);
+		const saveButton = page.getByRole( 'button', {
+			name: 'Save changes',
+		} );
+
+		// Navigate to WooCommerce email settings
+		await page.goto( 'wp-admin/admin.php?page=wc-settings&tab=email' );
 
 		// Auto-sync is not available when theme is not in sync
 		await expect( autoSyncToggle ).toBeHidden();
@@ -75,13 +78,9 @@ test.describe( 'Email Style Sync', () => {
 		await expect( autoSyncToggle ).toBeVisible();
 		await expect( autoSyncToggle ).toBeChecked();
 
-		// Save settings
-		const saveButton = page.getByRole( 'button', { name: 'Save changes' } );
-		await saveButton.click();
-		await expect( saveButton ).toBeDisabled();
-
-		// Reload page and check if setting persisted
-		await page.reload();
+		// Save settings and check if setting persisted.
+		await saveButton.click(); // Triggers page reload.
+		await expect( saveButton ).toBeDisabled(); // Page reload done.
 		await expect( autoSyncToggle ).toBeVisible();
 		await expect( autoSyncToggle ).toBeChecked();
 
