@@ -66,6 +66,9 @@ abstract class AbstractInteractivityAPIBlock extends AbstractBlock {
 	 * @return string|null
 	 */
 	protected function get_block_type_editor_style() {
+		// Please note this is a workaround for the old build which bundles the editor styles
+		// and frontend styles into the same file. This means we load more styles than we need right now.
+		// Issue to address this: https://github.com/woocommerce/woocommerce/issues/56837 .
 		$this->asset_api->register_style( 'wc-blocks-style-' . $this->block_name, $this->asset_api->get_block_asset_build_path( $this->block_name, 'css' ), [], 'all', true );
 
 		return [ 'wc-blocks-style', 'wc-blocks-style-' . $this->block_name ];
