@@ -280,7 +280,7 @@ test.describe(
 					page
 						.getByRole( 'alert' )
 						.getByText(
-							`Usage limit for coupon ${ couponLimitedCode } has been reached.`
+							`Usage limit for coupon "${ couponLimitedCode }" has been reached.`
 						)
 				).toBeVisible();
 			}
