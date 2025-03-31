@@ -126,16 +126,16 @@ class Controller extends AbstractBlock {
 			'woocommerce/mini-cart',
 			'woocommerce/product-search',
 			'woocommerce/product-title',
-			// Classic wrapper blocks
+			// Classic wrapper blocks.
 			'woocommerce/classic-shortcode',
 			'woocommerce/legacy-template',
-			// Legacy filter blocks
+			// Legacy filter blocks.
 			'woocommerce/active-filters',
 			'woocommerce/price-filter',
 			'woocommerce/stock-filter',
 			'woocommerce/attribute-filter',
 			'woocommerce/rating-filter',
-			// Deprecated product grid blocks
+			// Deprecated product grid blocks.
 			'woocommerce/handpicked-products',
 			'woocommerce/product-best-sellers',
 			'woocommerce/product-category',
