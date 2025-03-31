@@ -639,7 +639,7 @@ class WooPaymentsRestController extends RestApiControllerBase {
 	}
 
 	/**
-	 * General permissions check for Payments settings REST API endpoint.
+	 * General permissions check for WooPayments settings REST API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request for which the permission is checked.
 	 *
