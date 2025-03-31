@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import type { FormEvent } from 'react';
 import { store, getContext } from '@wordpress/interactivity';
 import type { Store as WooCommerce } from '@woocommerce/stores/woocommerce/cart';
 import type { CartVariationItem } from '@woocommerce/types';
@@ -49,7 +50,9 @@ const addToCartWithOptionsStore = store(
 					context.variation.splice( index, 1 );
 				}
 			},
-			*addToCart() {
+			*handleSubmit( event: FormEvent< HTMLFormElement > ) {
+				event.preventDefault();
+
 				// Todo: Use the module exports instead of `store()` once the
 				// woocommerce store is public.
 				yield import( '@woocommerce/stores/woocommerce/cart' );

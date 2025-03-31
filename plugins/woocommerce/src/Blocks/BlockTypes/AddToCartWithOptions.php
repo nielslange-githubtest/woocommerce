@@ -133,6 +133,7 @@ class AddToCartWithOptions extends AbstractBlock {
 						$context,
 						JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
 					),
+					'data-wp-on--submit'  => 'actions.handleSubmit',
 					'class'               => $classes,
 					'style'               => esc_attr( $classes_and_styles['styles'] ),
 				)
