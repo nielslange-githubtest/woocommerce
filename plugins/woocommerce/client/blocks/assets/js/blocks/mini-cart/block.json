@@ -11,7 +11,9 @@
 		"html": false,
 		"multiple": false,
 		"typography": {
-			"fontSize": true
+			"fontSize": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true
 		}
 	},
 	"example": {
