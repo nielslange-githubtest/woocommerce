@@ -826,7 +826,7 @@ class ListTable extends WP_List_Table {
 
 		$first_year_month_gmt = $wpdb->get_row(
 			$wpdb->prepare(
-				"
+				'
 					SELECT YEAR( t.date_created_gmt ) AS year,
 					       MONTH( t.date_created_gmt ) AS month
 					FROM %i t
@@ -834,7 +834,7 @@ class ListTable extends WP_List_Table {
 					AND status != %s
 					ORDER BY year ASC, month ASC
 					LIMIT 1
-				",
+				',
 				$orders_table,
 				$this->order_type,
 				$trash_status
@@ -861,7 +861,7 @@ class ListTable extends WP_List_Table {
 		if ( $start > $end ) {
 			$last_year_month_gmt = $wpdb->get_row(
 				$wpdb->prepare(
-					"
+				'
 					SELECT YEAR( t.date_created_gmt ) AS year,
 					       MONTH( t.date_created_gmt ) AS month
 					FROM %i t
@@ -869,7 +869,7 @@ class ListTable extends WP_List_Table {
 					AND status != %s
 					ORDER BY year DESC, month DESC
 					LIMIT 1
-				",
+				',
 					$orders_table,
 					$this->order_type,
 					$trash_status
