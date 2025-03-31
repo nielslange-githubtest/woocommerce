@@ -176,11 +176,11 @@ class ProductButton extends AbstractBlock {
 		}
 
 		$context = array(
-			'quantityToAdd'                      => $default_quantity,
-			'productId'                          => $product->get_id(),
-			'addToCartText'                      => $add_to_cart_text,
-			'tempQuantity'                       => $number_of_items_in_cart,
-			'animationStatus'                    => 'IDLE',
+			'quantityToAdd'   => $default_quantity,
+			'productId'       => $product->get_id(),
+			'addToCartText'   => $add_to_cart_text,
+			'tempQuantity'    => $number_of_items_in_cart,
+			'animationStatus' => 'IDLE',
 		);
 
 		$attributes = array(
