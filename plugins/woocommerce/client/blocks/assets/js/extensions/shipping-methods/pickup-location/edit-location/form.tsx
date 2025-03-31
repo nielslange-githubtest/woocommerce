@@ -53,6 +53,7 @@ const Form = ( {
 				onChange={ setLocationField( 'name' ) }
 				autoComplete="off"
 				required={ true }
+				aria-required={ true }
 				onInvalid={ (
 					event: React.InvalidEvent< HTMLInputElement >
 				) => {
