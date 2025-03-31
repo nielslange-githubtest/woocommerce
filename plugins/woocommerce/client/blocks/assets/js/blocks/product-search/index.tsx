@@ -140,9 +140,6 @@ registerBlockType( SEARCH_VARIATION_NAME, {
 	supports: {
 		align: [ 'wide', 'full' ],
 		inserter: ! isBlockVariationAvailable,
-		interactivity: {
-			clientNavigation: true,
-		},
 	},
 	attributes,
 	transforms: {
