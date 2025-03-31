@@ -12,6 +12,7 @@ namespace Automattic\WooCommerce\Internal\Admin;
 use Automattic\WooCommerce\Internal\RegisterHooksInterface;
 use WP_REST_Server;
 use WP_Error;
+use WP_REST_Response;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,6 +31,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 */
 	public function register() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_filter( 'rest_pre_serve_request', array( $this, 'serve_binary_file' ), 10, 4 );
 	}
 
 	/**
@@ -98,7 +100,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @param \WP_REST_Request $request Request details.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_preview( \WP_REST_Request $request ): \WP_Error {
+	public function get_preview( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$attachment_id  = (int) $request['attachment_id'];
 		$product_id     = (int) $request['product_id'];
 		$requested_size = (string) ($request['size'] ?? 'large');
@@ -140,20 +142,74 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			}
 		}
 
-		// Clean all levels of output buffer.
+		// Create a response with file data to be served by serve_binary_file
+		$response = new WP_REST_Response();
+
+		// Store the file path and mime type in the response data
+		$response->set_data(
+			array(
+				'file_path' => $file_path,
+				'mime_type' => $mime_type,
+			)
+		);
+
+		// Set appropriate headers for the file
+		$response->set_headers(
+			array(
+				'Content-Type'        => $mime_type,
+				'Content-Disposition' => 'inline; filename="' . basename( $file_path ) . '"',
+				'Content-Length'      => filesize( $file_path ),
+				'Cache-Control'       => 'no-cache, must-revalidate, max-age=0',
+				'Pragma'              => 'no-cache',
+				'Expires'             => 'Wed, 11 Jan 1984 05:00:00 GMT',
+			)
+		);
+
+		return $response;
+	}
+
+	/**
+	 * Pre-serve hook for handling binary file data
+	 *
+	 * @since 9.9.0
+	 * @param bool             $served Whether the request has already been served.
+	 * @param WP_HTTP_Response $result Result to send to the client.
+	 * @param WP_REST_Request  $request Request used to generate the response.
+	 * @param WP_REST_Server   $server Server instance.
+	 * @return bool True if the request was served, false otherwise.
+	 */
+	public function serve_binary_file( bool $served, $result, $request, $server ): bool {
+		if ( $served ) {
+			return true;
+		}
+
+		// Only handle our specific endpoint
+		if ( 0 !== strpos( $request->get_route(), '/wc/v3/admin/product-downloads-preview/' ) ) {
+			return false;
+		}
+
+		$data = $result->get_data();
+		if ( empty( $data['file_path'] ) ) {
+			return false;
+		}
+
+		$file_path = $data['file_path'];
+
+		// Clean all output buffers
 		while ( ob_get_level() ) {
 			@ob_end_clean(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
-		nocache_headers();
-		header( 'Content-Type: ' . $mime_type );
-		header( 'Content-Length: ' . filesize( $file_path ) );
-		header( 'Content-Disposition: inline; filename="' . basename( $file_path ) . '"' );
+		// Send headers from the response
+		foreach ( $result->get_headers() as $key => $value ) {
+			header( "{$key}: {$value}" );
+		}
 
-		// We need to use readfile here for binary file output.
+		// Send the file
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 		readfile( $file_path );
-		exit;
+
+		return true;
 	}
 
 	/**
