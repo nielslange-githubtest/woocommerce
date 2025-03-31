@@ -133,7 +133,7 @@ class ListTableTest extends \WC_Unit_Test_Case {
 	 * @testdox The months filter options works as expected when the oldest order has a future date.
 	 */
 	public function test_get_months_filter_options_only_future_orders() {
-		$start_date     = new \WC_DateTime( '+ 1 year' );
+		$start_date     = new \WC_DateTime( '+ 2 years' );
 		$current_date   = new \WC_DateTime();
 		$expected_count = $this->get_months_count( $current_date, $start_date );
 
@@ -142,7 +142,7 @@ class ListTableTest extends \WC_Unit_Test_Case {
 		$order->save();
 
 		$order = \WC_Helper_Order::create_order();
-		$order->set_date_created( new \WC_DateTime( '+ 2 years' ) );
+		$order->set_date_created( new \WC_DateTime( '+ 1 year' ) );
 		$order->save();
 
 		$year_months = $this->call_get_months_filter_options( $this->sut );

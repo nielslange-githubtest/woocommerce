@@ -7,6 +7,7 @@ use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableControlle
 use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
 use Automattic\WooCommerce\Caches\OrderCountCache;
 use Automattic\WooCommerce\Utilities\OrderUtil;
+use DatePeriod;
 use WC_Order;
 use WP_List_Table;
 use WP_Screen;
@@ -811,25 +812,33 @@ class ListTable extends WP_List_Table {
 	protected function get_months_filter_options(): array {
 		global $wpdb;
 
+		$this_month = new \WC_DateTime(
+			sprintf(
+				'%s-%s-01',
+				gmdate( 'Y' ),
+				gmdate( 'm' )
+			),
+			wp_timezone()
+		);
+
 		$orders_table = esc_sql( OrdersTableDataStore::get_orders_table_name() );
 		$trash_status = esc_sql( OrderStatus::TRASH );
 
 		$first_year_month_gmt = $wpdb->get_row(
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->prepare(
 				"
 					SELECT YEAR( t.date_created_gmt ) AS year,
 					       MONTH( t.date_created_gmt ) AS month
-					FROM $orders_table t
+					FROM %i t
 					WHERE type = %s
 					AND status != %s
 					ORDER BY year ASC, month ASC
 					LIMIT 1
 				",
+				$orders_table,
 				$this->order_type,
 				$trash_status
 			)
-			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
 
 		if ( is_object( $first_year_month_gmt ) ) {
@@ -842,16 +851,41 @@ class ListTable extends WP_List_Table {
 			);
 			$start->setTimezone( wp_timezone() ); // Adjust date and time to reflect site timezone.
 		} else {
-			$start = new \WC_DateTime( 'now', wp_timezone() );
+			$start = $this_month;
 		}
 
-		$end     = new \WC_DateTime( 'now', wp_timezone() );
+		$end     = $this_month;
 		$options = array();
 
-		// If, somehow, the oldest order date is in the future, swap the start and end of the range.
+		// If, somehow, the oldest order date is in the future, we need to find the order furthest into the future as well.
 		if ( $start > $end ) {
-			$end   = $start;
-			$start = new \WC_DateTime( 'now', wp_timezone() );
+			$last_year_month_gmt = $wpdb->get_row(
+				$wpdb->prepare(
+					"
+					SELECT YEAR( t.date_created_gmt ) AS year,
+					       MONTH( t.date_created_gmt ) AS month
+					FROM %i t
+					WHERE type = %s
+					AND status != %s
+					ORDER BY year DESC, month DESC
+					LIMIT 1
+				",
+					$orders_table,
+					$this->order_type,
+					$trash_status
+				)
+			);
+
+			$end = new \WC_DateTime(
+				sprintf(
+					'%s-%s-01',
+					$last_year_month_gmt->year,
+					$last_year_month_gmt->month
+				)
+			);
+			$end->setTimezone( wp_timezone() ); // Adjust date and time to reflect site timezone.
+
+			$start = $this_month;
 		}
 
 		while (
