@@ -244,9 +244,7 @@ test.describe(
 					await page.locator( 'text=Apply coupon' ).click();
 					// successful first time
 					await expect(
-						page.getByText(
-							`Coupon code "${ coupons[ 0 ].code }" already applied!`
-						)
+						page.getByText( 'Coupon code applied successfully.' )
 					).toBeVisible();
 					// try to apply the same coupon
 					await page
