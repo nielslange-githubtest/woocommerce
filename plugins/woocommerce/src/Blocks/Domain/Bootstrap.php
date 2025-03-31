@@ -37,7 +37,7 @@ use Automattic\WooCommerce\StoreApi\SchemaController;
 use Automattic\WooCommerce\StoreApi\StoreApi;
 use Automattic\WooCommerce\Blocks\Shipping\ShippingController;
 use Automattic\WooCommerce\Blocks\TemplateOptions;
-
+use Automattic\WooCommerce\Blocks\SharedInteractivityConfig;
 
 /**
  * Takes care of bootstrapping the plugin.
@@ -141,6 +141,9 @@ class Bootstrap {
 			$this->container->get( Installer::class )->init();
 			$this->container->get( GoogleAnalytics::class )->init();
 			$this->container->get( is_admin() ? CheckoutFieldsAdmin::class : CheckoutFieldsFrontend::class )->init();
+
+			// Note that DI is not needed for one-time initialization of shared settings.
+			SharedInteractivityConfig::init();
 		}
 
 		// Load assets unless this is a request specifically for the store API.

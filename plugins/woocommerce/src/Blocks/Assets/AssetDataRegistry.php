@@ -4,15 +4,16 @@ namespace Automattic\WooCommerce\Blocks\Assets;
 use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Blocks\Domain\Services\Hydration;
 use Automattic\WooCommerce\Internal\Logging\RemoteLogger;
-use Exception;
 use InvalidArgumentException;
 
 /**
- * Class instance for registering data used on the current view session by
- * assets.
+ * Manages data storage for the current view session that gets exposed when the
+ * wc-settings script is enqueued (either directly or as a dependency).
+ * This data is used by various WooCommerce block assets during rendering.
  *
- * Holds data registered for output on the current view session when
- * `wc-settings` is enqueued( directly or via dependency )
+ * Note that using wc-settings/AssetDataRegistry is deprecated and should only be used
+ * for non-script-module blocks (ie those not using Interactivity API). For shared settings,
+ * use SharedInteractivityConfig, for block specific settings use wp_interactivity_config.
  *
  * @since 2.5.0
  */

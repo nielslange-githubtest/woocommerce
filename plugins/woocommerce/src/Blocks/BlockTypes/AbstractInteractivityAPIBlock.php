@@ -26,6 +26,7 @@ abstract class AbstractInteractivityAPIBlock extends AbstractBlock {
 			$this->enqueue_assets( $render_callback_attributes, $content, $block );
 		}
 
+		// Even if the rendered block is empty, it's safest to enqueue the data.
 		$this->enqueue_data( $attributes );
 
 		return $result;
