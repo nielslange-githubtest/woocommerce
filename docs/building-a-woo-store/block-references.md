@@ -185,6 +185,17 @@ Display a short description about a product.
 -	**Supports:** 
 -	**Attributes:** isDescendantOfAllProducts, isDescendentOfQueryLoop, isDescendentOfSingleProductBlock, isDescendentOfSingleProductTemplate, linkText, productId, showDescriptionIfEmpty, showLink, summaryLength
 
+## Product Title - woocommerce/product-title
+
+Display the title of a product.
+
+-	**Name:** woocommerce/product-title
+-	**Category:** woocommerce
+-   **Ancestor:** woocommerce/all-products
+-   **Parent:** 
+-	**Supports:** color (background, gradients, text, ~~link~~), spacing (margin), typography (fontSize, lineHeight), ~~html~~
+-	**Attributes:** align, headingLevel, linkTarget, productId, showProductLink
+
 ## Accordion Group - woocommerce/accordion-group
 
 A group of headers and associated expandable content.
