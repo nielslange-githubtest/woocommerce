@@ -9,6 +9,7 @@ import React from 'react';
 import { useOnboardingContext } from '../data/onboarding-context';
 import { WooPaymentsProviderOnboardingStep } from '~/settings-payments/onboarding/types';
 import WooPaymentsStepHeader from '../components/header';
+import BusinessVerificationStep from './business-verification';
 import PaymentMethodsSelection from './payment-methods-selection';
 import FinishStep from './finish';
 
@@ -121,8 +122,17 @@ export const steps: WooPaymentsProviderOnboardingStep[] = [
 		id: 'business_verification',
 		order: 4,
 		type: 'backend',
-		label: 'Business verification',
+		label: 'Activate Payments',
+		path: '/woopayments/onboarding/vusiness_verification',
 		dependencies: [ 'test_account' ],
+		content: <BusinessVerificationStep />,
+	},
+	{
+		id: 'final',
+		order: 5,
+		type: 'backend',
+		label: 'Payment methods',
+		dependencies: [ 'congratulations' ],
 		content: <OtherStep />,
 	},
 	{
