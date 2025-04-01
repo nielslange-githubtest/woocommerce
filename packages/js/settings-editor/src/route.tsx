@@ -5,7 +5,6 @@ import {
 	createElement,
 	useEffect,
 	useMemo,
-	useState,
 	useRef,
 	useContext,
 } from '@wordpress/element';
@@ -17,7 +16,6 @@ import {
 	removeAction,
 } from '@wordpress/hooks';
 import { useLocation } from '@automattic/site-admin';
-import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -43,7 +41,7 @@ const NotFound = () => {
  * Default route when active page is not found.
  *
  * @param {string}        activePage - The active page.
- * @param {settingsPages} settingsPages      - The settings pages.
+ * @param {settingsData} settingsData      - The settings pages.
  */
 const getNotFoundRoute = (
 	activePage: string,

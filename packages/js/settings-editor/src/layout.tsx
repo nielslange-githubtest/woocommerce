@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@wordpress/element';
+import { createElement, Fragment } from '@wordpress/element';
 import {
 	useViewportMatch,
 	useResizeObserver,
 	useReducedMotion,
-	usePrevious,
 } from '@wordpress/compose';
 /* eslint-disable @woocommerce/dependency-group */
 import {
@@ -17,7 +16,6 @@ import {
 	__unstableMotion as motion,
 	__unstableAnimatePresence as AnimatePresence,
 } from '@wordpress/components';
-import { createElement, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
