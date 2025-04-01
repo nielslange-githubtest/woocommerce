@@ -6,7 +6,12 @@ import path from 'path';
 /**
  * Internal dependencies
  */
-import { loadConfig, parseConfig, getConfiguredChannels } from '../config';
+import {
+	loadConfig,
+	parseConfig,
+	getConfiguredChannels,
+	resolveChannels,
+} from '../config';
 
 describe( 'loadConfigData', () => {
 	it( 'should read config from file', () => {
@@ -643,5 +648,61 @@ describe( 'getConfiguredChannels', () => {
 				expect( new Set( result ) ).toEqual( new Set( expected ) );
 			}
 		);
+	} );
+} );
+
+describe( 'resolveChannels', () => {
+	let originalEnv: NodeJS.ProcessEnv;
+
+	beforeEach( () => {
+		originalEnv = { ...process.env };
+		process.env.SLACK_CHANNEL_1 = 'C1234567890';
+		process.env.SLACK_CHANNEL_2 = 'C0987654321';
+	} );
+
+	afterEach( () => {
+		process.env = originalEnv;
+	} );
+
+	test( 'should resolve existing environment variables', () => {
+		const result = resolveChannels( [
+			'SLACK_CHANNEL_1',
+			'SLACK_CHANNEL_2',
+		] );
+		expect( result ).toEqual( [ 'C1234567890', 'C0987654321' ] );
+	} );
+
+	test( 'should throw error for non-existent environment variables', () => {
+		expect( () =>
+			resolveChannels( [
+				'SLACK_CHANNEL_1',
+				'NON_EXISTENT_CHANNEL',
+				'SLACK_CHANNEL_2',
+			] )
+		).toThrow(
+			'Missing required environment variables: NON_EXISTENT_CHANNEL'
+		);
+	} );
+
+	test( 'should handle empty array', () => {
+		const result = resolveChannels( [] );
+		expect( result ).toEqual( [] );
+	} );
+
+	test( 'should throw error when all variables are undefined', () => {
+		expect( () =>
+			resolveChannels( [ 'NON_EXISTENT_1', 'NON_EXISTENT_2' ] )
+		).toThrow(
+			'Missing required environment variables: NON_EXISTENT_1, NON_EXISTENT_2'
+		);
+	} );
+
+	test( 'should handle environment variables with empty values', () => {
+		process.env.EMPTY_CHANNEL = '';
+		const result = resolveChannels( [
+			'EMPTY_CHANNEL',
+			'SLACK_CHANNEL_1',
+		] );
+		expect( result ).toEqual( [ '', 'C1234567890' ] );
 	} );
 } );

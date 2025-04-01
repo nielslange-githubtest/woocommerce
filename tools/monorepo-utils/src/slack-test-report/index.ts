@@ -10,7 +10,11 @@ import { WebClient } from '@slack/web-api';
 import { Logger } from '../core/logger';
 import { getEnvVar } from '../core/environment';
 import { createMessage, postMessage } from './lib/message';
-import { getConfiguredChannels, parseConfig } from './lib/config';
+import {
+	getConfiguredChannels,
+	parseConfig,
+	resolveChannels,
+} from './lib/config';
 
 const conclusions = [ 'success', 'failure', 'skipped', 'cancelled' ];
 
@@ -64,7 +68,7 @@ const program = new Command( 'slack-test-report' )
 					refName,
 					options.reportName
 				);
-				channels.push( ...configuredChannels );
+				channels.push( ...resolveChannels( configuredChannels ) );
 			} catch ( error ) {
 				Logger.error(
 					`Failed to determine channels to send the notification to: ${ error.message }`

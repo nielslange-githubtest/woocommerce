@@ -169,3 +169,26 @@ export function getConfiguredChannels(
 
 	return Array.from( channels );
 }
+
+/**
+ * Resolves an array of channel environment variable names to their actual values.
+ *
+ * @param  channelVars - Array of environment variable names that contain channel IDs
+ * @return Array of resolved channel IDs
+ * @throws {Error} If any of the environment variables are not defined
+ */
+export function resolveChannels( channelVars: string[] ): string[] {
+	const undefinedVars = channelVars.filter(
+		( varName ) => ! ( varName in process.env )
+	);
+
+	if ( undefinedVars.length > 0 ) {
+		throw new Error(
+			`Missing required environment variables: ${ undefinedVars.join(
+				', '
+			) }`
+		);
+	}
+
+	return channelVars.map( ( varName ) => process.env[ varName ] as string );
+}
