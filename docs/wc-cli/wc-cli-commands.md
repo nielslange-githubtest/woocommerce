@@ -1412,9 +1412,9 @@ Options: product_slug, product_name, auto_renew, expires_on, expired, sites_max,
 
 #### wc blueprint import [schema-path]
 
-- `--show-messages` - Show debug messages. Support log levels: all, error, info, debug.
+- `--show-messages` - Show debug messages. Supported log levels: all, error, info, debug.
 
-#### wc blueprint export [save-to-path]
+#### wc blueprint export [save-to-filename]
 
 - `--steps` - name of steps to export.
 
