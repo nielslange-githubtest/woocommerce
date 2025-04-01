@@ -411,13 +411,13 @@ abstract class WC_Shipping_Method extends WC_Settings_API {
 			switch ( $this->availability ) {
 				case 'specific':
 				case 'including':
-					$available = in_array( $package['destination']['country'], array_intersect( $countries, array_keys( WC()->countries->get_shipping_countries() ) ) );
+					$available = in_array( $package['destination']['country'], array_intersect( $countries, array_keys( WC()->countries->get_shipping_countries() ) ), true );
 					break;
 				case 'excluding':
-					$available = in_array( $package['destination']['country'], array_diff( array_keys( WC()->countries->get_shipping_countries() ), $countries ) );
+					$available = in_array( $package['destination']['country'], array_diff( array_keys( WC()->countries->get_shipping_countries() ), $countries ), true );
 					break;
 				default:
-					$available = in_array( $package['destination']['country'], array_keys( WC()->countries->get_shipping_countries() ) );
+					$available = in_array( $package['destination']['country'], array_keys( WC()->countries->get_shipping_countries() ), true );
 					break;
 			}
 		}
