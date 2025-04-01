@@ -361,9 +361,9 @@ jobs:
               CHECKS_TYPE="${RUN_TYPE}"
           fi
 
-          pnpm utils slack-test-report -c "${{ needs.project-jobs.result }}" -r "$CHECKS_TYPE Build jobs matrix" -m "$COMMIT_MESSAGE"
-          pnpm utils slack-test-report -c "${{ needs.project-lint-jobs.result }}" -r "$CHECKS_TYPE Linting" -m "$COMMIT_MESSAGE"
-          pnpm utils slack-test-report -c "${{ needs.project-test-jobs.result }}" -r "$CHECKS_TYPE Tests" -m "$COMMIT_MESSAGE"
+          pnpm utils slack-test-report -c "${{ needs.project-jobs.result }}" -r "$CHECKS_TYPE Build jobs matrix" -m "$COMMIT_MESSAGE" --config ".github/workflows/slack-report-config.json"
+          pnpm utils slack-test-report -c "${{ needs.project-lint-jobs.result }}" -r "$CHECKS_TYPE Linting" -m "$COMMIT_MESSAGE" --config ".github/workflows/slack-report-config.json"
+          pnpm utils slack-test-report -c "${{ needs.project-test-jobs.result }}" -r "$CHECKS_TYPE Tests" -m "$COMMIT_MESSAGE" --config ".github/workflows/slack-report-config.json"
 
   test-reports:
     name: 'Test reports - ${{ matrix.report }}'
