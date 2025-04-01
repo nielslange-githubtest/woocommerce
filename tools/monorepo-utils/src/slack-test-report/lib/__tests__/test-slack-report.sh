@@ -16,4 +16,8 @@ done
 
 export GITHUB_REF_NAME="trunk"
 export GITHUB_EVENT_NAME="push"
+pnpm utils slack-test-report --config ".github/workflows/slack-report-config.json" -c "failure" -r "Tests" -m "Test commit message"
+
+export GITHUB_REF_NAME="trunk"
+export GITHUB_EVENT_NAME="schedule"
 pnpm utils slack-test-report --config ".github/workflows/slack-report-config.json" -c "failure" -r "daily-checks Tests" -m "Test commit message"
