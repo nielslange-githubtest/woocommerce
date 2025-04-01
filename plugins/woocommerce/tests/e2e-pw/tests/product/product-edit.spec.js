@@ -292,9 +292,7 @@ test(
 
 				const expectedRegularPrice = product.regular_price;
 
-				await expect
-					.soft( await page.locator( 'ins' ).count() )
-					.toBe( 0 );
+				await expect( page.locator( 'ins' ) ).toHaveCount( 0 );
 
 				await expect
 					.soft( page.locator( 'bdi' ).first() )
