@@ -201,4 +201,13 @@ class ProductGalleryLargeImage extends AbstractInteractivityAPIBlock {
 			'data-wp-on--click' => 'actions.openDialog',
 		);
 	}
+
+	/**
+	 * Disable the legacy editor style for this block type.
+	 *
+	 * @return null
+	 */
+	protected function get_legacy_editor_styles() {
+		return null;
+	}
 }

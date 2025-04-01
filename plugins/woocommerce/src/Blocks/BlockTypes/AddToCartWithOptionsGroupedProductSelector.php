@@ -54,4 +54,13 @@ class AddToCartWithOptionsGroupedProductSelector extends AbstractInteractivityAP
 	protected function get_block_type_script( $key = null ) {
 		return null;
 	}
+
+	/**
+	 * Disable the legacy editor style for this block type.
+	 *
+	 * @return null
+	 */
+	protected function get_legacy_editor_styles() {
+		return null;
+	}
 }
