@@ -27,7 +27,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @since 9.9.0
 	 */
 	public function register() {
-		// Register AJAX actions for admin file serving
+		// Register AJAX actions for admin file serving.
 		add_action( 'wp_ajax_wc_product_download_preview', array( $this, 'serve_product_download_preview' ) );
 	}
 
@@ -37,12 +37,12 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * @since 9.9.0
 	 */
 	public function serve_product_download_preview() {
-		// Verify permissions
+		// Verify permissions.
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( esc_html__( 'Unauthorized access.', 'woocommerce' ), 403 );
 		}
 
-		// Verify nonce
+		// Verify nonce.
 		$nonce = $this->get_parameter( '_wpnonce' );
 		if ( ! wp_verify_nonce( $nonce, 'wc_product_download_preview' ) ) {
 			wp_die( esc_html__( 'Invalid security token.', 'woocommerce' ), 403 );
@@ -61,7 +61,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			wp_die( esc_html__( 'File not found', 'woocommerce' ), 404 );
 		}
 
-		$mime_type = get_post_mime_type( $attachment_id );
+		$mime_type          = get_post_mime_type( $attachment_id );
 		$allowed_mime_types = array(
 			'image/jpeg',
 			'image/jpg',
@@ -74,12 +74,12 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			wp_die( esc_html__( 'Invalid file type', 'woocommerce' ), 403 );
 		}
 
-		// Handle resized images
-		$size = 'full' === $size ? 'large' : $size;
+		// Handle resized images.
+		$size    = 'full' === $size ? 'large' : $size;
 		$resized = image_get_intermediate_size( $attachment_id, $size );
 
 		if ( $resized && isset( $resized['path'] ) ) {
-			$uploads_dir = wp_upload_dir();
+			$uploads_dir       = wp_upload_dir();
 			$resized_file_path = $uploads_dir['basedir'] . '/' . $resized['path'];
 
 			if ( is_readable( $resized_file_path ) ) {
@@ -87,12 +87,12 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 			}
 		}
 
-		// Clean all output buffers
+		// Clean all output buffers.
 		while ( ob_get_level() ) {
 			@ob_end_clean(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		}
 
-		// Send headers
+		// Send headers.
 		nocache_headers();
 		header( 'Content-Type: ' . $mime_type );
 		header( 'Content-Length: ' . filesize( $file_path ) );
@@ -108,13 +108,14 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 * Santize $_GET param for readability sake.
 	 *
 	 * @since 9.9.0
-	 * @param string $param The parameter identifier
-	 * @param string $default value to return. Defaults to empty string.
+	 * @param string $param The parameter identifier.
+	 * @param string $fallback_value Value to return. Defaults to empty string.
 	 *
 	 * @return string
 	 */
-	private function get_parameter($param, $default = '' ) {
-		return ( isset( $_GET[$param] ) ) ? sanitize_text_field( $_GET[$param] ) : $default;
+	private function get_parameter( $param, $fallback_value = '' ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		return ( isset( $_GET[ $param ] ) ) ? sanitize_text_field( wp_unslash( $_GET[ $param ] ) ) : $fallback_value;
 	}
 
 	/**

@@ -164,7 +164,7 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		// Mock nonce verification to always return true for testing.
 		add_filter( 'wp_verify_nonce', '__return_true' );
 
-		// Set invalid attachment ID
+		// Set invalid attachment ID.
 		$_GET['attachment_id'] = '999999';
 
 		// Expect wp_die to be called.
