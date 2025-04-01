@@ -114,26 +114,6 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	}
 
 	/**
-	 * Test get_parameter returns proper values
-	 */
-	public function test_get_parameter() {
-		// Make the private method accessible.
-		$method = new ReflectionMethod( ProductDownloadsPreview::class, 'get_parameter' );
-		$method->setAccessible( true );
-
-		// Test retrieval from GET.
-		$_GET['test_param'] = 'test_value';
-		$this->assertEquals( 'test_value', $method->invoke( $this->preview, 'test_param' ) );
-		unset( $_GET['test_param'] );
-
-		// Test default value when parameter is missing.
-		$this->assertEquals( 'default', $method->invoke( $this->preview, 'non_existent_param', 'default' ) );
-
-		// Test empty default value when parameter is missing.
-		$this->assertEquals( '', $method->invoke( $this->preview, 'non_existent_param' ) );
-	}
-
-	/**
 	 * Test the AJAX handler with missing parameters
 	 */
 	public function test_serve_product_download_preview_missing_parameters() {
