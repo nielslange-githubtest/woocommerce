@@ -20,16 +20,7 @@ export const Sidebar = ( {
 	currentNestLevel,
 	routeKey,
 }: {
-	sidebarItems: Array< {
-		slug: string;
-		label: string;
-		to: string;
-		isCurrent: boolean;
-		withChevron: boolean;
-		icon?: string;
-		backPath?: string;
-		backLabel?: string;
-	} >;
+	sidebarItems: Array< SidebarItem >;
 	currentNestLevel: number;
 	routeKey: string;
 } ) => {

@@ -117,6 +117,17 @@ declare global {
 		pages: SettingsPages;
 		_wpnonce: string;
 	}
+
+	interface SidebarItem {
+		slug: string;
+		label: string;
+		to: string;
+		isCurrent: boolean;
+		withChevron: boolean;
+		icon?: string;
+		backPath?: string;
+		backLabel?: string;
+	}
 }
 
 declare global {

@@ -26,6 +26,10 @@ import { Sidebar } from './components';
 import { Route } from './types';
 import { LegacyContent } from './legacy';
 import { SettingsDataContext } from './data';
+import {
+	getPrimaryLegacySidebarItems,
+	getSecondaryLegacySidebarItems,
+} from './utils';
 
 const NotFound = () => {
 	return (
@@ -41,13 +45,19 @@ const NotFound = () => {
  * @param {string}        activePage - The active page.
  * @param {settingsPages} settingsPages      - The settings pages.
  */
-const getNotFoundRoute = ( activePage: string ): Route => ( {
+const getNotFoundRoute = (
+	activePage: string,
+	settingsData: SettingsData
+): Route => ( {
 	key: activePage,
 	areas: {
 		sidebar: (
 			<Sidebar
 				routeKey={ activePage }
-				sidebarItems={ [] }
+				sidebarItems={ getPrimaryLegacySidebarItems(
+					settingsData,
+					activePage
+				) }
 				currentNestLevel={ 1 }
 			/>
 		),
@@ -78,54 +88,13 @@ const getLegacyRoute = (
 		activeSection === 'default' &&
 		Object.keys( settingsData.pages[ activePage ].sections ).length === 1;
 
-	const primarySidebarItems = Object.keys( settingsData.pages ).map(
-		( slug ) => {
-			const {
-				label,
-				icon = 'settings',
-				sections,
-			} = settingsData.pages[ slug ];
-			const to = addQueryArgs( 'wc-settings', { tab: slug } );
-			const withChevron = Object.keys( sections ).length > 1;
-			const isCurrent = slug === activePage;
-
-			return {
-				slug,
-				label,
-				icon,
-				to,
-				withChevron,
-				isCurrent,
-			};
-		}
-	);
-
-	const secondarySidebarItems = Object.keys(
-		settingsData.pages[ activePage ].sections
-	).map( ( slug ) => {
-		const page = settingsData.pages[ activePage ];
-		const { label } = page.sections[ slug ];
-		const to = addQueryArgs( 'wc-settings', {
-			tab: activePage,
-			section: slug,
-		} );
-		const isCurrent = slug === activeSection;
-		const backPath = addQueryArgs( 'wc-settings', {} );
-		const backLabel = page.label;
-		return {
-			slug,
-			label,
-			to,
-			withChevron: false,
-			isCurrent,
-			backPath,
-			backLabel,
-		};
-	} );
-
 	const sidebarItems = isPrimary
-		? primarySidebarItems
-		: secondarySidebarItems;
+		? getPrimaryLegacySidebarItems( settingsData, activePage )
+		: getSecondaryLegacySidebarItems(
+				settingsData,
+				activePage,
+				activeSection
+		  );
 
 	const key = activePage + '-' + activeSection;
 
@@ -237,7 +206,7 @@ export const useActiveRoute = (): {
 
 		if ( ! settingsPage ) {
 			return {
-				route: getNotFoundRoute( activePage ),
+				route: getNotFoundRoute( activePage, settingsData ),
 			};
 		}
 
@@ -261,7 +230,7 @@ export const useActiveRoute = (): {
 		// Handle modern pages.
 		if ( ! modernRoute ) {
 			return {
-				route: getNotFoundRoute( activePage ),
+				route: getNotFoundRoute( activePage, settingsData ),
 			};
 		}
 
