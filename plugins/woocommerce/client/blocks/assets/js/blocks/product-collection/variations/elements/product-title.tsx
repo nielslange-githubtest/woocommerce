@@ -9,9 +9,9 @@ import { heading } from '@wordpress/icons';
  */
 import { registerElementVariation } from './utils';
 import {
-	BLOCK_DESCRIPTION,
-	BLOCK_TITLE,
-} from '../../../../atomic/blocks/product-elements/title/constants';
+	title,
+	description,
+} from '@woocommerce/atomic-blocks/product-elements/title/block.json';
 import blockJson from '../../block.json';
 
 export const CORE_NAME = 'core/post-title';
@@ -19,9 +19,9 @@ export const VARIATION_NAME = `${ blockJson.name }/product-title`;
 
 const registerProductTitle = () => {
 	registerElementVariation( CORE_NAME, {
-		blockDescription: BLOCK_DESCRIPTION,
+		blockDescription: description,
 		blockIcon: <Icon icon={ heading } />,
-		blockTitle: BLOCK_TITLE,
+		blockTitle: title,
 		variationName: VARIATION_NAME,
 		scope: [ 'block', 'inserter' ],
 	} );

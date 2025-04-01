@@ -3,22 +3,18 @@
  * External dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
-import { heading, Icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import edit from './edit';
 import { Save } from './save';
+import { BLOCK_ICON } from './constants';
 import metadata from './block.json';
-
-export const icon = (
-	<Icon icon={ heading } className="wc-block-editor-components-block-icon" />
-);
 
 registerBlockType( metadata, {
 	icon: {
-		src: icon,
+		src: BLOCK_ICON,
 	},
 	edit,
 	save: Save,
