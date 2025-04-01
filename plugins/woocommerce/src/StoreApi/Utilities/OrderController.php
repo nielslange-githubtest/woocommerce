@@ -385,16 +385,14 @@ class OrderController {
 			if ( ! $is_local_pickup_selected && ! $this->validate_allowed_country( $shipping_country, (array) wc()->countries->get_shipping_countries() ) ) {
 				throw new RouteException(
 					'woocommerce_rest_invalid_address_country',
-					esc_html(
-						sprintf(
+					sprintf(
 							/* translators: %s country code. */
-							__( 'Sorry, we do not ship orders to the provided country (%s)', 'woocommerce' ),
-							$shipping_country
-						)
+						__( 'Sorry, we do not ship orders to the provided country (%s)', 'woocommerce' ),
+						$shipping_country
 					),
 					400,
 					array(
-						'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_shipping_countries() ) ),
+						'allowed_countries' => array_keys( wc()->countries->get_shipping_countries() ),
 					)
 				);
 			}
@@ -403,16 +401,14 @@ class OrderController {
 		if ( ! $this->validate_allowed_country( $billing_country, (array) wc()->countries->get_allowed_countries() ) ) {
 			throw new RouteException(
 				'woocommerce_rest_invalid_address_country',
-				esc_html(
-					sprintf(
+				sprintf(
 						/* translators: %s country code. */
-						__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
-						$billing_country
-					)
+					__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
+					$billing_country
 				),
 				400,
 				array(
-					'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_allowed_countries() ) ),
+					'allowed_countries' => array_keys( wc()->countries->get_allowed_countries() ),
 				)
 			);
 		}
@@ -437,16 +433,14 @@ class OrderController {
 		foreach ( $errors_by_code as $code => $error_messages ) {
 			throw new RouteException(
 				'woocommerce_rest_invalid_address',
-				esc_html(
-					sprintf(
+				sprintf(
 					/* translators: %s Address type. */
-						__( 'There was a problem with the provided %s:', 'woocommerce' ) . ' ' . implode( ', ', $error_messages ),
-						'shipping' === $code ? __( 'shipping address', 'woocommerce' ) : __( 'billing address', 'woocommerce' )
-					),
+					__( 'There was a problem with the provided %s:', 'woocommerce' ) . ' ' . implode( ', ', $error_messages ),
+					'shipping' === $code ? __( 'shipping address', 'woocommerce' ) : __( 'billing address', 'woocommerce' )
 				),
 				400,
 				array(
-					'errors' => $errors_by_code, // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+					'errors' => $errors_by_code,
 				)
 			);
 		}
@@ -642,7 +636,7 @@ class OrderController {
 
 		$exception = new RouteException(
 			'woocommerce_rest_invalid_shipping_option',
-			esc_html__( 'Sorry, this order requires a shipping option.', 'woocommerce' ),
+			__( 'Sorry, this order requires a shipping option.', 'woocommerce' ),
 			400,
 			array()
 		);
