@@ -8,7 +8,7 @@ if (
 	window.wcSettings &&
 	deprecatedAdminProperties &&
 	Object.keys( deprecatedAdminProperties ).length > 0 &&
-	process.env.NODE_ENV === 'developmentZZZZZZ'
+	process.env.NODE_ENV === 'development'
 ) {
 	wcSettings = createDeprecatedPropertiesProxy( wcSettings, {
 		admin: deprecatedAdminProperties,
