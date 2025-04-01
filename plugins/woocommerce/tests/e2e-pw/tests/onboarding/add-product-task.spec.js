@@ -35,12 +35,11 @@ test.describe( 'Add Product Task', () => {
 	test.use( { storageState: ADMIN_STATE_PATH } );
 
 	test.beforeAll( async ( { restApi } ) => {
+		// Set business choice to "I'm just starting my business"
 		await restApi.post( `${ WC_ADMIN_API_PATH }/onboarding/profile`, {
 			skipped: true,
+			business_choice: 'im_just_starting_my_business',
 		} );
-		const products = await restApi.get(
-			`${ WC_API_PATH }/products?per_page=50`
-		);
 		await restApi.post( `${ WC_API_PATH }/products/batch`, {
 			delete: products.data.map( ( product ) => product.id ),
 		} );
