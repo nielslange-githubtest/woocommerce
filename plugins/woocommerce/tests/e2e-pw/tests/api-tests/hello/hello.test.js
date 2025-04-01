@@ -8,6 +8,6 @@ test.describe( 'Test API connectivity', () => {
 
 	test( 'can access an authenticated endpoint', async ( { request } ) => {
 		const result = await request.get( './wp-json/wc/v3/system_status' );
-		expect( result.status() ).toEqual( 200 );
+		expect( result.status() ).toEqual( 201 );
 	} );
 } );

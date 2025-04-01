@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
 require( 'dotenv' ).config( { path: __dirname + '/.env' } );
 
 if ( ! process.env.BASE_URL ) {
-	console.log( 'BASE_URL is not set, using default.' );
+	console.log( 'BASE_URL is not set. Using default.' );
 	process.env.BASE_URL = 'http://localhost:8086';
 }
 
