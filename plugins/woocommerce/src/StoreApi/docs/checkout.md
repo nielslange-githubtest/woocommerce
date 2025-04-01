@@ -23,7 +23,7 @@ There are no parameters required for this endpoint.
 curl --header "Nonce: 12345" --request GET https://example-store.com/wp-json/wc/store/v1/checkout
 ```
 
-**Example response:**
+### Example Response
 
 ```json
 {
@@ -84,7 +84,7 @@ Note the `__experimental_calc_totals` parameter. This is used to determine if th
 curl --header "Nonce: 12345" --request PUT https://example-store.com/wp-json/wc/store/v1/checkout?additional_fields[plugin-namespace/leave-on-porch]=true&additional_fields[plugin-namespace/location-on-porch]=dsdd&payment_method=bacs
 ```
 
-**Example Request**
+### Example Request
 
 ```json
 {
@@ -96,7 +96,7 @@ curl --header "Nonce: 12345" --request PUT https://example-store.com/wp-json/wc/
 }
 ```
 
-**Example Response**
+### Example Response
 
 ```json
 {
@@ -165,7 +165,7 @@ POST /wc/store/v1/checkout
 curl --header "Nonce: 12345" --request POST https://example-store.com/wp-json/wc/store/v1/checkout?payment_method=paypal&payment_data[0][key]=test-key&payment_data[0][value]=test-value
 ```
 
-**Example request:**
+### Example Request
 
 ```json
 {
@@ -205,7 +205,7 @@ curl --header "Nonce: 12345" --request POST https://example-store.com/wp-json/wc
 }
 ```
 
-**Example response:**
+### Example Response
 
 ```json
 {
