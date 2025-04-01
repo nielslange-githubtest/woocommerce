@@ -6,7 +6,10 @@ use Automattic\WooCommerce\StoreApi\Exceptions\RouteException;
 use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
 use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Utilities\DiscountsUtil;
+use Automattic\WooCommerce\Utilities\ShippingUtil;
+use Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils;
 use Automattic\WooCommerce\StoreApi\Utilities\PaymentUtils;
+
 /**
  * OrderController class.
  * Helper class which creates and syncs orders with the cart.
@@ -189,11 +192,9 @@ class OrderController {
 	 * @param \WC_Order $order Order object.
 	 */
 	public function validate_existing_order_before_payment( \WC_Order $order ) {
-		$needs_shipping = $order->needs_shipping();
-
 		$this->validate_coupons( $order, true );
 		$this->validate_email( $order );
-		$this->validate_addresses( $order, $needs_shipping );
+		$this->validate_addresses( $order, $order->needs_shipping() );
 
 		// Perform custom validations.
 		$this->perform_custom_order_validation( $order );
@@ -338,7 +339,7 @@ class OrderController {
 		if ( empty( $email ) ) {
 			throw new RouteException(
 				'woocommerce_rest_missing_email_address',
-				__( 'A valid email address is required', 'woocommerce' ),
+				esc_html__( 'A valid email address is required', 'woocommerce' ),
 				400
 			);
 		}
@@ -348,7 +349,7 @@ class OrderController {
 				'woocommerce_rest_invalid_email_address',
 				sprintf(
 					/* translators: %s provided email. */
-					__( 'The provided email address (%s) is not valid—please provide a valid email address', 'woocommerce' ),
+					esc_html__( 'The provided email address (%s) is not valid—please provide a valid email address', 'woocommerce' ),
 					esc_html( $email )
 				),
 				400
@@ -364,44 +365,59 @@ class OrderController {
 	 * @param bool      $needs_shipping Whether the order needs shipping.
 	 */
 	protected function validate_addresses( \WC_Order $order, bool $needs_shipping ) {
-		$errors           = new \WP_Error();
-		$billing_country  = $order->get_billing_country();
-		$shipping_country = $order->get_shipping_country();
-
-		if ( $needs_shipping && ! $this->validate_allowed_country( $shipping_country, (array) wc()->countries->get_shipping_countries() ) ) {
-			throw new RouteException(
-				'woocommerce_rest_invalid_address_country',
-				sprintf(
-					/* translators: %s country code. */
-					__( 'Sorry, we do not ship orders to the provided country (%s)', 'woocommerce' ),
-					$shipping_country
-				),
-				400,
-				array(
-					'allowed_countries' => array_keys( wc()->countries->get_shipping_countries() ),
-				)
-			);
-		}
+		$errors          = new \WP_Error();
+		$billing_country = $order->get_billing_country();
 
 		if ( ! $this->validate_allowed_country( $billing_country, (array) wc()->countries->get_allowed_countries() ) ) {
 			throw new RouteException(
 				'woocommerce_rest_invalid_address_country',
-				sprintf(
-					/* translators: %s country code. */
-					__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
-					$billing_country
+				esc_html(
+					sprintf(
+						/* translators: %s country code. */
+						__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
+						$billing_country
+					)
 				),
 				400,
 				array(
-					'allowed_countries' => array_keys( wc()->countries->get_allowed_countries() ),
+					'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_allowed_countries() ) ),
 				)
 			);
 		}
 
+		$this->validate_address_fields( $order, 'billing', $errors );
+
 		if ( $needs_shipping ) {
+			$shipping_country         = $order->get_shipping_country();
+			$local_pickup_method_ids  = LocalPickupUtils::get_local_pickup_method_ids();
+			$selected_shipping_rates  = ShippingUtil::get_selected_shipping_rates_from_packages( WC()->shipping()->get_packages() );
+			$is_local_pickup_selected = array_all(
+				$selected_shipping_rates,
+				function ( $rate ) use ( $local_pickup_method_ids ) {
+					return in_array( $rate->get_method_id(), $local_pickup_method_ids, true );
+				}
+			);
+
+			// If only local pickup is selected, we don't need to validate the shipping country.
+			if ( ! $is_local_pickup_selected && ! $this->validate_allowed_country( $shipping_country, (array) wc()->countries->get_shipping_countries() ) ) {
+				throw new RouteException(
+					'woocommerce_rest_invalid_address_country',
+					esc_html(
+						sprintf(
+							/* translators: %s country code. */
+							__( 'Sorry, we do not ship orders to the provided country (%s)', 'woocommerce' ),
+							$shipping_country
+						)
+					),
+					400,
+					array(
+						'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_shipping_countries() ) ),
+					)
+				);
+			}
+
 			$this->validate_address_fields( $order, 'shipping', $errors );
 		}
-		$this->validate_address_fields( $order, 'billing', $errors );
 
 		if ( ! $errors->has_errors() ) {
 			return;
@@ -418,14 +434,16 @@ class OrderController {
 		foreach ( $errors_by_code as $code => $error_messages ) {
 			throw new RouteException(
 				'woocommerce_rest_invalid_address',
-				sprintf(
+				esc_html(
+					sprintf(
 					/* translators: %s Address type. */
-					__( 'There was a problem with the provided %s:', 'woocommerce' ) . ' ' . implode( ', ', $error_messages ),
-					'shipping' === $code ? __( 'shipping address', 'woocommerce' ) : __( 'billing address', 'woocommerce' )
+						__( 'There was a problem with the provided %s:', 'woocommerce' ) . ' ' . implode( ', ', $error_messages ),
+						'shipping' === $code ? __( 'shipping address', 'woocommerce' ) : __( 'billing address', 'woocommerce' )
+					),
 				),
 				400,
 				array(
-					'errors' => $errors_by_code,
+					'errors' => $errors_by_code, // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				)
 			);
 		}
@@ -621,7 +639,7 @@ class OrderController {
 
 		$exception = new RouteException(
 			'woocommerce_rest_invalid_shipping_option',
-			__( 'Sorry, this order requires a shipping option.', 'woocommerce' ),
+			esc_html__( 'This order requires a shipping option.', 'woocommerce' ),
 			400,
 			array()
 		);
@@ -630,20 +648,13 @@ class OrderController {
 			throw $exception;
 		}
 
+		// Validate that the chosen shipping methods are valid according to the returned package rates.
 		$packages = WC()->shipping()->get_packages();
 		foreach ( $packages as $package_id => $package ) {
 			$chosen_rate_for_package    = wc_get_chosen_shipping_method_for_package( $package_id, $package );
-			$valid_rate_ids_for_package = array_map(
-				function ( $rate ) {
-					return $rate->id;
-				},
-				$package['rates']
-			);
+			$valid_rate_ids_for_package = wp_list_pluck( $package['rates'], 'id' );
 
-			if (
-				false === $chosen_rate_for_package ||
-				! is_string( $chosen_rate_for_package ) ||
-				! ArrayUtils::string_contains_array( $chosen_rate_for_package, $valid_rate_ids_for_package ) ) {
+			if ( ! is_string( $chosen_rate_for_package ) || ! ArrayUtils::string_contains_array( $chosen_rate_for_package, $valid_rate_ids_for_package ) ) {
 				throw $exception;
 			}
 		}
