@@ -631,7 +631,7 @@ function wc_get_attachment_image_attributes( $attr, $attachment, $size ) {
 
 	// Generate secure admin URL for image src.
 	$admin_preview = wc_get_container()->get( ProductDownloadsPreview::class );
-	$attr['src']   = $admin_preview->get_admin_image_src_url( $attachment->post_parent, $attachment->ID, $size );
+	$attr['src']   = $admin_preview->get_admin_image_src_url( $attachment->ID, $size );
 
 	return $attr;
 }
@@ -668,7 +668,7 @@ function wc_prepare_attachment_for_js( $response ) {
 
 	if ( isset( $response['sizes'] ) ) {
 		foreach ( $response['sizes'] as $size => $value ) {
-			$url                               = $admin_preview->get_admin_image_src_url( $product_id, $attachment_id, $size );
+			$url                               = $admin_preview->get_admin_image_src_url( $attachment_id, $size );
 			$response['sizes'][ $size ]['url'] = $url;
 		}
 	}

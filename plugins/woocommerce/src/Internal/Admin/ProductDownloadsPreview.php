@@ -28,7 +28,7 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 */
 	public function register() {
 		// Register AJAX actions for admin file serving
-		add_action( 'wp_ajax_wc_product_download_preview', array( $this, 'ajax_product_download_preview' ) );
+		add_action( 'wp_ajax_wc_product_download_preview', array( $this, 'serve_product_download_preview' ) );
 	}
 
 	/**
@@ -36,33 +36,25 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 	 *
 	 * @since 9.9.0
 	 */
-	public function ajax_product_download_preview() {
+	public function serve_product_download_preview() {
 		// Verify permissions
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( esc_html__( 'Unauthorized access.', 'woocommerce' ), 403 );
 		}
 
-		// Verify parameters
-		$product_id = isset( $_GET['product_id'] ) ? (int) $_GET['product_id'] : 0;
-		$attachment_id = isset( $_GET['attachment_id'] ) ? (int) $_GET['attachment_id'] : 0;
-		$size = isset( $_GET['size'] ) ? sanitize_text_field( wp_unslash( $_GET['size'] ) ) : 'large';
-
-		if ( ! $product_id || ! $attachment_id ) {
-			wp_die( esc_html__( 'Missing required parameters.', 'woocommerce' ), 400 );
+		// Verify nonce
+		$nonce = $this->get_parameter( '_wpnonce' );
+		if ( ! wp_verify_nonce( $nonce, 'wc_product_download_preview' ) ) {
+			wp_die( esc_html__( 'Invalid security token.', 'woocommerce' ), 403 );
 		}
 
-		$this->serve_preview_file( $product_id, $attachment_id, $size );
-	}
+		$attachment_id = $this->get_parameter( 'attachment_id' );
+		$size          = $this->get_parameter( 'size', 'large' );
 
-	/**
-	 * Serve the preview file
-	 *
-	 * @since 9.9.0
-	 * @param int    $product_id    Product ID.
-	 * @param int    $attachment_id Attachment ID.
-	 * @param string $size          Image size to display.
-	 */
-	private function serve_preview_file( int $product_id, int $attachment_id, string $size ) {
+		if ( ! $attachment_id ) {
+			wp_die( esc_html__( 'Missing attachment_id parameter.', 'woocommerce' ), 400 );
+		}
+
 		$file_path = get_attached_file( $attachment_id );
 
 		if ( ! $file_path || ! is_readable( $file_path ) ) {
@@ -106,22 +98,34 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		header( 'Content-Length: ' . filesize( $file_path ) );
 		header( 'Content-Disposition: inline; filename="' . basename( $file_path ) . '"' );
 
-		// Output file and exit
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 		readfile( $file_path );
 		exit;
+	}
+
+
+	/**
+	 * Santize $_GET param for readability sake.
+	 *
+	 * @since 9.9.0
+	 * @param string $param The parameter identifier
+	 * @param string $default value to return. Defaults to empty string.
+	 *
+	 * @return string
+	 */
+	private function get_parameter($param, $default = '' ) {
+		return ( isset( $_GET[$param] ) ) ? sanitize_text_field( $_GET[$param] ) : $default;
 	}
 
 	/**
 	 * Get secure URL for admin image
 	 *
 	 * @since 9.9.0
-	 * @param int    $product_id    Product ID.
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $size          Image size.
 	 * @return string Secure admin image URL.
 	 */
-	public function get_admin_image_src_url( int $product_id, int $attachment_id, string $size ): string {
+	public function get_admin_image_src_url( int $attachment_id, string $size ): string {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return '';
 		}
@@ -129,10 +133,10 @@ class ProductDownloadsPreview implements RegisterHooksInterface {
 		$url = admin_url( 'admin-ajax.php' );
 		$url = add_query_arg(
 			array(
-				'action' => 'wc_product_download_preview',
-				'product_id' => $product_id,
+				'action'        => 'wc_product_download_preview',
 				'attachment_id' => $attachment_id,
-				'size' => $size,
+				'size'          => $size,
+				'_wpnonce'      => wp_create_nonce( 'wc_product_download_preview' ),
 			),
 			$url
 		);

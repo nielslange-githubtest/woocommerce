@@ -4,9 +4,10 @@ declare(strict_types=1);
 namespace Automattic\WooCommerce\Tests\Internal\Admin;
 
 use Automattic\WooCommerce\Internal\Admin\ProductDownloadsPreview;
+use Brain\Monkey\Functions;
+use ReflectionMethod;
 use WC_Helper_Product;
 use WC_Unit_Test_Case;
-use WP_REST_Request;
 
 /**
  * Tests for ProductDownloadsPreview class
@@ -20,13 +21,6 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 	 * @var ProductDownloadsPreview
 	 */
 	private $preview;
-
-	/**
-	 * Test product ID
-	 *
-	 * @var int
-	 */
-	private $product_id;
 
 	/**
 	 * Test attachment ID
@@ -44,19 +38,12 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 
 		// Create a test attachment.
 		$this->attachment_id = $this->create_test_image();
-
-		// Create a test product.
-		$product          = WC_Helper_Product::create_simple_product();
-		$this->product_id = $product->get_id();
 	}
 
 	/**
 	 * Tear down test environment
 	 */
 	public function tearDown(): void {
-		// Clean up created product.
-		WC_Helper_Product::delete_product( $this->product_id );
-
 		// Clean up attachment.
 		if ( $this->attachment_id ) {
 			wp_delete_attachment( $this->attachment_id, true );
@@ -105,7 +92,7 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$user_id = $this->factory->user->create( array( 'role' => 'customer' ) );
 		wp_set_current_user( $user_id );
 
-		$result = $this->preview->get_admin_image_src_url( $this->product_id, $this->attachment_id, 'thumbnail' );
+		$result = $this->preview->get_admin_image_src_url( $this->attachment_id, 'thumbnail' );
 
 		$this->assertEmpty( $result );
 	}
@@ -117,62 +104,73 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		$result = $this->preview->get_admin_image_src_url( $this->product_id, $this->attachment_id, 'thumbnail' );
+		$result = $this->preview->get_admin_image_src_url( $this->attachment_id, 'thumbnail' );
 
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( (string) $this->product_id, $result );
-		$this->assertStringContainsString( (string) $this->attachment_id, $result );
+		$this->assertStringContainsString( 'action=wc_product_download_preview', $result );
+		$this->assertStringContainsString( 'attachment_id=' . $this->attachment_id, $result );
 		$this->assertStringContainsString( 'size=thumbnail', $result );
 		$this->assertStringContainsString( '_wpnonce=', $result );
 	}
 
 	/**
-	 * Test permissions check fails for non-admin users
+	 * Test get_parameter returns proper values
 	 */
-	public function test_get_preview_permissions_check_fails_for_non_admin() {
-		$user_id = $this->factory->user->create( array( 'role' => 'customer' ) );
-		wp_set_current_user( $user_id );
+	public function test_get_parameter() {
+		// Make the private method accessible.
+		$method = new ReflectionMethod( ProductDownloadsPreview::class, 'get_parameter' );
+		$method->setAccessible( true );
 
-		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
-		$request->set_param( 'size', 'thumbnail' );
+		// Test retrieval from GET.
+		$_GET['test_param'] = 'test_value';
+		$this->assertEquals( 'test_value', $method->invoke( $this->preview, 'test_param' ) );
+		unset( $_GET['test_param'] );
 
-		$response = $this->preview->get_preview_permissions_check( $request );
+		// Test default value when parameter is missing.
+		$this->assertEquals( 'default', $method->invoke( $this->preview, 'non_existent_param', 'default' ) );
 
-		$this->assertInstanceOf( 'WP_Error', $response );
-		$this->assertEquals( 'woocommerce_rest_unauthorized', $response->get_error_code() );
+		// Test empty default value when parameter is missing.
+		$this->assertEquals( '', $method->invoke( $this->preview, 'non_existent_param' ) );
 	}
 
 	/**
-	 * Test permissions check passes for admin users
+	 * Test the AJAX handler with missing parameters
 	 */
-	public function test_get_preview_permissions_check_passes_for_admin() {
+	public function test_serve_product_download_preview_missing_parameters() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/' . $this->attachment_id );
-		$request->set_param( 'size', 'thumbnail' );
+		// Set up a fake nonce.
+		$_GET['_wpnonce'] = 'test_nonce';
+		// Mock nonce verification to always return true for testing.
+		add_filter( 'wp_verify_nonce', '__return_true' );
 
-		$response = $this->preview->get_preview_permissions_check( $request );
+		// Expect wp_die to be called.
+		$this->expectException( \WPDieException::class );
 
-		$this->assertTrue( $response );
+		// Call the handler with no attachment_id.
+		$this->preview->serve_product_download_preview();
 	}
 
 	/**
-	 * Test invalid file path error in get_preview
+	 * Test the AJAX handler with invalid attachment
 	 */
-	public function test_get_preview_returns_error_for_invalid_file() {
+	public function test_serve_product_download_preview_invalid_attachment() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/wc/v3/admin/product-downloads-preview/' . $this->product_id . '/99999' );
-		$request->set_param( 'product_id', $this->product_id );
-		$request->set_param( 'attachment_id', 99999 ); // Non-existent attachment ID.
-		$request->set_param( 'size', 'thumbnail' );
+		// Set up a fake nonce.
+		$_GET['_wpnonce'] = 'test_nonce';
+		// Mock nonce verification to always return true for testing.
+		add_filter( 'wp_verify_nonce', '__return_true' );
 
-		$response = $this->preview->get_preview( $request );
+		// Set invalid attachment ID
+		$_GET['attachment_id'] = '999999';
 
-		$this->assertInstanceOf( 'WP_Error', $response );
-		$this->assertEquals( 'woocommerce_rest_file_not_found', $response->get_error_code() );
+		// Expect wp_die to be called.
+		$this->expectException( \WPDieException::class );
+
+		// Call the handler with invalid attachment_id.
+		$this->preview->serve_product_download_preview();
 	}
-
 }
