@@ -1,40 +1,3 @@
-// TODO: wp-interactivity-migration - Make sure we remove this entire file when we port @woocommerce-settings to script modules.
-
-// export interface Currency {
-// 	/**
-// 	 * ISO 4217 Currency Code
-// 	 */
-// 	code: CurrencyCode;
-// 	/**
-// 	 * String which separates the decimals from the integer
-// 	 */
-// 	decimalSeparator: string;
-// 	/**
-// 	 * @todo Description of this currently unknown
-// 	 */
-// 	minorUnit: number;
-// 	/**
-// 	 * String to prefix the currency with.
-// 	 *
-// 	 * This property is generally exclusive with `suffix`.
-// 	 */
-// 	prefix: string;
-// 	/**
-// 	 * String to suffix the currency with.
-// 	 *
-// 	 * This property is generally exclusive with `prefix`.
-// 	 */
-// 	suffix: string;
-// 	/**
-// 	 * Currency symbol
-// 	 */
-// 	symbol: string; // @todo create a list of allowed currency symbols
-// 	/**
-// 	 * String which separates the thousands
-// 	 */
-// 	thousandSeparator: string;
-// }
-
 /**
  * External dependencies
  */
@@ -47,12 +10,18 @@ import { getConfig } from '@wordpress/interactivity';
 import { getCurrencyPrefix } from '../../../settings/shared/utils';
 import { getCurrencySuffix } from '../../../settings/shared/utils';
 
-const config = getConfig( 'woocommerce' );
+const currencyConfig = getConfig( 'woocommerce' ).currency;
 
 const siteCurrency: Currency = {
-	...config.currency,
-	suffix: getCurrencySuffix( config.symbol, config.symbolPosition ),
-	prefix: getCurrencyPrefix( config.symbol, config.symbolPosition ),
+	...currencyConfig,
+	suffix: getCurrencySuffix(
+		currencyConfig.symbol,
+		currencyConfig.symbolPosition
+	),
+	prefix: getCurrencyPrefix(
+		currencyConfig.symbol,
+		currencyConfig.symbolPosition
+	),
 };
 
 /**

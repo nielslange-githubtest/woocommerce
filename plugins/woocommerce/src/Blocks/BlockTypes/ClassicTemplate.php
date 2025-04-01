@@ -7,6 +7,7 @@ use Automattic\WooCommerce\Blocks\Templates\ProductCategoryTemplate;
 use Automattic\WooCommerce\Blocks\Templates\ProductTagTemplate;
 use Automattic\WooCommerce\Blocks\Templates\ProductSearchResultsTemplate;
 use Automattic\WooCommerce\Blocks\Templates\OrderConfirmationTemplate;
+use Automattic\WooCommerce\Blocks\SharedInteractivityConfig;
 use Automattic\WooCommerce\Blocks\Utils\StyleAttributesUtils;
 use WC_Shortcode_Checkout;
 use WC_Frontend_Scripts;
@@ -53,6 +54,11 @@ class ClassicTemplate extends AbstractDynamicBlock {
 		// Indicate to interactivity powered components that this block is on the page,
 		// and needs refresh to update data.
 		$this->asset_data_registry->add( 'needsRefreshForInteractivityAPI', true );
+		SharedInteractivityConfig::add(
+			[
+				'needsRefreshForInteractivityAPI' => true,
+			]
+		);
 	}
 
 	/**
@@ -165,7 +171,7 @@ class ClassicTemplate extends AbstractDynamicBlock {
 
 		echo '<div class="wp-block-group">';
 
-		echo sprintf(
+		printf(
 			'<%1$s %2$s>%3$s</%1$s>',
 			'h1',
 			get_block_wrapper_attributes(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

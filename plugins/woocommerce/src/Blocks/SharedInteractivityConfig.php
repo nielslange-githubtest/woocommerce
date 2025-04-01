@@ -36,6 +36,18 @@ class SharedInteractivityConfig {
 
 		self::add( self::get_currency_data() );
 		self::add( self::get_locale_data() );
+		self::add( self::get_core_data() );
+	}
+
+	/**
+	 * Get core data to include in settings.
+	 *
+	 * @return array
+	 */
+	protected static function get_core_data() {
+		return [
+			'isBlockTheme' => wp_is_block_theme(),
+		];
 	}
 
 	/**
