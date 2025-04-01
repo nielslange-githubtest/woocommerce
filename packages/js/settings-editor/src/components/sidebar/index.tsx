@@ -24,15 +24,16 @@ export const Sidebar = ( {
 	currentNestLevel: number;
 	routeKey: string;
 } ) => {
+	const exitLink = addQueryArgs( 'admin.php', { page: 'wc-admin' } );
 	const defaultCurrentItem = {
 		slug: 'default',
 		label: __( 'Store settings', 'woocommerce' ),
 		to: addQueryArgs( 'wc-settings', {} ),
-		isCurrent: true,
+		isCurrent: false,
 		withChevron: false,
 		icon: 'settings',
-		backPath: addQueryArgs( 'wc-settings', {} ),
-		backLabel: __( 'Woo settings', 'woocommerce' ),
+		backPath: exitLink,
+		backLabel: __( 'Store settings', 'woocommerce' ),
 	};
 	const currentItem =
 		sidebarItems.find( ( item ) => item.isCurrent ) || defaultCurrentItem;
@@ -56,7 +57,7 @@ export const Sidebar = ( {
 				title={ title }
 				isRoot={ isRoot }
 				backPath={ currentItem?.backPath }
-				exitLink={ addQueryArgs( 'admin.php', { page: 'wc-admin' } ) }
+				exitLink={ exitLink }
 				content={
 					<ItemGroup>
 						{ sidebarItems.map( ( item ) => {

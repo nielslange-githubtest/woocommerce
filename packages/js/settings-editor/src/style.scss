@@ -51,8 +51,6 @@
 }
 
 .dataforms-layouts-regular__field:has(> .woocommerce-settings-group) {
-	// padding-block: 48px;
-
 	&:not(:last-child) {
 		border-bottom: 1px solid #f0f0f0;
 	}
