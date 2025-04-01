@@ -65,6 +65,84 @@ curl --header "Nonce: 12345" --request GET https://example-store.com/wp-json/wc/
 }
 ```
 
+## Update checkout data
+
+This endpoint allows you to update the checkout data for the current order. This can be called from the frontend to persist checkout fields, for example.
+
+```http
+PUT /wc/store/v1/checkout?__experimental_calc_totals=true
+```
+
+Note the `__experimental_calc_totals` parameter. This is used to determine if the cart totals should be recalculated. This should be set to true if the cart totals are being updated in response to a PUT request, false otherwise.
+
+| Attribute           | Type   | Required | Description                                         |
+| :------------------ | :----- | :------: | :-------------------------------------------------- |
+| `additional_fields` | object |    No    | Name => value pairs of additional fields to update. |
+| `payment_method`    | string |    No    | The ID of the payment method selected.              |
+
+```sh
+curl --header "Nonce: 12345" --request PUT https://example-store.com/wp-json/wc/store/v1/checkout?additional_fields[plugin-namespace/leave-on-porch]=true&additional_fields[plugin-namespace/location-on-porch]=dsdd&payment_method=bacs
+```
+
+**Example Request**
+
+```json
+{
+	"additional_fields": {
+		"plugin-namespace/leave-on-porch": true,
+		"plugin-namespace/location-on-porch": "dsdd"
+	},
+	"payment_method": "bacs"
+}
+```
+
+**Example Response**
+
+```json
+{
+    "order_id": 1486,
+    "status": "checkout-draft",
+    "order_key": "wc_order_KLpMaJ054PVlb",
+    "order_number": "1486",
+    "customer_note": "",
+    "customer_id": 1,
+    "billing_address": {
+			"first_name": "Peter",
+			"last_name": "Venkman",
+			"company": "",
+			"address_1": "550 Central Park West",
+			"address_2": "Corner Penthouse Spook Central",
+			"city": "New York",
+			"state": "NY",
+			"postcode": "10023",
+			"country": "US",
+			"email": "admin@example.com",
+			"phone": "555-2368"
+		},
+		"shipping_address": {
+			"first_name": "Peter",
+			"last_name": "Venkman",
+			"company": "",
+			"address_1": "550 Central Park West",
+			"address_2": "Corner Penthouse Spook Central",
+			"city": "New York",
+			"state": "NY",
+			"postcode": "10023",
+			"country": "US"
+		},
+    "payment_method": "bacs",
+    "payment_result": null,
+    "additional_fields": {
+        "plugin-namespace/leave-on-porch": true,
+        "plugin-namespace/location-on-porch": "dsdd"
+    },
+    "__experimentalCart": { ... },
+    "extensions": {}
+}
+```
+
+Note the `__experimentalCart` field that is returned as part of the response. Totals will be updated on the front-end following a PUT request. This makes it possible to manipulate cart totals in response to fields persisted via the PUT request.
+
 ## Process Order and Payment
 
 Accepts the final customer addresses and chosen payment method, and any additional payment data, then attempts payment and
@@ -74,14 +152,14 @@ returns the result.
 POST /wc/store/v1/checkout
 ```
 
-| Attribute          | Type   | Required | Description                                                         |
-| :----------------- | :----- | :------: | :------------------------------------------------------------------ |
-| `billing_address`  | object |   Yes    | Object of updated billing address data for the customer.            |
-| `shipping_address` | object |   Yes    | Object of updated shipping address data for the customer.           |
-| `customer_note`    | string |    No    | Note added to the order by the customer during checkout.            |
-| `payment_method`   | string |   Yes    | The ID of the payment method being used to process the payment.     |
-| `payment_data`     | array  |    No    | Data to pass through to the payment method when processing payment. |
-| `customer_password`| string |    No    | Optionally define a password for new accounts.                      |
+| Attribute           | Type   | Required | Description                                                         |
+| :------------------ | :----- | :------: | :------------------------------------------------------------------ |
+| `billing_address`   | object |   Yes    | Object of updated billing address data for the customer.            |
+| `shipping_address`  | object |   Yes    | Object of updated shipping address data for the customer.           |
+| `customer_note`     | string |    No    | Note added to the order by the customer during checkout.            |
+| `payment_method`    | string |   Yes    | The ID of the payment method being used to process the payment.     |
+| `payment_data`      | array  |    No    | Data to pass through to the payment method when processing payment. |
+| `customer_password` | string |    No    | Optionally define a password for new accounts.                      |
 
 ```sh
 curl --header "Nonce: 12345" --request POST https://example-store.com/wp-json/wc/store/v1/checkout?payment_method=paypal&payment_data[0][key]=test-key&payment_data[0][value]=test-value
@@ -221,4 +299,3 @@ For further information on generating a `stripe_source` please check [the Stripe
 🐞 Found a mistake, or have a suggestion? [Leave feedback about this document here.](https://github.com/woocommerce/woocommerce/issues/new?assignees=&labels=type%3A+documentation&template=suggestion-for-documentation-improvement-correction.md&title=Feedback%20on%20./src/StoreApi/docs/checkout.md)
 
 <!-- /FEEDBACK -->
-
