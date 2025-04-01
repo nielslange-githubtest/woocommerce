@@ -17,8 +17,9 @@ import HeadingToolbar from '@woocommerce/editor-components/heading-toolbar';
  */
 import Block from './block';
 import withProductSelector from '../shared/with-product-selector';
-import { BLOCK_TITLE, BLOCK_ICON } from './constants';
+import { title } from './block.json';
 import { Attributes } from './types';
+import { icon } from '.';
 import './editor.scss';
 
 interface Props {
@@ -83,8 +84,8 @@ const TitleEdit = ( { attributes, setAttributes }: Props ): JSX.Element => {
 
 const Title = compose( [
 	withProductSelector( {
-		icon: BLOCK_ICON,
-		label: BLOCK_TITLE,
+		icon,
+		label: title,
 		description: __(
 			'Choose a product to display its title.',
 			'woocommerce'
