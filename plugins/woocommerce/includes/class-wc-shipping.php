@@ -312,10 +312,9 @@ class WC_Shipping {
 
 		$package['rates'] = array();
 
-		// If the package is not shippable, e.g. trying to ship to an invalid country, do not calculate rates.
-		if ( ! $this->is_package_shippable( $package ) ) {
-			return $package;
-		}
+		// If the package is not shippable, e.g. trying to ship to an invalid country, do not calculate rates. We can return
+		// local pickup rates here however since those are not shipped.
+		$is_shippable = $this->is_package_shippable( $package );
 
 		// Check if we need to recalculate shipping for this package.
 		$package_to_hash = $package;
@@ -334,6 +333,9 @@ class WC_Shipping {
 
 		if ( ! is_array( $stored_rates ) || $package_hash !== $stored_rates['package_hash'] || 'yes' === get_option( 'woocommerce_shipping_debug_mode', 'no' ) ) {
 			foreach ( $this->load_shipping_methods( $package ) as $shipping_method ) {
+				if ( ! $is_shippable && ! $shipping_method->supports( 'local-pickup' ) ) {
+					continue;
+				}
 				if ( ! $shipping_method->supports( 'shipping-zones' ) || $shipping_method->get_instance_id() ) {
 					/**
 					 * Fires before getting shipping rates for a package.
@@ -383,6 +385,7 @@ class WC_Shipping {
 			 * Filter the calculated shipping rates.
 			 *
 			 * @see https://gist.github.com/woogists/271654709e1d27648546e83253c1a813 for cache invalidation methods.
+			 * @since 2.0.0
 			 * @param array $package['rates'] Package rates.
 			 * @param array $package Package of cart items.
 			 */
