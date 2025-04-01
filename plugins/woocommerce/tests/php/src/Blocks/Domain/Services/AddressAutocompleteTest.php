@@ -24,7 +24,6 @@ class AddressAutocompleteTest extends MockeryTestCase {
 		parent::setUp();
 		$this->sut = Package::container()->get( AddressAutocomplete::class );
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-		do_action( 'woocommerce_blocks_loaded' );
 	}
 
 	/**
