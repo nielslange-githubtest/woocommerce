@@ -6,7 +6,7 @@ import path from 'path';
 /**
  * Internal dependencies
  */
-import { loadConfig, parseConfig } from '../config';
+import { loadConfig, parseConfig, getConfiguredChannels } from '../config';
 
 describe( 'loadConfigData', () => {
 	it( 'should read config from file', () => {
@@ -427,5 +427,221 @@ describe( 'parseConfig', () => {
 		] )( 'should correctly parse $name', ( { input, expected } ) => {
 			expect( parseConfig( input ) ).toMatchObject( expected );
 		} );
+	} );
+} );
+
+describe( 'getConfiguredChannels', () => {
+	describe( 'input validation', () => {
+		it( 'should throw error when config is undefined', () => {
+			expect( () =>
+				getConfiguredChannels( undefined, 'main', 'test-check' )
+			).toThrow( 'Config must be provided to get configured channels' );
+		} );
+	} );
+
+	describe( 'channel selection', () => {
+		test.each( [
+			{
+				name: 'matching checkType only',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'e2e-tests',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'main',
+				checkName: 'e2e-tests',
+				expected: [ 'CHANNEL_1', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching refName only',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							refName: 'feature/**',
+							channels: [ 'CHANNEL_2' ],
+						},
+					],
+				},
+				refName: 'feature/test',
+				checkName: 'unknown-check',
+				expected: [ 'CHANNEL_2', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching both checkType and refName',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'release-checks',
+							refName: 'release/**',
+							channels: [ 'CHANNEL_3' ],
+						},
+					],
+				},
+				refName: 'release/1.0',
+				checkName: 'release-checks',
+				expected: [ 'CHANNEL_3', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching route with excludeDefaultChannel',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'daily-checks',
+							channels: [ 'CHANNEL_4' ],
+							excludeDefaultChannel: true,
+						},
+					],
+				},
+				refName: 'main',
+				checkName: 'daily-checks',
+				expected: [ 'CHANNEL_4' ],
+			},
+			{
+				name: 'no matching routes',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'e2e-tests',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'main',
+				checkName: 'unknown-check',
+				expected: [],
+			},
+			{
+				name: 'multiple matching routes',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'e2e-tests',
+							channels: [ 'CHANNEL_1' ],
+						},
+						{
+							checkType: 'e2e-tests',
+							channels: [ 'CHANNEL_2' ],
+						},
+					],
+				},
+				refName: 'main',
+				checkName: 'e2e-tests',
+				expected: [ 'CHANNEL_1', 'CHANNEL_2', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching nested feature path',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							refName: '**/feature/*',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'team-a/feature/login',
+				checkName: 'unit-test',
+				expected: [ 'CHANNEL_1', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching specific beta release pattern',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							refName: 'release/*/beta',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'release/1.2.3/beta',
+				checkName: 'unit-test',
+				expected: [ 'CHANNEL_1', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching wildcard in checkType',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'test-*-checks',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'main',
+				checkName: 'test-integration-checks',
+				expected: [ 'CHANNEL_1', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching complex nested path and checkType pattern',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							refName: 'projects/*/tests/**',
+							checkType: '*-e2e-*',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'projects/auth/tests/login',
+				checkName: 'auth-e2e-tests',
+				expected: [ 'CHANNEL_1', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'matching multiple glob patterns',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							checkType: 'e2e-tests',
+							channels: [ 'CHANNEL_1' ],
+						},
+						{
+							refName: 'feature/**',
+							channels: [ 'CHANNEL_2' ],
+						},
+					],
+				},
+				refName: 'feature/test',
+				checkName: 'e2e-tests',
+				expected: [ 'CHANNEL_1', 'CHANNEL_2', 'DEFAULT_CHANNEL' ],
+			},
+			{
+				name: 'non-matching pattern',
+				config: {
+					defaultChannel: 'DEFAULT_CHANNEL',
+					routes: [
+						{
+							refName: 'release/*/beta',
+							channels: [ 'CHANNEL_1' ],
+						},
+					],
+				},
+				refName: 'release/1.2.3/alpha',
+				checkName: 'unit-test',
+				expected: [],
+			},
+		] )(
+			'should return correct channels for $name',
+			( { config, refName, checkName, expected } ) => {
+				const result = getConfiguredChannels(
+					config,
+					refName,
+					checkName
+				);
+				expect( new Set( result ) ).toEqual( new Set( expected ) );
+			}
+		);
 	} );
 } );

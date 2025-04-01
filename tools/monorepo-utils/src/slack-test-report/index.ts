@@ -10,22 +10,9 @@ import { WebClient } from '@slack/web-api';
 import { Logger } from '../core/logger';
 import { getEnvVar } from '../core/environment';
 import { createMessage, postMessage } from './lib/message';
-import {
-	ReporterConfig,
-	getConfiguredChannels,
-	parseConfig,
-} from './lib/config';
+import { getConfiguredChannels, parseConfig } from './lib/config';
 
 const conclusions = [ 'success', 'failure', 'skipped', 'cancelled' ];
-
-function getChannels(
-	configData: ReporterConfig | undefined,
-	checkName: string
-): string[] {
-	// const defaultChannel = getEnvVar( 'SLACK_CHANNEL', true );
-	const refName = getEnvVar( 'GITHUB_REF_NAME', true );
-	return getConfiguredChannels( configData, refName, checkName );
-}
 
 const program = new Command( 'slack-test-report' )
 	.description( 'Send a test report to Slack' )
@@ -60,27 +47,36 @@ const program = new Command( 'slack-test-report' )
 		''
 	)
 	.action( async ( options ) => {
-		let reporterConfig;
-		if ( options.config ) {
-			try {
-				reporterConfig = parseConfig( options.config );
-			} catch ( error ) {
-				Logger.error(
-					`Failed to load config file: ${ error.message }`
-				);
-				process.exit( 1 );
-			}
-		}
-
 		if ( options.reportName === '' ) {
 			Logger.warn(
 				'No report name was specified. Using a default message.'
 			);
 		}
 
-		const isFailure = options.conclusion === 'failure';
+		const channels: string[] = [];
 
-		const channels = getChannels( reporterConfig, options.reportName );
+		if ( options.config ) {
+			try {
+				const reporterConfig = parseConfig( options.config );
+				const refName = getEnvVar( 'GITHUB_REF_NAME', true );
+				const configuredChannels = getConfiguredChannels(
+					reporterConfig,
+					refName,
+					options.reportName
+				);
+				channels.push( ...configuredChannels );
+			} catch ( error ) {
+				Logger.error(
+					`Failed to determine channels to send the notification to: ${ error.message }`
+				);
+				process.exit( 1 );
+			}
+		} else {
+			const defaultChannel = getEnvVar( 'DEFAULT_CHECKS_CHANNEL', true );
+			channels.push( defaultChannel );
+		}
+
+		const isFailure = options.conclusion === 'failure';
 
 		if ( isFailure ) {
 			const { username } = options;

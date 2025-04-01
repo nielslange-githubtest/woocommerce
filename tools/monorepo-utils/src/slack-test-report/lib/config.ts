@@ -2,6 +2,7 @@
  * External dependencies
  */
 import fs from 'fs';
+import { makeRe } from 'minimatch';
 
 /**
  * Configuration interfaces for Slack test report notifications
@@ -17,21 +18,6 @@ interface Route {
 export interface ReporterConfig {
 	defaultChannel: string;
 	routes: Route[];
-}
-
-/**
- * Matches a pattern that may contain wildcards against a string
- *
- * @param {string} pattern - Pattern that may contain * wildcards
- * @param {string} str     - String to match against
- * @return {boolean} Whether the string matches the pattern
- */
-function matchPattern( pattern: string, str: string ): boolean {
-	const regexPattern = pattern
-		.replace( /\*/g, '.*' )
-		.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' )
-		.replace( '\\.\\*', '.*' );
-	return new RegExp( `^${ regexPattern }$` ).test( str );
 }
 
 /**
@@ -156,30 +142,29 @@ export function getConfiguredChannels(
 	}
 
 	const channels = new Set< string >();
-	let excludeDefaultChannel = false;
-
-	// Helper function to process matching routes
-	const processRoute = ( route: Route ) => {
-		route.channels.forEach( ( channel ) => channels.add( channel ) );
-		if ( route.excludeDefaultChannel ) {
-			excludeDefaultChannel = true;
-		}
-	};
 
 	for ( const route of config.routes ) {
+		const refRegex = route.refName ? makeRe( route.refName ) : null;
+		const checkRegex = route.checkType ? makeRe( route.checkType ) : null;
+
 		const matchesRef =
-			'refName' in route && matchPattern( route.refName, refName );
+			'refName' in route &&
+			route.refName &&
+			refRegex &&
+			refRegex.test( refName );
+
 		const matchesCheck =
-			'checkType' in route && route.checkType === checkName;
+			'checkType' in route &&
+			route.checkType &&
+			checkRegex &&
+			checkRegex.test( checkName );
 
 		if ( matchesRef || matchesCheck ) {
-			processRoute( route );
+			route.channels.forEach( ( channel ) => channels.add( channel ) );
+			if ( ! route.excludeDefaultChannel ) {
+				channels.add( config.defaultChannel );
+			}
 		}
-	}
-
-	// Include the default channel unless explicitly excluded
-	if ( ! excludeDefaultChannel ) {
-		channels.add( config.defaultChannel );
 	}
 
 	return Array.from( channels );
