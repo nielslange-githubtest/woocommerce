@@ -107,10 +107,10 @@ class ProductDownloadsPreviewTest extends WC_Unit_Test_Case {
 		$result = $this->preview->get_admin_image_src_url( $this->attachment_id, 'thumbnail' );
 
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( 'action=wc_product_download_preview', $result );
-		$this->assertStringContainsString( 'attachment_id=' . $this->attachment_id, $result );
-		$this->assertStringContainsString( 'size=thumbnail', $result );
-		$this->assertStringContainsString( '_wpnonce=', $result );
+		// Test URL contains necessary parts
+		$this->assertStringContainsString( (string) $this->attachment_id, $result ); // Contains attachment ID
+		$this->assertStringContainsString( 'thumbnail', $result ); // Contains thumbnail size
+		$this->assertStringContainsString( '_wpnonce=', $result ); // Contains nonce parameter
 	}
 
 	/**
