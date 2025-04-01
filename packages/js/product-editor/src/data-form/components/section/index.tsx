@@ -65,11 +65,7 @@ export function ProductSection( {
 	const form = useMemo( () => {
 		return {
 			type: 'regular' as const,
-			fields: sectionTemplate[ 2 ]
-				?.filter(
-					( field ) => field[ 0 ] === 'woocommerce/product-name-field'
-				)
-				.map( () => 'name' ),
+			fields: fields.map( ( field ) => field.id ),
 		};
 	}, [ sectionTemplate ] );
 
