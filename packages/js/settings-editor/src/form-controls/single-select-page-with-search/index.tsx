@@ -1,15 +1,21 @@
 /**
  * External dependencies
  */
-import { createElement, useCallback } from '@wordpress/element';
+import {
+	createElement,
+	Fragment,
+	useCallback,
+	useState,
+} from '@wordpress/element';
 import type { DataFormControlProps } from '@wordpress/dataviews';
 import {
 	__experimentalSelectControl as SelectControl,
 	__experimentalSelectControlMenu as Menu,
 	__experimentalSelectControlMenuItem as MenuItem,
 } from '@woocommerce/components';
-import { Spinner, BaseControl } from '@wordpress/components';
+import { Spinner, BaseControl, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { search } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -49,6 +55,7 @@ export const SingleSelectPageWithSearch = ( {
 	const { id } = field;
 
 	const { selectedItem, isLoading } = useSelectedItem( value );
+	const [ isSearching, setIsSearching ] = useState( false );
 
 	const { searchedItems, isFetching, onInputChange, getFilteredItems } =
 		usePageSearch( selectedItem, exclude );
@@ -56,6 +63,7 @@ export const SingleSelectPageWithSearch = ( {
 	const handleSelect = useCallback(
 		( item: PageItem | null ) => {
 			onChange( { [ id ]: item?.value || '' } );
+			setIsSearching( false );
 		},
 		[ onChange, id ]
 	);
@@ -87,10 +95,14 @@ export const SingleSelectPageWithSearch = ( {
 				}
 				label=""
 				// The select control input does not require an id since its value represents the label (which displays the page title to the user). A hidden input with the actual id is provided above, ensuring that the value is saved correctly.
-				inputProps={ { id: undefined } }
+				inputProps={ {
+					id: undefined,
+				} }
 				items={ searchedItems }
-				selected={ selectedItem }
+				selected={ isSearching ? null : selectedItem }
 				onSelect={ handleSelect }
+				onFocus={ () => setIsSearching( true ) }
+				onBlur={ () => setIsSearching( false ) }
 				onRemove={ () => handleSelect( null ) }
 				suffix={
 					<Suffix
@@ -110,23 +122,26 @@ export const SingleSelectPageWithSearch = ( {
 					getItemProps,
 					getMenuProps,
 				} ) => (
-					<Menu isOpen={ isOpen } getMenuProps={ getMenuProps }>
-						{ isFetching ? (
-							<Spinner />
-						) : (
-							items.map( ( item, index: number ) => (
-								<MenuItem
-									key={ `${ item.value }${ index }` }
-									index={ index }
-									isActive={ highlightedIndex === index }
-									item={ item }
-									getItemProps={ getItemProps }
-								>
-									{ item.label }
-								</MenuItem>
-							) )
-						) }
-					</Menu>
+					<Fragment>
+						<Icon icon={ search } size={ 20 } />
+						<Menu isOpen={ isOpen } getMenuProps={ getMenuProps }>
+							{ isFetching ? (
+								<Spinner />
+							) : (
+								items.map( ( item, index: number ) => (
+									<MenuItem
+										key={ `${ item.value }${ index }` }
+										index={ index }
+										isActive={ highlightedIndex === index }
+										item={ item }
+										getItemProps={ getItemProps }
+									>
+										{ item.label }
+									</MenuItem>
+								) )
+							) }
+						</Menu>
+					</Fragment>
 				) }
 			</SelectControl>
 		</BaseControl>
