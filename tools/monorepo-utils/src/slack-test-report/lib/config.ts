@@ -3,6 +3,7 @@
  */
 import fs from 'fs';
 import { makeRe } from 'minimatch';
+import path from 'path';
 
 /**
  * Configuration interfaces for Slack test report notifications
@@ -28,14 +29,14 @@ export interface ReporterConfig {
  * @throws {Error} If the config file cannot be read or is invalid
  */
 export function loadConfig( configPath: string ): any {
-	let rawData;
+	let rawData: string;
 	try {
-		rawData = fs.readFileSync( configPath, 'utf8' );
+		rawData = fs.readFileSync( path.resolve( configPath ), 'utf8' );
 	} catch ( error ) {
 		throw new Error( `Failed to read config file: ${ error.message }` );
 	}
 
-	let parsedData;
+	let parsedData: any;
 	try {
 		parsedData = JSON.parse( rawData );
 	} catch ( error ) {

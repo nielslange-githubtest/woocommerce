@@ -12,6 +12,7 @@ import { getEnvVar } from '../core/environment';
 import { createMessage, postMessage } from './lib/message';
 import {
 	getConfiguredChannels,
+	loadConfig,
 	parseConfig,
 	resolveChannels,
 } from './lib/config';
