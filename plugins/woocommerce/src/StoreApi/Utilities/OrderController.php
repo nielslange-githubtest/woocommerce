@@ -386,7 +386,7 @@ class OrderController {
 				throw new RouteException(
 					'woocommerce_rest_invalid_address_country',
 					sprintf(
-							/* translators: %s country code. */
+						/* translators: %s country code. */
 						__( 'Sorry, we do not ship orders to the provided country (%s)', 'woocommerce' ),
 						$shipping_country
 					),
@@ -402,7 +402,7 @@ class OrderController {
 			throw new RouteException(
 				'woocommerce_rest_invalid_address_country',
 				sprintf(
-						/* translators: %s country code. */
+					/* translators: %s country code. */
 					__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
 					$billing_country
 				),
