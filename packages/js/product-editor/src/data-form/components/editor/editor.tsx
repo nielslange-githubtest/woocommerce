@@ -21,6 +21,9 @@ import { Header } from '../../../components/header';
 import { ValidationProvider } from '../../../contexts/validation-context';
 import { EditorProps } from './types';
 import { ProductTabs } from '../tabs';
+import { initFields } from '../fields';
+
+initFields();
 
 export function Editor( { productId, postType = 'product' }: EditorProps ) {
 	const query = getQuery() as Record< string, string >;
@@ -51,9 +54,11 @@ export function Editor( { productId, postType = 'product' }: EditorProps ) {
 							productType={ postType }
 							selectedTab={ selectedTab }
 						/>
+						{ /* @ts-expect-error Type definitions are missing */ }
 						{ layoutTemplate?.blockTemplates && (
 							<ProductTabs
 								sectionTemplate={
+									// @ts-expect-error Type definitions are missing
 									layoutTemplate?.blockTemplates
 								}
 								postType={ postType }
