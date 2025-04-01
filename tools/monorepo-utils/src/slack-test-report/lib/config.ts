@@ -75,26 +75,64 @@ export function parseConfig( rawConfig: unknown ): ReporterConfig {
 
 	const parsedConfig = rawConfig as ReporterConfig;
 
-	// todo: validate defaultChannel exists and is a string
-
-	if ( ! parsedConfig.routes || ! Array.isArray( parsedConfig.routes ) ) {
-		return { parsedConfig.defaultChannel, routes: [] };
+	if (
+		! parsedConfig.defaultChannel ||
+		typeof parsedConfig.defaultChannel !== 'string'
+	) {
+		throw new Error(
+			'Failed to parse config file: defaultChannel must be a non-empty string'
+		);
 	}
 
-	for ( const rule of parsedConfig.routes ) {
-		if ( typeof rule !== 'object' ) {
+	if ( ! parsedConfig.routes ) {
+		return { defaultChannel: parsedConfig.defaultChannel, routes: [] };
+	}
+
+	if ( ! Array.isArray( parsedConfig.routes ) ) {
+		throw new Error(
+			'Failed to parse config file: routes must be an array'
+		);
+	}
+
+	for ( const route of parsedConfig.routes ) {
+		if ( typeof route !== 'object' ) {
 			throw new Error(
-				`Failed to parse config file: rule needs to be an Object`
+				`Failed to parse config file: route needs to be an Object`
 			);
 		}
 
-		// todo: validate channels exists and is an array of strings
+		if (
+			! route.channels ||
+			! Array.isArray( route.channels ) ||
+			! route.channels.every( ( channel ) => typeof channel === 'string' )
+		) {
+			throw new Error(
+				'Failed to parse config file: channels must be an array of strings'
+			);
+		}
 
-		// todo:  validate the rule has at least one of checkType or refName
+		if (
+			( ! route.checkType || typeof route.checkType !== 'string' ) &&
+			( ! route.refName || typeof route.refName !== 'string' )
+		) {
+			throw new Error(
+				'Failed to parse config file: route must have at least one of checkType or refName as a non-empty string'
+			);
+		}
 
-		// todo: if excludeDefaultChannel is present, validate it is a boolean
+		if (
+			'excludeDefaultChannel' in route &&
+			typeof route.excludeDefaultChannel !== 'boolean'
+		) {
+			throw new Error(
+				'Failed to parse config file: excludeDefaultChannel must be a boolean when present'
+			);
+		}
 
-		// todo: if excludeDefaultChannel is present, add is as false
+		// Set excludeDefaultChannel to false if not present
+		if ( ! ( 'excludeDefaultChannel' in route ) ) {
+			route.excludeDefaultChannel = false;
+		}
 	}
 
 	return parsedConfig;
@@ -103,46 +141,45 @@ export function parseConfig( rawConfig: unknown ): ReporterConfig {
 /**
  * Get channels for a specific ref or check name from the config
  *
- * @param {ReporterConfig} config         - The parsed config object
- * @param {string}         refType        - The type of ref (e.g., 'branch', 'tag')
- * @param {string}         refName        - The name of the ref
- * @param {string}         checkName      - The name of the check
- * @param {string}         defaultChannel - The default channel to use if no specific config
+ * @param {ReporterConfig} config    - The parsed config object
+ * @param {string}         refName   - The name of the ref
+ * @param {string}         checkName - The name of the check
  * @return {string[]} Array of channel IDs where the notification should be sent
  */
 export function getConfiguredChannels(
 	config: ReporterConfig | undefined,
-	refType: string,
 	refName: string,
-	checkName: string,
-	defaultChannel: string
+	checkName: string
 ): string[] {
 	if ( ! config ) {
-		return [ defaultChannel ];
+		throw new Error( 'Config must be provided to get configured channels' );
 	}
 
 	const channels = new Set< string >();
 	let excludeDefaultChannel = false;
 
-	for ( const rule of config.rules ) {
-		// Check ref-specific rules
-		if ( 'refName' in rule && matchPattern( rule.refName, refName ) ) {
-			rule.channels.forEach( ( channel ) => channels.add( channel ) );
-			if ( rule.excludeDefaultChannel ) {
-				excludeDefaultChannel = true;
-			}
+	// Helper function to process matching routes
+	const processRoute = ( route: Route ) => {
+		route.channels.forEach( ( channel ) => channels.add( channel ) );
+		if ( route.excludeDefaultChannel ) {
+			excludeDefaultChannel = true;
 		}
+	};
 
-		// Check checkType-specific rules
-		if ( 'checkType' in rule && rule.checkType === checkName ) {
-			rule.channels.forEach( ( channel ) => channels.add( channel ) );
+	for ( const route of config.routes ) {
+		const matchesRef =
+			'refName' in route && matchPattern( route.refName, refName );
+		const matchesCheck =
+			'checkType' in route && route.checkType === checkName;
+
+		if ( matchesRef || matchesCheck ) {
+			processRoute( route );
 		}
 	}
 
-	// If no specific channels were configured or excludeDefaultChannel is false,
-	// include the default channel
-	if ( ! excludeDefaultChannel && channels.size === 0 ) {
-		channels.add( defaultChannel );
+	// Include the default channel unless explicitly excluded
+	if ( ! excludeDefaultChannel ) {
+		channels.add( config.defaultChannel );
 	}
 
 	return Array.from( channels );

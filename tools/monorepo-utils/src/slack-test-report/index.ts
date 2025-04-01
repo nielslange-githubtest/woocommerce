@@ -22,16 +22,9 @@ function getChannels(
 	configData: ReporterConfig | undefined,
 	checkName: string
 ): string[] {
-	const defaultChannel = getEnvVar( 'SLACK_CHANNEL', true );
-	const refType = getEnvVar( 'GITHUB_REF_TYPE', true );
+	// const defaultChannel = getEnvVar( 'SLACK_CHANNEL', true );
 	const refName = getEnvVar( 'GITHUB_REF_NAME', true );
-	return getConfiguredChannels(
-		configData,
-		refType,
-		refName,
-		checkName,
-		defaultChannel
-	);
+	return getConfiguredChannels( configData, refName, checkName );
 }
 
 const program = new Command( 'slack-test-report' )
