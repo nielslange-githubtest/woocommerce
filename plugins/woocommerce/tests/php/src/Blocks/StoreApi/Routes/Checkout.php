@@ -1194,7 +1194,7 @@ class Checkout extends MockeryTestCase {
 
 		$this->assertEquals( 400, $status, print_r( $data, true ) );
 		$this->assertEquals( 'woocommerce_rest_invalid_shipping_option', $data['code'], print_r( $data, true ) );
-		$this->assertEquals( 'This order requires a shipping option.', $data['message'], print_r( $data, true ) );
+		$this->assertEquals( 'Sorry, this order requires a shipping option.', $data['message'], print_r( $data, true ) );
 	}
 
 	/**

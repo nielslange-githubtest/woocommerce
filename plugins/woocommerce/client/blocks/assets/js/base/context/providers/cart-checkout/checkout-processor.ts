@@ -177,7 +177,7 @@ const CheckoutProcessor = () => {
 				return {
 					type: responseTypes.ERROR,
 					errorMessage: __(
-						'This order requires a shipping option.',
+						'Sorry, this order requires a shipping option.',
 						'woocommerce'
 					),
 				};

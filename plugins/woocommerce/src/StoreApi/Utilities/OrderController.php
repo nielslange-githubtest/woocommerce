@@ -639,7 +639,7 @@ class OrderController {
 
 		$exception = new RouteException(
 			'woocommerce_rest_invalid_shipping_option',
-			esc_html__( 'This order requires a shipping option.', 'woocommerce' ),
+			esc_html__( 'Sorry, this order requires a shipping option.', 'woocommerce' ),
 			400,
 			array()
 		);
