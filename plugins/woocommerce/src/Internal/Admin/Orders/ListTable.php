@@ -85,7 +85,7 @@ class ListTable extends WP_List_Table {
 	 * Init method, invoked by DI container.
 	 *
 	 * @internal This method is not intended to be used directly (except for testing).
-	 * @param PageController      $page_controller Page controller instance for this request.
+	 * @param PageController $page_controller Page controller instance for this request.
 	 */
 	final public function init( PageController $page_controller ) {
 		$this->page_controller = $page_controller;
@@ -861,7 +861,7 @@ class ListTable extends WP_List_Table {
 		if ( $start > $end ) {
 			$last_year_month_gmt = $wpdb->get_row(
 				$wpdb->prepare(
-				'
+					'
 					SELECT YEAR( t.date_created_gmt ) AS year,
 					       MONTH( t.date_created_gmt ) AS month
 					FROM %i t
