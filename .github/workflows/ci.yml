@@ -346,7 +346,9 @@ jobs:
       - name: 'Send messages for failed jobs'
         env:
           SLACK_TOKEN: ${{ secrets.E2E_SLACK_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.TEST_REPORTS_SLACK_CHANNEL }}
+          DEFAULT_CHECKS_CHANNEL: ${{ secrets.TEST_REPORTS_SLACK_CHANNEL }}
+          RELEASE_CHECKS_CHANNEL: ${{ secrets.RELEASE_CHECKS_CHANNEL }}
+          DAILY_CHECKS_CHANNEL: ${{ secrets.DAILY_CHECKS_CHANNEL }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           INPUT_TRIGGER: ${{ inputs.trigger }}
           RUN_TYPE: ${{ github.ref_type == 'tag' && (github.ref_name == 'nightly' && 'nightly-checks' || 'release-checks') || '' }}
