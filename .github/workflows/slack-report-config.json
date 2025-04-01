@@ -13,12 +13,6 @@
 			"channels": [
 				"DAILY_CHECKS_CHANNEL"
 			]
-		},
-		{
-			"refName": "56904/merge",
-			"channels": [
-				"DAILY_CHECKS_CHANNEL"
-			]
 		}
 	]
 }
