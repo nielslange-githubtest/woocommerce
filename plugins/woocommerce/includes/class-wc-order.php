@@ -8,6 +8,7 @@
 
 use Automattic\WooCommerce\Enums\OrderStatus;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
+use Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -1690,7 +1691,7 @@ class WC_Order extends WC_Abstract_Order {
 			return false;
 		}
 
-		$hide          = apply_filters( 'woocommerce_order_hide_shipping_address', array( 'local_pickup' ), $this );
+		$hide          = apply_filters( 'woocommerce_order_hide_shipping_address', array_merge( LocalPickupUtils::get_local_pickup_method_ids(), array( 'local_pickup' ) ), $this );
 		$needs_address = false;
 
 		foreach ( $this->get_shipping_methods() as $shipping_method ) {
