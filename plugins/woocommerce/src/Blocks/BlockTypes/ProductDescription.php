@@ -76,4 +76,13 @@ class ProductDescription extends AbstractBlock {
 			$description
 		);
 	}
+
+	/**
+	 * Disable the frontend stylesheet for this block type. It does not have one.
+	 *
+	 * @return null
+	 */
+	protected function get_block_type_style() {
+		return null;
+	}
 }
