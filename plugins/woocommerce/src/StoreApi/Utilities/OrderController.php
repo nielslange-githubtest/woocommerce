@@ -192,9 +192,11 @@ class OrderController {
 	 * @param \WC_Order $order Order object.
 	 */
 	public function validate_existing_order_before_payment( \WC_Order $order ) {
+		$needs_shipping = $order->needs_shipping();
+
 		$this->validate_coupons( $order, true );
 		$this->validate_email( $order );
-		$this->validate_addresses( $order, $order->needs_shipping() );
+		$this->validate_addresses( $order, $needs_shipping );
 
 		// Perform custom validations.
 		$this->perform_custom_order_validation( $order );
@@ -339,7 +341,7 @@ class OrderController {
 		if ( empty( $email ) ) {
 			throw new RouteException(
 				'woocommerce_rest_missing_email_address',
-				esc_html__( 'A valid email address is required', 'woocommerce' ),
+				__( 'A valid email address is required', 'woocommerce' ),
 				400
 			);
 		}
@@ -349,7 +351,7 @@ class OrderController {
 				'woocommerce_rest_invalid_email_address',
 				sprintf(
 					/* translators: %s provided email. */
-					esc_html__( 'The provided email address (%s) is not valid—please provide a valid email address', 'woocommerce' ),
+					__( 'The provided email address (%s) is not valid—please provide a valid email address', 'woocommerce' ),
 					esc_html( $email )
 				),
 				400
@@ -365,30 +367,11 @@ class OrderController {
 	 * @param bool      $needs_shipping Whether the order needs shipping.
 	 */
 	protected function validate_addresses( \WC_Order $order, bool $needs_shipping ) {
-		$errors          = new \WP_Error();
-		$billing_country = $order->get_billing_country();
-
-		if ( ! $this->validate_allowed_country( $billing_country, (array) wc()->countries->get_allowed_countries() ) ) {
-			throw new RouteException(
-				'woocommerce_rest_invalid_address_country',
-				esc_html(
-					sprintf(
-						/* translators: %s country code. */
-						__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
-						$billing_country
-					)
-				),
-				400,
-				array(
-					'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_allowed_countries() ) ),
-				)
-			);
-		}
-
-		$this->validate_address_fields( $order, 'billing', $errors );
+		$errors           = new \WP_Error();
+		$billing_country  = $order->get_billing_country();
+		$shipping_country = $order->get_shipping_country();
 
 		if ( $needs_shipping ) {
-			$shipping_country         = $order->get_shipping_country();
 			$local_pickup_method_ids  = LocalPickupUtils::get_local_pickup_method_ids();
 			$selected_shipping_rates  = ShippingUtil::get_selected_shipping_rates_from_packages( WC()->shipping()->get_packages() );
 			$is_local_pickup_selected = array_all(
@@ -415,9 +398,29 @@ class OrderController {
 					)
 				);
 			}
+		}
 
+		if ( ! $this->validate_allowed_country( $billing_country, (array) wc()->countries->get_allowed_countries() ) ) {
+			throw new RouteException(
+				'woocommerce_rest_invalid_address_country',
+				esc_html(
+					sprintf(
+						/* translators: %s country code. */
+						__( 'Sorry, we do not allow orders from the provided country (%s)', 'woocommerce' ),
+						$billing_country
+					)
+				),
+				400,
+				array(
+					'allowed_countries' => array_map( 'esc_html', array_keys( wc()->countries->get_allowed_countries() ) ),
+				)
+			);
+		}
+
+		if ( $needs_shipping ) {
 			$this->validate_address_fields( $order, 'shipping', $errors );
 		}
+		$this->validate_address_fields( $order, 'billing', $errors );
 
 		if ( ! $errors->has_errors() ) {
 			return;
