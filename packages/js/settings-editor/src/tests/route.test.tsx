@@ -4,10 +4,7 @@
 import { createElement, useContext } from '@wordpress/element';
 import { screen, render, renderHook } from '@testing-library/react';
 import { addAction, applyFilters, didFilter } from '@wordpress/hooks';
-/* eslint-disable @woocommerce/dependency-group */
-// @ts-ignore No types for this exist yet.
 import { useLocation } from '@automattic/site-admin';
-/* eslint-enable @woocommerce/dependency-group */
 
 /**
  * Internal dependencies
@@ -94,7 +91,7 @@ describe( 'route.tsx', () => {
 		it( 'should return legacy route for non-modern pages', () => {
 			const { result } = renderHook( () => useActiveRoute() );
 
-			expect( result.current.route.key ).toBe( 'general' );
+			expect( result.current.route.key ).toBe( 'general-default' );
 			expect( result.current.route.areas.content ).toBeDefined();
 			expect( result.current.route.areas.sidebar ).toBeDefined();
 
@@ -150,6 +147,7 @@ describe( 'route.tsx', () => {
 				modern: {
 					areas: {
 						content: <div>Modern Page</div>,
+						sidebar: <div>Modern Sidebar</div>,
 					},
 				},
 			} );

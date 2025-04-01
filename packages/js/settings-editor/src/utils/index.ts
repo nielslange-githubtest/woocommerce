@@ -93,10 +93,14 @@ export const getSecondaryLegacySidebarItems = (
 		( slug ) => {
 			const page = settingsData.pages[ activePage ];
 			const { label } = page.sections[ slug ];
-			const to = addQueryArgs( 'wc-settings', {
-				tab: activePage,
-				section: slug,
-			} );
+			const queryArgs: {
+				tab: string;
+				section?: string;
+			} = { tab: activePage };
+			if ( slug !== 'default' ) {
+				queryArgs.section = slug;
+			}
+			const to = addQueryArgs( 'wc-settings', queryArgs );
 			const isCurrent = slug === activeSection;
 			const backPath = addQueryArgs( 'wc-settings', {} );
 			const backLabel = page.label;
