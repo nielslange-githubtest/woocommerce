@@ -339,6 +339,7 @@ jobs:
           sparse-checkout: |
               package.json
               ./tools/monorepo-utils
+              .github/workflows
 
       - name: 'Setup PNPM'
         uses: 'pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d'
