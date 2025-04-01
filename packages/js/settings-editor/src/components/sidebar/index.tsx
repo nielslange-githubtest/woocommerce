@@ -33,8 +33,18 @@ export const Sidebar = ( {
 	currentNestLevel: number;
 	routeKey: string;
 } ) => {
+	const defaultCurrentItem = {
+		slug: 'default',
+		label: __( 'Store settings', 'woocommerce' ),
+		to: addQueryArgs( 'wc-settings', {} ),
+		isCurrent: true,
+		withChevron: false,
+		icon: 'settings',
+		backPath: addQueryArgs( 'wc-settings', {} ),
+		backLabel: __( 'Woo settings', 'woocommerce' ),
+	};
 	const currentItem =
-		sidebarItems.find( ( item ) => item.isCurrent ) || sidebarItems[ 0 ];
+		sidebarItems.find( ( item ) => item.isCurrent ) || defaultCurrentItem;
 	const isRoot = ! currentItem?.backPath;
 	const previousNestLevel = usePrevious( currentNestLevel );
 
@@ -46,7 +56,7 @@ export const Sidebar = ( {
 		if ( isRoot ) {
 			return __( 'Store settings', 'woocommerce' );
 		}
-		return currentItem.backLabel || __( 'back', 'woocommerce' );
+		return currentItem.backLabel || defaultCurrentItem.backLabel;
 	}, [ currentItem ] );
 
 	return (

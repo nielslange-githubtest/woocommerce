@@ -28,7 +28,11 @@ import { LegacyContent } from './legacy';
 import { SettingsDataContext } from './data';
 
 const NotFound = () => {
-	return <h1>{ __( 'Page not found', 'woocommerce' ) }</h1>;
+	return (
+		<div className="woocommerce-settings-content">
+			<h1>{ __( 'Page not found', 'woocommerce' ) }</h1>
+		</div>
+	);
 };
 
 /**
@@ -37,16 +41,14 @@ const NotFound = () => {
  * @param {string}        activePage - The active page.
  * @param {settingsPages} settingsPages      - The settings pages.
  */
-const getNotFoundRoute = (
-	activePage: string,
-	settingsPages: SettingsPages
-): Route => ( {
+const getNotFoundRoute = ( activePage: string ): Route => ( {
 	key: activePage,
 	areas: {
 		sidebar: (
 			<Sidebar
+				routeKey={ activePage }
 				sidebarItems={ [] }
-				pageTitle={ __( 'Settings', 'woocommerce' ) }
+				currentNestLevel={ 1 }
 			/>
 		),
 		content: <NotFound />,
