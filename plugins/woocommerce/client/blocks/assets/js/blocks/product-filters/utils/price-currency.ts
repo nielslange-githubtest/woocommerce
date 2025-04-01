@@ -7,8 +7,14 @@ import {
 	type CartShippingPackageShippingRate,
 } from '@woocommerce/types';
 import { getConfig } from '@wordpress/interactivity';
-import { getCurrencyPrefix } from '../../../settings/shared/utils';
-import { getCurrencySuffix } from '../../../settings/shared/utils';
+
+/**
+ * Internal dependencies
+ */
+import {
+	getCurrencyPrefix,
+	getCurrencySuffix,
+} from '../../../settings/shared/utils';
 
 const currencyConfig = getConfig( 'woocommerce' ).currency;
 
