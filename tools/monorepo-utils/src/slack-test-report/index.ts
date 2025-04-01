@@ -61,7 +61,8 @@ const program = new Command( 'slack-test-report' )
 
 		if ( options.config ) {
 			try {
-				const reporterConfig = parseConfig( options.config );
+				const configContent = loadConfig( options.config );
+				const reporterConfig = parseConfig( configContent );
 				const refName = getEnvVar( 'GITHUB_REF_NAME', true );
 				const configuredChannels = getConfiguredChannels(
 					reporterConfig,
