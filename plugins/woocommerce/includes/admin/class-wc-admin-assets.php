@@ -62,7 +62,7 @@ if ( ! class_exists( 'WC_Admin_Assets', false ) ) :
 			wp_style_add_data( 'woocommerce_admin_privacy_styles', 'rtl', 'replace' );
 
 			if ( $screen && $screen->is_block_editor() ) {
-				if ( ! wc_current_theme_is_fse_theme() ) {
+				if ( ! wp_is_block_theme() ) {
 					wp_register_style( 'woocommerce-classictheme-editor-fonts', WC()->plugin_url() . '/assets/css/woocommerce-classictheme-editor-fonts.css', array(), $version );
 					wp_enqueue_style( 'woocommerce-classictheme-editor-fonts' );
 				}
