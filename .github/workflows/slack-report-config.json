@@ -3,6 +3,7 @@
 	"routes": [
 		{
 			"checkType": "release-checks",
+			"refName": "release/**",
 			"channels": [
 				"RELEASE_CHECKS_CHANNEL"
 			]
@@ -14,9 +15,9 @@
 			]
 		},
 		{
-			"refName": "release/**",
+			"refName": "**/wooplug-3703-*",
 			"channels": [
-				"RELEASE_CHECKS_CHANNEL"
+				"DAILY_CHECKS_CHANNEL"
 			]
 		}
 	]
