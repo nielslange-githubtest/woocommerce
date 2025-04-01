@@ -101,14 +101,24 @@ const getLegacyRoute = (
 	const secondarySidebarItems = Object.keys(
 		settingsData.pages[ activePage ].sections
 	).map( ( slug ) => {
-		const { label } = settingsData.pages[ activePage ].sections[ slug ];
+		const page = settingsData.pages[ activePage ];
+		const { label } = page.sections[ slug ];
 		const to = addQueryArgs( 'wc-settings', {
 			tab: activePage,
 			section: slug,
 		} );
 		const isCurrent = slug === activeSection;
 		const backPath = addQueryArgs( 'wc-settings', {} );
-		return { slug, label, to, withChevron: false, isCurrent, backPath };
+		const backLabel = page.label;
+		return {
+			slug,
+			label,
+			to,
+			withChevron: false,
+			isCurrent,
+			backPath,
+			backLabel,
+		};
 	} );
 
 	const sidebarItems = isPrimary
@@ -123,7 +133,6 @@ const getLegacyRoute = (
 			sidebar: (
 				<Sidebar
 					routeKey={ key }
-					pageTitle={ __( 'Store settings', 'woocommerce' ) }
 					sidebarItems={ sidebarItems }
 					currentNestLevel={ isPrimary ? 1 : 2 }
 				/>

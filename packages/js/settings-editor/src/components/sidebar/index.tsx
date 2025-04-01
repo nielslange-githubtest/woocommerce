@@ -11,16 +11,15 @@ import {
 	SidebarNavigationItem,
 	SidebarContent,
 } from '@automattic/site-admin';
+import { __ } from '@wordpress/i18n';
 
 const { Icon, ...icons } = IconPackage;
 
 export const Sidebar = ( {
-	pageTitle,
 	sidebarItems,
 	currentNestLevel,
 	routeKey,
 }: {
-	pageTitle: string;
 	sidebarItems: Array< {
 		slug: string;
 		label: string;
@@ -29,6 +28,7 @@ export const Sidebar = ( {
 		withChevron: boolean;
 		icon?: string;
 		backPath?: string;
+		backLabel?: string;
 	} >;
 	currentNestLevel: number;
 	routeKey: string;
@@ -42,10 +42,17 @@ export const Sidebar = ( {
 		return previousNestLevel !== currentNestLevel;
 	}, [ currentItem ] );
 
+	const title = useMemo( () => {
+		if ( isRoot ) {
+			return __( 'Store settings', 'woocommerce' );
+		}
+		return currentItem.backLabel || __( 'back', 'woocommerce' );
+	}, [ currentItem ] );
+
 	return (
 		<SidebarContent shouldAnimate={ shouldAnimate } routeKey={ routeKey }>
 			<SidebarNavigationScreen
-				title={ pageTitle }
+				title={ title }
 				isRoot={ isRoot }
 				backPath={ currentItem?.backPath }
 				exitLink={ addQueryArgs( 'admin.php', { page: 'wc-admin' } ) }
