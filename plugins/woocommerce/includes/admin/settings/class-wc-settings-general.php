@@ -46,10 +46,6 @@ class WC_Settings_General extends WC_Settings_Page {
 			$currency_code_options[ $code ] = $name . ' (' . get_woocommerce_currency_symbol( $code ) . ') — ' . esc_html( $code );
 		}
 
-		$autocomplete_service   = \Automattic\WooCommerce\Blocks\Package::container()->get( \Automattic\WooCommerce\Blocks\Domain\Services\AddressAutocomplete::class );
-		$autocomplete_providers = $autocomplete_service->get_registered_providers();
-		$autocomplete_available = count( $autocomplete_providers ) > 0;
-
 		$settings =
 			array(
 
@@ -190,16 +186,6 @@ class WC_Settings_General extends WC_Settings_Page {
 						'geolocation'      => __( 'Geolocate', 'woocommerce' ),
 						'geolocation_ajax' => __( 'Geolocate (with page caching support)', 'woocommerce' ),
 					),
-				),
-
-				array(
-					'title'    => __( 'Address autocomplete', 'woocommerce' ),
-					'id'       => 'woocommerce_enable_address_autocomplete',
-					'desc'     => __( 'Enable predictive address search.', 'woocommerce' ),
-					'desc_tip' => __( 'Suggest full addresses for customer as they type.', 'woocommerce' ),
-					'default'  => 'no',
-					'type'     => 'checkbox',
-					'disabled' => $autocomplete_available,
 				),
 
 				array(
