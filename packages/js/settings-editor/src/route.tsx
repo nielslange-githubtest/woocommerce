@@ -124,7 +124,7 @@ const getLegacyRoute = (
 	};
 };
 
-const PAGES_FILTER = 'woocommerce_admin_settings_pages';
+const PAGES_FILTER = 'woocommerce_admin_settings_routes';
 
 const getModernPages = () => {
 	/**
@@ -141,9 +141,7 @@ const getModernPages = () => {
  * @return {Record<string, Route>} The pages.
  */
 export function useModernRoutes(): Record< string, Route > {
-	const [ routes, setRoutes ] = useState< Record< string, Route > >(
-		getModernPages()
-	);
+	let routes = getModernPages();
 	const location = useLocation();
 	const isFirstRender = useRef( true );
 
@@ -160,7 +158,7 @@ export function useModernRoutes(): Record< string, Route > {
 
 			const filterCount = didFilter( PAGES_FILTER );
 			if ( filterCount && filterCount > 0 ) {
-				setRoutes( getModernPages() );
+				routes = getModernPages();
 			}
 		};
 
@@ -180,7 +178,7 @@ export function useModernRoutes(): Record< string, Route > {
 			return;
 		}
 
-		setRoutes( getModernPages() );
+		routes = getModernPages();
 	}, [ location.query ] );
 
 	return routes;
