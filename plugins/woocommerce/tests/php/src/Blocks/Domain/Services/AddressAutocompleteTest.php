@@ -221,4 +221,151 @@ class AddressAutocompleteTest extends MockeryTestCase {
 		__experimental_woocommerce_deregister_address_autocomplete_provider( 'test-provider' );
 		$this->assertFalse( $this->sut->is_provider_available( 'test-provider' ) );
 	}
+
+	/**
+	 * Test settings when no providers are registered.
+	 */
+	public function test_add_address_autocomplete_settings_no_providers() {
+		$initial_settings = [
+			[
+				'id' => 'woocommerce_default_customer_address',
+				'type' => 'select',
+			],
+		];
+
+		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+
+		// Verify the original setting is preserved
+		$this->assertArrayHasKey( 0, $settings );
+		$this->assertEquals( 'woocommerce_default_customer_address', $settings[0]['id'] );
+
+		// Find the autocomplete setting
+		$autocomplete_setting = null;
+		foreach ( $settings as $setting ) {
+			if ( isset( $setting['id'] ) && $setting['id'] === 'woocommerce_address_autocomplete_enabled' ) {
+				$autocomplete_setting = $setting;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $autocomplete_setting );
+		$this->assertEquals( 'checkbox', $autocomplete_setting['type'] );
+		$this->assertTrue( $autocomplete_setting['disabled'] );
+		$this->assertStringContainsString( 'WooPayments', $autocomplete_setting['desc_tip'] );
+	}
+
+	/**
+	 * Test settings when one provider is registered.
+	 */
+	public function test_add_address_autocomplete_settings_single_provider() {
+		__experimental_woocommerce_register_address_autocomplete_provider( 'test-provider', 'Test Provider' );
+
+		$initial_settings = [
+			[
+				'id' => 'woocommerce_default_customer_address',
+				'type' => 'select',
+			],
+		];
+
+		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+
+		// Find the autocomplete setting
+		$autocomplete_setting = null;
+		foreach ( $settings as $setting ) {
+			if ( isset( $setting['id'] ) && $setting['id'] === 'woocommerce_address_autocomplete_enabled' ) {
+				$autocomplete_setting = $setting;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $autocomplete_setting );
+		$this->assertEquals( 'checkbox', $autocomplete_setting['type'] );
+		$this->assertFalse( $autocomplete_setting['disabled'] );
+		$this->assertStringNotContainsString( 'WooPayments', $autocomplete_setting['desc_tip'] );
+
+		// Verify provider select is not added when only one provider exists
+		$provider_setting = null;
+		foreach ( $settings as $setting ) {
+			if ( isset( $setting['id'] ) && $setting['id'] === 'woocommerce_address_autocomplete_provider' ) {
+				$provider_setting = $setting;
+				break;
+			}
+		}
+
+		$this->assertNull( $provider_setting );
+	}
+
+	/**
+	 * Test settings when multiple providers are registered.
+	 */
+	public function test_add_address_autocomplete_settings_multiple_providers() {
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-1', 'Provider One' );
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-2', 'Provider Two' );
+
+		$initial_settings = [
+			[
+				'id' => 'woocommerce_default_customer_address',
+				'type' => 'select',
+			],
+		];
+
+		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+
+		// Find the provider select setting
+		$provider_setting = null;
+		foreach ( $settings as $setting ) {
+			if ( isset( $setting['id'] ) && $setting['id'] === 'woocommerce_address_autocomplete_provider' ) {
+				$provider_setting = $setting;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $provider_setting );
+		$this->assertEquals( 'select', $provider_setting['type'] );
+		$this->assertEquals( 'provider-1', $provider_setting['default'] );
+		$this->assertArrayHasKey( 'provider-1', $provider_setting['options'] );
+		$this->assertArrayHasKey( 'provider-2', $provider_setting['options'] );
+		$this->assertEquals( 'Provider One', $provider_setting['options']['provider-1'] );
+		$this->assertEquals( 'Provider Two', $provider_setting['options']['provider-2'] );
+	}
+
+	/**
+	 * Test that settings are added in the correct position.
+	 */
+	public function test_add_address_autocomplete_settings_position() {
+		$initial_settings = [
+			[
+				'id' => 'some_setting_before',
+				'type' => 'text',
+			],
+			[
+				'id' => 'woocommerce_default_customer_address',
+				'type' => 'select',
+			],
+			[
+				'id' => 'some_setting_after',
+				'type' => 'text',
+			],
+		];
+
+		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+
+		// Find the position of the default customer address setting and the autocomplete setting
+		$default_address_pos = -1;
+		$autocomplete_pos = -1;
+		foreach ( $settings as $index => $setting ) {
+			if ( isset( $setting['id'] ) ) {
+				if ( $setting['id'] === 'woocommerce_default_customer_address' ) {
+					$default_address_pos = $index;
+				} elseif ( $setting['id'] === 'woocommerce_address_autocomplete_enabled' ) {
+					$autocomplete_pos = $index;
+				}
+			}
+		}
+
+		$this->assertGreaterThan( -1, $default_address_pos );
+		$this->assertGreaterThan( -1, $autocomplete_pos );
+		$this->assertGreaterThan( $default_address_pos, $autocomplete_pos );
+		$this->assertEquals( $default_address_pos + 1, $autocomplete_pos );
+	}
 }
