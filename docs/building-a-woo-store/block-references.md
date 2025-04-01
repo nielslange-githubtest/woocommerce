@@ -1615,6 +1615,39 @@ Enable customers to filter the product grid by rating.
 -	**Supports:** color (background, button, text), ~~html~~, ~~inserter~~, ~~lock~~, ~~multiple~~
 -	**Attributes:** className, displayStyle, isPreview, selectType, showCounts, showFilterButton
 
+## All Reviews - woocommerce/all-reviews
+
+Show a list of all product reviews.
+
+-	**Name:** woocommerce/all-reviews
+-	**Category:** woocommerce
+-   **Ancestor:** 
+-   **Parent:** 
+-	**Supports:** color (text, ~~background~~), typography (fontSize), ~~html~~
+-	**Attributes:** 
+
+## Reviews by Category - woocommerce/reviews-by-category
+
+Show product reviews from specific categories.
+
+-	**Name:** woocommerce/reviews-by-category
+-	**Category:** woocommerce
+-   **Ancestor:** 
+-   **Parent:** 
+-	**Supports:** color (text, ~~background~~), typography (fontSize), ~~html~~
+-	**Attributes:** 
+
+## Reviews by Product - woocommerce/reviews-by-product
+
+Display reviews for your products.
+
+-	**Name:** woocommerce/reviews-by-product
+-	**Category:** woocommerce
+-   **Ancestor:** 
+-   **Parent:** 
+-	**Supports:** color (text, ~~background~~), typography (fontSize), ~~html~~
+-	**Attributes:** 
+
 ## Single Product - woocommerce/single-product
 
 Display a single product.
