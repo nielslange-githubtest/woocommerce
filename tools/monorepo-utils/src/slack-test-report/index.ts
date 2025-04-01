@@ -133,6 +133,13 @@ const program = new Command( 'slack-test-report' )
 					} );
 				}
 			}
+
+			if ( channels.length === 0 ) {
+				Logger.error(
+					'No channels found. Please check your configuration.'
+				);
+				process.exit( 1 );
+			}
 		} else {
 			Logger.notice(
 				`No message will be sent for '${ options.conclusion }'`

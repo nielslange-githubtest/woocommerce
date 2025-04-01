@@ -6,8 +6,9 @@ import { makeRe } from 'minimatch';
 import path from 'path';
 
 /**
- * Configuration interfaces for Slack test report notifications
+ * Internal dependencies
  */
+import { Logger } from '../../core/logger';
 
 interface Route {
 	channels: string[];
@@ -43,6 +44,7 @@ export function loadConfig( configPath: string ): any {
 		throw new Error( `Failed to parse config file: ${ error.message }` );
 	}
 
+	Logger.notice( `Loaded config from ${ configPath }` );
 	return parsedData;
 }
 
@@ -168,6 +170,17 @@ export function getConfiguredChannels(
 		}
 	}
 
+	if ( channels.size === 0 ) {
+		Logger.notice(
+			`Found no channels configured for refName: ${ refName }, checkName: ${ checkName }`
+		);
+		Logger.notice( 'Using default channel' );
+		channels.add( config.defaultChannel );
+	}
+
+	Logger.notice(
+		`Returning ${ channels.size } channel(s) for refName: ${ refName }, checkName: ${ checkName }`
+	);
 	return Array.from( channels );
 }
 

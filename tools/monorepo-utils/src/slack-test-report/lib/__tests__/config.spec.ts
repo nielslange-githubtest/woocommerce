@@ -521,7 +521,7 @@ describe( 'getConfiguredChannels', () => {
 				},
 				refName: 'main',
 				checkName: 'unknown-check',
-				expected: [],
+				expected: [ 'DEFAULT_CHANNEL' ],
 			},
 			{
 				name: 'multiple matching routes',
@@ -621,21 +621,6 @@ describe( 'getConfiguredChannels', () => {
 				refName: 'feature/test',
 				checkName: 'e2e-tests',
 				expected: [ 'CHANNEL_1', 'CHANNEL_2', 'DEFAULT_CHANNEL' ],
-			},
-			{
-				name: 'non-matching pattern',
-				config: {
-					defaultChannel: 'DEFAULT_CHANNEL',
-					routes: [
-						{
-							refName: 'release/*/beta',
-							channels: [ 'CHANNEL_1' ],
-						},
-					],
-				},
-				refName: 'release/1.2.3/alpha',
-				checkName: 'unit-test',
-				expected: [],
 			},
 		] )(
 			'should return correct channels for $name',

@@ -2,14 +2,14 @@
 	"defaultChannel": "DEFAULT_CHECKS_CHANNEL",
 	"routes": [
 		{
-			"checkType": "release-checks",
+			"checkType": "release-checks*",
 			"refName": "release/**",
 			"channels": [
 				"RELEASE_CHECKS_CHANNEL"
 			]
 		},
 		{
-			"checkType": "daily-checks",
+			"checkType": "daily-checks*",
 			"channels": [
 				"DAILY_CHECKS_CHANNEL"
 			]
