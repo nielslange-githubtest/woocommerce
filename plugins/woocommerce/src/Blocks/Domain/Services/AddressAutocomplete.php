@@ -14,6 +14,65 @@ class AddressAutocomplete {
 	private $providers = [];
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_filter( 'woocommerce_general_settings', [ $this, 'add_address_autocomplete_settings' ] );
+	}
+
+	/**
+	 * Remove the preferred provider option from WooCommerce settings.
+	 *
+	 * @param array $settings The WooCommerce general settings.
+	 * @return array The modified settings.
+	 */
+	public function add_address_autocomplete_settings( array $settings ): array {
+		$autocomplete_available = count( $this->providers ) > 0;
+		$autocomplete_desc_tip  = __( 'Suggest full addresses for customer as they type.', 'woocommerce' );
+		if ( ! $autocomplete_available ) {
+			// translators: %s: WooPayments URL.
+			$autocomplete_desc_tip .= ' ' . sprintf( __( 'To use this feature, you need to install an address provider such as <a href="%s">WooPayments</a>.', 'woocommerce' ), 'https://woocommerce.com/products/woocommerce-payments/' );
+		}
+
+		$new_settings = [];
+		foreach ( $settings as $setting ) {
+			$new_settings[] = $setting;
+
+			if ( isset( $setting['id'] ) && 'woocommerce_default_customer_address' === $setting['id'] ) {
+				$new_settings[] = [
+					'id'       => 'woocommerce_address_autocomplete_enabled',
+					'desc'     => __( 'Enable predictive address search', 'woocommerce' ),
+					'name'     => __( 'Address autocomplete', 'woocommerce' ),
+					'type'     => 'checkbox',
+					'disabled' => ! $autocomplete_available,
+					'desc_tip' => $autocomplete_desc_tip,
+					'default'  => 'no',
+				];
+
+				// Add preferred provider select box if multiple providers are registered.
+				if ( count( $this->providers ) > 1 ) {
+					$provider_options = [];
+					foreach ( $this->providers as $provider ) {
+						$provider_options[ $provider['id'] ] = $provider['name'];
+					}
+
+					$new_settings[] = [
+						'id'       => 'woocommerce_address_autocomplete_provider',
+						'name'     => __( 'Address autocomplete provider', 'woocommerce' ),
+						'type'     => 'select',
+						'class'    => 'wc-enhanced-select',
+						'desc_tip' => __( 'Select your preferred address autocomplete provider.', 'woocommerce' ),
+						'default'  => array_key_first( $this->providers ),
+						'options'  => $provider_options,
+					];
+				}
+			}
+		}
+
+		return $new_settings;
+	}
+
+	/**
 	 * Register a new address autocomplete provider.
 	 *
 	 * @param string $id   The provider ID.
