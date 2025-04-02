@@ -540,7 +540,7 @@ class WooPaymentsService {
 		);
 
 		if ( is_wp_error( $response_data ) ) {
-			throw new Exception( esc_html( $response_data->get_error_message() ), esc_attr( $response_data->get_error_code() ) );
+			throw new Exception( esc_html( $response_data->get_error_message() ) );
 		}
 
 		if ( ! is_array( $response_data ) || ! isset( $response_data['result'] ) ) {
@@ -582,7 +582,7 @@ class WooPaymentsService {
 		);
 
 		if ( is_wp_error( $account_session ) ) {
-			throw new Exception( esc_html( $account_session->get_error_message() ), intval( esc_attr( $account_session->get_error_code() ) ) );
+			throw new Exception( esc_html( $account_session->get_error_message() ) );
 		}
 
 		if ( ! is_array( $account_session ) ) {
@@ -619,7 +619,7 @@ class WooPaymentsService {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			throw new Exception( esc_html( $response->get_error_message() ), esc_attr( $response->get_error_code() ) );
+			throw new Exception( esc_html( $response->get_error_message() ) );
 		}
 
 		if ( ! is_array( $response ) ) {
