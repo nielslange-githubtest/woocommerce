@@ -40,22 +40,18 @@ if [ -n "$changedFiles" ]; then
 	# This pre-push check aims to reduce CI load, hence we mimic CI matrix generation and pick linting jobs identical to CI environment.
     ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' 2>&1)
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
+	# Slightly complicated trailing thru linting jobs provided in JSON-format.
+    iteration=1
 	readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
-	echo "-> total linting jobs to run: ${#jobs[*]}"
 	for job in "${jobs[@]}"; do
 		command=$(echo $job | jq --raw-output '( "pnpm --filter=" + .projectName + " " + .command )')
-		echo -n "-> Linting with '$command'"
+		echo -n "-> Executing '$command' ($iteration of ${#jobs[*]})"
 		result=$($command 2>&1)
 		if [ $? -ne 0 ]; then
-			echo " [ERR] (aborting)"
-			echo $result
+			echo " [ERR] (aborting, please run manually)"
 			exit 1
-		else
-			echo " [OK]"
 		fi
+		echo " [OK]"
+		iteration=$(expr $iteration + 1)
 	done
 fi
-
-echo 'Aborting push (local development purposes)'
-exit 1
-
