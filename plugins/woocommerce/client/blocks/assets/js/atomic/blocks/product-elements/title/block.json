@@ -49,7 +49,5 @@
 			"type": "string"
 		}
 	},
-	"ancestor": [ "woocommerce/all-products" ],
-	"editorScript": "file:./index.js",
-	"style": "file:./style.css"
+	"ancestor": [ "woocommerce/all-products" ]
 }
