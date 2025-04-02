@@ -47,8 +47,6 @@ class WC_Unit_Tests_Bootstrap {
 		$this->tests_dir  = __DIR__;
 		$this->plugin_dir = dirname( dirname( $this->tests_dir ) );
 
-		$this->enable_experimental_blocks_feature_flags();
-
 		$this->register_autoloader_for_testing_tools();
 
 		$this->initialize_code_hacker();
@@ -321,16 +319,6 @@ class WC_Unit_Tests_Bootstrap {
 			$flags[ $feature ] = $bool;
 		}
 		return $flags;
-	}
-
-	/**
-	 * Enable experimental WC Blocks feature flags.
-	 *
-	 * @since 9.9.0
-	 */
-	public function enable_experimental_blocks_feature_flags() {
-		// Used to enable the address autocomplete functionality for testing.
-		define( 'WC_EXPERIMENTAL_ADDRESS_AUTOCOMPLETE', true );
 	}
 
 	/**
