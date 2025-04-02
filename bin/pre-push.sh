@@ -27,13 +27,15 @@ changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-on
 if [ -n "$changedFiles" ]; then
 	echo $changedFiles;
 
-	echo 'pre-push: validate syncpack mismatches'
+	echo 'pre-push: validate syncpack mismatches '
 	pnpm exec syncpack -- list-mismatches
 	if [ $? -ne 0 ]; then
+		echo "[ERR] (aborting)"
 		echo "You must sync the dependencies listed above before you can push this branch."
 		echo "This can usually be accomplished automatically by updating the pinned version in \`.syncpackrc\` and then running \`pnpm sync-dependencies\`."
 		exit 1
 	fi
+	echo "[OK]"
 fi
 
 changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
@@ -47,13 +49,13 @@ if [ -n "$changedFiles" ]; then
 	readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
 	for job in "${jobs[@]}"; do
 		command=$(echo $job | jq --raw-output '( "pnpm --filter=" + .projectName + " " + .command )')
-		echo -n "-> Executing '$command' ($iteration of ${#jobs[*]})"
+		echo -n "-> Executing '$command' ($iteration of ${#jobs[*]}) "
 		result=$($command 2>&1)
 		if [ $? -ne 0 ]; then
-			echo " [ERR] (aborting, please run manually)"
+			echo "[ERR] (aborting, please run manually)"
 			exit 1
 		fi
-		echo " [OK]"
+		echo "[OK]"
 		iteration=$(expr $iteration + 1)
 	done
 fi
