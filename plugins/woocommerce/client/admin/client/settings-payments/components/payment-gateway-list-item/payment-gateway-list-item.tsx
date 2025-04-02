@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { decodeEntities } from '@wordpress/html-entities';
 import { PaymentGatewayProvider } from '@woocommerce/data';
 import { Tooltip } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -29,6 +30,7 @@ import {
 import { ReactivateLivePaymentsButton } from '~/settings-payments/components/buttons/reactivate-live-payments-button';
 import { IncentiveStatusBadge } from '~/settings-payments/components/incentive-status-badge';
 import { OfficialBadge } from '~/settings-payments/components/official-badge';
+import WooPaymentsModal from '../../onboarding/providers/woopayments';
 
 type PaymentGatewayItemProps = {
 	gateway: PaymentGatewayProvider;
@@ -46,6 +48,7 @@ export const PaymentGatewayListItem = ( {
 }: PaymentGatewayItemProps ) => {
 	const itemIsWooPayments = isWooPayments( gateway.id );
 	const incentive = hasIncentive( gateway ) ? gateway._incentive : null;
+	const [ isOnboardingModalOpen, setIsOnboardingModalOpen ] = useState( false );
 
 	const gatewayHasRecommendedPaymentMethods =
 		( gateway.onboarding.recommended_payment_methods ?? [] ).length > 0;
@@ -203,6 +206,8 @@ export const PaymentGatewayListItem = ( {
 									gatewayHasRecommendedPaymentMethods
 								}
 								installingPlugin={ installingPlugin }
+								setOnboardingModalOpen={ setIsOnboardingModalOpen }
+								onboardingType={ gateway.onboarding.type }
 							/>
 						) }
 
@@ -231,6 +236,16 @@ export const PaymentGatewayListItem = ( {
 										gateway.management._links.settings.href
 									}
 								/>
+							) }
+
+						{ isWooPayments( gateway.id ) && (
+							<WooPaymentsModal
+								isOpen={ isOnboardingModalOpen }
+								setIsOpen={ setIsOnboardingModalOpen }
+								hasWPComConnection={
+									gateway.onboarding.state.wpcom_has_working_connection || false
+								}
+							/>
 							) }
 					</div>
 				</div>
