@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace Automattic\WooCommerce\Internal\Admin\Settings\PaymentProviders\WooPayments;
 
+use Automattic\Jetpack\Connection\Manager as WPCOM_Connection_Manager;
 use Automattic\WooCommerce\Admin\API\OnboardingPlugins;
 use Automattic\WooCommerce\Internal\Admin\Settings\PaymentProviders;
 use Automattic\WooCommerce\Internal\Admin\Settings\Utils;
@@ -32,8 +33,15 @@ class WooPaymentsService {
 
 	const NOX_PROFILE_OPTION_KEY = 'woocommerce_woopayments_nox_profile';
 
-	const FROM_PAYMENT_SETTINGS          = 'WCADMIN_PAYMENT_SETTINGS';
-	const FROM_NOX_IN_CONTEXT_ONBOARDING = 'WCADMIN_NOX_IN_CONTEXT_ONBOARDING';
+	const FROM_PAYMENT_SETTINGS = 'WCADMIN_PAYMENT_SETTINGS';
+	const FROM_NOX_IN_CONTEXT   = 'WCADMIN_NOX_IN_CONTEXT';
+
+	/**
+	 * The WPCOM connection manager instance.
+	 *
+	 * @var WPCOM_Connection_Manager
+	 */
+	private WPCOM_Connection_Manager $wpcom_connection_manager;
 
 	/**
 	 * The WooPayments provider instance.
@@ -48,6 +56,8 @@ class WooPaymentsService {
 	 * @internal
 	 */
 	final public function init(): void {
+		$this->wpcom_connection_manager = new WPCOM_Connection_Manager( 'woocommerce' );
+
 		$this->provider = new PaymentProviders\WooPayments();
 	}
 
@@ -68,13 +78,18 @@ class WooPaymentsService {
 		}
 
 		return array(
-			'state' => array(
+			'state'   => array(
 				'started'   => $this->provider->is_onboarding_started( $this->get_payment_gateway() ),
 				'completed' => $this->provider->is_onboarding_completed( $this->get_payment_gateway() ),
 				'test_mode' => $this->provider->is_in_test_mode_onboarding( $this->get_payment_gateway() ),
 				'dev_mode'  => $this->provider->is_in_dev_mode( $this->get_payment_gateway() ),
 			),
-			'steps' => $this->get_onboarding_steps_details( $location, trailingslashit( $rest_path ) . 'step' ),
+			'steps'   => $this->get_onboarding_steps_details( $location, trailingslashit( $rest_path ) . 'step' ),
+			'context' => array(
+				'urls' => array(
+					'overview_page' => $this->get_overview_page_url(),
+				),
+			),
 		);
 	}
 
@@ -133,7 +148,8 @@ class WooPaymentsService {
 				),
 			),
 			'context'        => array(
-				'payment_methods' => $this->get_onboarding_payment_methods( $location ),
+				'recommended_pms' => $this->get_onboarding_recommended_payment_methods( $location ),
+				'pms_state'       => $this->get_onboarding_payment_methods_state( $location ),
 			),
 		);
 
@@ -144,14 +160,25 @@ class WooPaymentsService {
 			'required_steps' => $this->get_onboarding_step_required_steps( self::ONBOARDING_STEP_WPCOM_CONNECTION ),
 			'status'         => $this->get_onboarding_step_status( self::ONBOARDING_STEP_WPCOM_CONNECTION, $location ),
 			'errors'         => array(),
+			'context'        => array(
+				'connection_state' => $this->get_wpcom_connection_state(),
+			),
 		);
 
 		// If the WPCOM connection is already set up, we don't need to add anything more.
 		if ( self::ONBOARDING_STEP_STATUS_COMPLETED !== $wpcom_step_details['status'] ) {
+			// Craft the return URL.
+			// By default, we return to the onboarding modal.
+			$return_url = Utils::wc_payments_settings_url(
+				self::ONBOARDING_PATH_BASE,
+				array(
+					'wpcom_connection_return' => '1', // URL query flag so we can properly identify when the user returns.
+				)
+			);
 			// Try to generate the authorization URL.
-			$wpcom_connection = $this->get_wpcom_connection_authorization( Utils::wc_payments_settings_url( self::ONBOARDING_PATH_BASE ), 'woocommerce' );
+			$wpcom_connection = $this->get_wpcom_connection_authorization( $return_url );
 			if ( ! $wpcom_connection['success'] ) {
-				$wpcom_step_details['errors'] = $wpcom_connection['errors'];
+				$wpcom_step_details['errors'] = array_values( $wpcom_connection['errors'] );
 			}
 			$wpcom_step_details['actions'] = array(
 				'start' => array(
@@ -208,11 +235,21 @@ class WooPaymentsService {
 			'status'         => $this->get_onboarding_step_status( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location ),
 			'errors'         => array(),
 			'context'        => array(
-				'fields'          => $this->get_onboarding_kyc_fields(),
-				'sub_steps'       => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'sub_steps' ),
-				'self_assessment' => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'self_assessment' ),
+				'fields'            => array(),
+				'sub_steps'         => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'sub_steps' ),
+				'self_assessment'   => $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_BUSINESS_VERIFICATION, $location, 'self_assessment' ),
 			),
 		);
+
+		// Try to get the pre-KYC fields.
+		try {
+			$business_verification_step_details['context']['fields'] = $this->get_onboarding_kyc_fields();
+		} catch ( Exception $e ) {
+			$business_verification_step_details['errors'][] = array(
+				'code'    => 'fields_error',
+				'message' => $e->getMessage(),
+			);
+		}
 
 		// If the step is not completed, we need to add the actions.
 		if ( self::ONBOARDING_STEP_STATUS_COMPLETED !== $business_verification_step_details['status'] ) {
@@ -485,35 +522,56 @@ class WooPaymentsService {
 	}
 
 	/**
-	 * Get the payment methods details for onboarding.
+	 * Get the recommended payment methods details for onboarding.
 	 *
 	 * @param string $location The location for which we are onboarding.
 	 *                         This is a ISO 3166-1 alpha-2 country code.
 	 *
-	 * @return array The onboarding payment methods details.
+	 * @return array The recommended payment methods details.
 	 */
-	public function get_onboarding_payment_methods( string $location ): array {
+	public function get_onboarding_recommended_payment_methods( string $location ): array {
+		return $this->provider->get_recommended_payment_methods( $this->get_payment_gateway(), $location );
+	}
+	/**
+	 * Get the payment methods state for onboarding.
+	 *
+	 * @param string $location The location for which we are onboarding.
+	 *                         This is a ISO 3166-1 alpha-2 country code.
+	 *
+	 * @return array The onboarding payment methods state.
+	 */
+	public function get_onboarding_payment_methods_state( string $location ): array {
 		// First, get the recommended payment methods details from the provider.
-		$payment_methods = $this->provider->get_recommended_payment_methods( $this->get_payment_gateway(), $location );
+		// We will use their enablement state as the default.
+		// Note: The list is validated and standardized by the provider, so we don't need to do it here.
+		$recommended_pms = $this->get_onboarding_recommended_payment_methods( $location );
 
 		// Grab the stored payment methods state
 		// (a key-value array of payment method IDs and if they should be automatically enabled or not).
 		$step_pms_data = (array) $this->get_nox_profile_onboarding_step_data_entry( self::ONBOARDING_STEP_PAYMENT_METHODS, $location, 'payment_methods' );
-		foreach ( $payment_methods as $key => $payment_method ) {
-			// Force enable and skip required payment methods since these should always be enabled.
-			if ( ! empty( $payment_method['required'] ) ) {
-				$payment_methods[ $key ]['enabled'] = true;
+
+		$payment_methods_state = array();
+		foreach ( $recommended_pms as $recommended_pm ) {
+			$pm_id = $recommended_pm['id'];
+
+			// Start with the recommended enabled state.
+			$payment_methods_state[ $pm_id ] = $recommended_pm['enabled'];
+
+			// Force enable if required.
+			if ( $recommended_pm['required'] ) {
+				$payment_methods_state[ $pm_id ] = true;
 				continue;
 			}
 
-			// Go through the recommended payment methods and overwrite their enabled status with the stored one.
-			if ( isset( $step_pms_data[ $payment_method['id'] ] ) ) {
-				$payment_methods[ $key ]['enabled'] = wc_string_to_bool( $step_pms_data[ $payment_method['id'] ] );
+			// Check the stored state, if any.
+			if ( isset( $step_pms_data[ $pm_id ] ) ) {
+				$payment_methods_state[ $pm_id ] = filter_var( $step_pms_data[ $pm_id ], FILTER_VALIDATE_BOOLEAN );
 			}
 		}
 
-		return $payment_methods;
+		return $payment_methods_state;
 	}
+
 
 	/**
 	 * Initialize the test account for onboarding.
@@ -561,8 +619,8 @@ class WooPaymentsService {
 			'/wc/v3/payments/onboarding/test_drive_account/init',
 			array(
 				'capabilities' => ( ! empty( $step_data['payment_methods'] ) && is_array( $step_data['payment_methods'] ) ) ? $step_data['payment_methods'] : array(),
-				'source'       => ! empty( $source ) ? $source : self::FROM_NOX_IN_CONTEXT_ONBOARDING,
-				'from'         => self::FROM_NOX_IN_CONTEXT_ONBOARDING,
+				'source'       => ! empty( $source ) ? $source : self::FROM_NOX_IN_CONTEXT,
+				'from'         => self::FROM_NOX_IN_CONTEXT,
 			)
 		);
 
@@ -653,13 +711,13 @@ class WooPaymentsService {
 		$account_session = Utils::rest_endpoint_get_request(
 			'/wc/v3/payments/onboarding/kyc/session',
 			array(
-				'progressive'     => $progressive,
+				'progressive'     => $progressive ? 'true' : 'false',
 				'self_assessment' => $self_assessment,
 			)
 		);
 
 		if ( is_wp_error( $account_session ) ) {
-			throw new Exception( esc_html( $account_session->get_error_message() ), esc_attr( $account_session->get_error_code() ) );
+			throw new Exception( esc_html( $account_session->get_error_message() ), intval( esc_attr( $account_session->get_error_code() ) ) );
 		}
 
 		if ( ! is_array( $account_session ) ) {
@@ -689,7 +747,7 @@ class WooPaymentsService {
 			'/wc/v3/payments/onboarding/kyc/finalize',
 			array(
 				'source' => ! empty( $source ) ? $source : self::FROM_PAYMENT_SETTINGS,
-				'from'   => self::FROM_NOX_IN_CONTEXT_ONBOARDING,
+				'from'   => self::FROM_NOX_IN_CONTEXT,
 			)
 		);
 
@@ -909,19 +967,49 @@ class WooPaymentsService {
 	/**
 	 * Get the WPCOM (Jetpack) connection authorization details.
 	 *
-	 * @param string $redirect_url The URL to redirect to after the connection is set up.
-	 * @param string $from         The source of the connection setup.
+	 * @param string $return_url The URL to redirect to after the connection is set up.
 	 *
 	 * @return array The WPCOM connection authorization details.
 	 */
-	private function get_wpcom_connection_authorization( string $redirect_url, string $from ): array {
+	private function get_wpcom_connection_authorization( string $return_url ): array {
 		$plugin_onboarding = new OnboardingPlugins();
 
 		$request = new WP_REST_Request();
-		$request->set_param( 'redirect_url', $redirect_url );
-		$request->set_param( 'from', $from );
+		$request->set_param( 'redirect_url', $return_url );
+		$result = $plugin_onboarding->get_jetpack_authorization_url( $request );
 
-		return $plugin_onboarding->get_jetpack_authorization_url( $request );
+		if ( ! empty( $result['url'] ) ) {
+			$result['url'] = add_query_arg(
+				array(
+					// We use the new WooDNA value.
+					'from'         => 'woocommerce-onboarding',
+					// We inform Calypso that this is a WooPayments onboarding flow.
+					'plugin_name'  => 'woocommerce-payments',
+					// Use the current user's WP admin color scheme.
+					'color_scheme' => $result['color_scheme'],
+				),
+				$result['url']
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get the store's WPCOM (Jetpack) connection state.
+	 *
+	 * @return array The WPCOM connection state.
+	 */
+	private function get_wpcom_connection_state(): array {
+		$is_connected        = $this->wpcom_connection_manager->is_connected();
+		$has_connected_owner = $this->wpcom_connection_manager->has_connected_owner();
+
+		return array(
+			'has_working_connection' => $is_connected && $has_connected_owner,
+			'is_store_connected'     => $is_connected,
+			'has_connected_owner'    => $has_connected_owner,
+			'is_connection_owner'    => $has_connected_owner && $this->wpcom_connection_manager->is_connection_owner(),
+		);
 	}
 
 	/**
@@ -990,7 +1078,7 @@ class WooPaymentsService {
 		$response = Utils::rest_endpoint_get_request( '/wc/v3/payments/onboarding/fields' );
 
 		if ( is_wp_error( $response ) ) {
-			throw new Exception( esc_html( $response->get_error_message() ), esc_attr( $response->get_error_code() ) );
+			throw new Exception( esc_html( $response->get_error_message() ) );
 		}
 
 		if ( ! is_array( $response ) || ! isset( $response['data'] ) ) {
@@ -1014,11 +1102,36 @@ class WooPaymentsService {
 	 */
 	private function get_onboarding_kyc_fallback_url(): string {
 		if ( class_exists( '\WC_Payments_Account' ) && is_callable( '\WC_Payments_Account::get_connect_url' ) ) {
-			$connect_url = \WC_Payments_Account::get_connect_url( self::FROM_NOX_IN_CONTEXT_ONBOARDING );
-		} else {
-			$connect_url = $this->provider->get_onboarding_url( $this->get_payment_gateway(), Utils::wc_payments_settings_url( self::ONBOARDING_PATH_BASE ) );
+			return \WC_Payments_Account::get_connect_url( self::FROM_NOX_IN_CONTEXT );
 		}
 
-		return $connect_url;
+		// Fall back to the provider onboarding URL.
+		return $this->provider->get_onboarding_url( $this->get_payment_gateway(), Utils::wc_payments_settings_url( self::ONBOARDING_PATH_BASE ) );
+	}
+
+	/**
+	 * Get the WooPayments Overview page URL.
+	 *
+	 * @return string The WooPayments Overview page URL.
+	 */
+	private function get_overview_page_url(): string {
+		if ( class_exists( '\WC_Payments_Account' ) && is_callable( '\WC_Payments_Account::get_overview_page_url' ) ) {
+			return add_query_arg(
+				array(
+					'from' => self::FROM_NOX_IN_CONTEXT,
+				),
+				\WC_Payments_Account::get_overview_page_url()
+			);
+		}
+
+		// Fall back to the known WooPayments Overview page URL.
+		return add_query_arg(
+			array(
+				'page' => 'wc-admin',
+				'path' => '/payments/overview',
+				'from' => self::FROM_NOX_IN_CONTEXT,
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 }

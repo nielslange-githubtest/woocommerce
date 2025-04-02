@@ -5,6 +5,14 @@ import { type ReactNode } from 'react';
 import { type RecommendedPaymentMethod } from '@woocommerce/data';
 
 /**
+ * Internal dependencies
+ */
+import {
+	Country,
+	MccsDisplayTreeItem,
+} from './providers/woopayments/steps/business-verification/types'; // To-do: Maybe move to @woocommerce/data
+
+/**
  * Props for the Onboarding Modal component.
  */
 export interface OnboardingModalProps {
@@ -21,14 +29,13 @@ export interface SidebarItemProps {
 	isActive?: boolean;
 }
 
-// To-do: Move WooPayments related types to a separate file.
-
 /**
  * Props for the WooPayments onboarding modal.
  */
 export interface WooPaymentsModalProps {
 	isOpen: boolean;
 	setIsOpen: ( isOpen: boolean ) => void;
+	hasWPComConnection: boolean;
 }
 
 /**
@@ -64,10 +71,39 @@ export interface WooPaymentsProviderOnboardingStep {
 			type?: string;
 			href?: string;
 		};
+		kyc_fallback?: {
+			type?: string;
+			href?: string;
+		};
+		kyc_session?: {
+			type?: string;
+			href?: string;
+		};
+		kyc_session_finish?: {
+			type?: string;
+			href?: string;
+		};
+		auth?: {
+			type?: string;
+			href?: string;
+		};
 	};
 	content?: ReactNode;
 	context?: {
 		payment_methods: RecommendedPaymentMethod[];
+		fields: {
+			business_types: Country[];
+			industry_to_mcc: Record< string, string >;
+			mccs_display_tree: MccsDisplayTreeItem;
+			available_countries: Record< string, string >;
+		};
+		self_assessment: Record< string, string >;
+		sub_steps: Record<
+			string,
+			{
+				status: 'completed' | 'not_started' | 'started';
+			}
+		>;
 	};
 	errors?: string[];
 }
@@ -77,6 +113,11 @@ export interface WooPaymentsProviderOnboardingStep {
  */
 export interface OnboardingContextType {
 	steps: WooPaymentsProviderOnboardingStep[];
+	context: {
+		urls?: {
+			overview_page?: string;
+		};
+	};
 	isLoading: boolean;
 	currentStep: WooPaymentsProviderOnboardingStep | undefined;
 	navigateToStep: ( stepKey: string ) => void;
@@ -85,4 +126,5 @@ export interface OnboardingContextType {
 		stepKey: string
 	) => WooPaymentsProviderOnboardingStep | undefined;
 	refreshOnboardingSteps: () => void;
+	closeModal: () => void;
 }
