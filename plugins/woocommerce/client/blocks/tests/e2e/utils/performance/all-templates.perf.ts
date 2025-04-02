@@ -155,7 +155,7 @@ test.describe( 'All templates performance', () => {
 		await requestUtils.activateTheme( BLOCK_THEME_SLUG );
 	} );
 
-	test( 'Loading', async ( { page } ) => {
+	test( 'Loading', async ( { page }, testInfo ) => {
 		const results: {
 			title: string | null | undefined;
 			serverResponse: number;
@@ -164,7 +164,7 @@ test.describe( 'All templates performance', () => {
 			loaded: number;
 			requestCount: number;
 		}[] = [];
-		const samples = 2;
+		const samples = 10;
 		const throwaway = 1;
 		const iterations = samples + throwaway;
 
@@ -254,8 +254,6 @@ test.describe( 'All templates performance', () => {
 			return acc;
 		}, {} );
 
-		console.log( valuesByKeys, 'valuesByKeys' );
-
 		const median = {};
 		for ( const title in valuesByKeys ) {
 			const values = valuesByKeys[ title ];
@@ -268,10 +266,10 @@ test.describe( 'All templates performance', () => {
 			}
 		}
 
-		fs.writeFileSync(
-			`./all-templates.json`,
-			JSON.stringify( median, null, 2 )
-		);
+		await testInfo.attach( 'all-templates.json', {
+			body: JSON.stringify( median, null, 2 ),
+			contentType: 'application/json',
+		} );
 
 		expect( true ).toBe( true );
 	} );
