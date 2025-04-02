@@ -46,8 +46,6 @@ if [ -n "$changedFiles" ]; then
     iteration=1
     iterations=$( echo $lintingJobs | jq length )
     while read job; do
-	#readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
-	#for job in "${jobs[@]}"; do
 		command=$(echo $job | jq --raw-output '( "pnpm --filter=" + .projectName + " " + .command )')
 		echo -n "-> Executing '$command' ($iteration of $iterations) "
 		result=$($command 2>&1)
