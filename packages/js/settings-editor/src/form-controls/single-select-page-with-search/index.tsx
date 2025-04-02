@@ -126,7 +126,9 @@ export const SingleSelectPageWithSearch = ( {
 						<Icon icon={ search } size={ 20 } />
 						<Menu isOpen={ isOpen } getMenuProps={ getMenuProps }>
 							{ isFetching ? (
-								<Spinner />
+								<div className="woocommerce-single-select-page-with-search__menu-loading">
+									<Spinner />
+								</div>
 							) : (
 								items.map( ( item, index: number ) => (
 									<MenuItem
