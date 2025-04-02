@@ -11,13 +11,11 @@ import sharedConfig from '../shared/config';
 import edit from './edit';
 import { BLOCK_ICON as icon } from './constants';
 import metadata from './block.json';
-import { supports } from './support';
 
 const blockConfig: BlockConfiguration = {
-	...metadata,
 	...sharedConfig,
+	...metadata,
 	icon: { src: icon },
-	supports,
 	edit,
 };
 
