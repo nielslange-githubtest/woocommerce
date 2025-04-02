@@ -10,15 +10,12 @@ import type { BlockConfiguration } from '@wordpress/blocks';
 import sharedConfig from '../shared/config';
 import edit from './edit';
 import metadata from './block.json';
-import { supports } from './supports';
-
 import { BLOCK_ICON as icon } from './constants';
 
 const blockConfig: BlockConfiguration = {
-	...metadata,
 	...sharedConfig,
+	...metadata,
 	icon: { src: icon },
-	supports,
 	edit,
 	save: () => null,
 };
