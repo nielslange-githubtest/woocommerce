@@ -8,12 +8,11 @@ namespace Automattic\WooCommerce;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Autoloader clazz.
+ * Autoloader class.
  *
  * @since 3.7.0
  */
-class Autoloader
-{
+class Autoloader {
 
 	/**
 	 * Static-only class.
