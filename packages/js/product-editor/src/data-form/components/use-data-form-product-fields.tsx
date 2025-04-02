@@ -1,15 +1,17 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@wordpress/element';
+import type { ComponentType } from 'react';
+import { useMemo, createElement } from '@wordpress/element';
 import { Template, TemplateArray } from '@wordpress/blocks';
-import { Field } from '@wordpress/dataviews';
+import { Field, DataFormControlProps } from '@wordpress/dataviews';
 import { Product } from '@woocommerce/data';
 
 /**
  * Internal dependencies
  */
 import { getProductField } from './fields';
+import { ProductDataFormControlProps } from './fields/types';
 
 /**
  * Get the property key for a field definition
@@ -32,6 +34,17 @@ function getFieldKey( field: Template ): string {
 	return field[ 0 ];
 }
 
+function addAttributesToEdit(
+	Edit: string | ComponentType< ProductDataFormControlProps >,
+	attributes: Record< string, unknown >
+): string | ComponentType< DataFormControlProps< Product > > {
+	if ( typeof Edit === 'string' ) {
+		return Edit;
+	}
+	return function EditWithAttributes( props ) {
+		return <Edit { ...props } attributes={ attributes } />;
+	};
+}
 /**
  * Hook that transforms field definitions into DataForm compatible field objects.
  * Each field definition is an array where:
@@ -46,10 +59,14 @@ export function useDataFormProductFields(
 ): Field< Product >[] {
 	return useMemo( () => {
 		return fields.map( ( [ fieldName, params ] ) => {
-			const getFieldDefinition = getProductField( fieldName );
+			const fieldDefinition = getProductField( fieldName );
 			// Convert the field definition to a DataForm field format
 			const field: Field< Product > = {
-				...getFieldDefinition,
+				...fieldDefinition,
+				Edit:
+					fieldDefinition?.Edit && params
+						? addAttributesToEdit( fieldDefinition.Edit, params )
+						: fieldDefinition?.Edit,
 				id: getFieldKey( [ fieldName, params ] ),
 			};
 
