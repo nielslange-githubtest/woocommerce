@@ -6,23 +6,23 @@ import { Spinner, Button } from '@wordpress/components';
 import { close } from '@wordpress/icons';
 
 type SuffixProps = {
-	isLoading: boolean;
-	isFetching: boolean;
 	value: string;
+	isLoading: boolean;
+	isFocused: boolean;
 	onRemove: () => void;
 };
 
 export const Suffix = ( {
 	isLoading,
-	isFetching,
+	isFocused,
 	value,
 	onRemove,
 }: SuffixProps ) => {
-	if ( isLoading || isFetching ) {
+	if ( isLoading ) {
 		return <Spinner />;
 	}
 
-	if ( value ) {
+	if ( ! isFocused && value ) {
 		return (
 			<Button
 				icon={ close }

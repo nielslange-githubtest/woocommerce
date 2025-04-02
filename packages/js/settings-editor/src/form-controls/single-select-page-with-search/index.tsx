@@ -55,7 +55,7 @@ export const SingleSelectPageWithSearch = ( {
 	const { id } = field;
 
 	const { selectedItem, isLoading } = useSelectedItem( value );
-	const [ isSearching, setIsSearching ] = useState( false );
+	const [ isFocused, setIsFocused ] = useState( false );
 
 	const { searchedItems, isFetching, onInputChange, getFilteredItems } =
 		usePageSearch( selectedItem, exclude );
@@ -63,7 +63,7 @@ export const SingleSelectPageWithSearch = ( {
 	const handleSelect = useCallback(
 		( item: PageItem | null ) => {
 			onChange( { [ id ]: item?.value || '' } );
-			setIsSearching( false );
+			setIsFocused( false );
 		},
 		[ onChange, id ]
 	);
@@ -99,16 +99,16 @@ export const SingleSelectPageWithSearch = ( {
 					id: undefined,
 				} }
 				items={ searchedItems }
-				selected={ isSearching ? null : selectedItem }
+				selected={ isFocused ? null : selectedItem }
 				onSelect={ handleSelect }
-				onFocus={ () => setIsSearching( true ) }
-				onBlur={ () => setIsSearching( false ) }
+				onFocus={ () => setIsFocused( true ) }
+				onBlur={ () => setIsFocused( false ) }
 				onRemove={ () => handleSelect( null ) }
 				suffix={
 					<Suffix
-						isLoading={ isLoading }
-						isFetching={ isFetching }
 						value={ value }
+						isLoading={ isLoading || isFetching }
+						isFocused={ isFocused }
 						onRemove={ () => handleSelect( null ) }
 					/>
 				}
