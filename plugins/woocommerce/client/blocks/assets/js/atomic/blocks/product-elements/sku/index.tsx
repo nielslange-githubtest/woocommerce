@@ -11,10 +11,10 @@ import { barcode } from '@woocommerce/icons';
 import metadata from './block.json';
 import sharedConfig from '../shared/config';
 import edit from './edit';
-import { supports } from './supports';
 
 registerBlockType( metadata, {
 	...sharedConfig,
+	supports: metadata.supports,
 	icon: (
 		<Icon
 			icon={ barcode }
@@ -25,5 +25,4 @@ registerBlockType( metadata, {
 	save() {
 		return null;
 	},
-	supports,
 } );
