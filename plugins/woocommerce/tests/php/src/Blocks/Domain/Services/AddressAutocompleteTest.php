@@ -331,22 +331,8 @@ class AddressAutocompleteTest extends MockeryTestCase {
 	 * Test that settings are added in the correct position.
 	 */
 	public function test_add_address_autocomplete_settings_position() {
-		$initial_settings = [
-			[
-				'id'   => 'some_setting_before',
-				'type' => 'text',
-			],
-			[
-				'id'   => 'woocommerce_default_customer_address',
-				'type' => 'select',
-			],
-			[
-				'id'   => 'some_setting_after',
-				'type' => 'text',
-			],
-		];
-
-		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+		$settings_class = new \WC_Settings_General();
+		$settings       = $settings_class->get_settings_for_section( '' );
 
 		// Find the position of the default customer address setting and the autocomplete setting.
 		$default_address_pos = -1;
