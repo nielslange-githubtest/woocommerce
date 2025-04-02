@@ -307,7 +307,7 @@ export interface WCDataSelector {
 	< T extends WCDataStoreName >( storeName: T ): WCSelectorType< T >;
 }
 
-// Other exports
+// Other exports ...
 export { ActionDispatchers as PluginsStoreActions } from './plugins/actions';
 export { ActionDispatchers as ProductTagsActions } from './product-tags/types';
 export { ActionDispatchers as ProductCategoryActions } from './product-categories/types';
@@ -318,4 +318,3 @@ export { ActionDispatchers as ProductsStoreActions } from './products/actions';
 export { ActionDispatchers as ProductShippingClassesActions } from './product-shipping-classes/types';
 export { ActionDispatchers as ShippingZonesActions } from './shipping-zones/types';
 export { ActionDispatchers as TaxClassActions } from './tax-classes/types';
-
