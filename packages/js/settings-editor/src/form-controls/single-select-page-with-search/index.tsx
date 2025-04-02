@@ -24,7 +24,7 @@ import type { DataFormItem } from '../../types';
 import type { PageItem } from './types';
 import { sanitizeHTML } from '../../utils';
 import { Suffix } from './suffix';
-import { usePageSearch, useSelectedItem } from './hooks';
+import { useItemSearch, useSelectedItem } from './hooks';
 
 type SingleSelectPageWithSearchEditProps =
 	DataFormControlProps< DataFormItem > & {
@@ -58,7 +58,7 @@ export const SingleSelectPageWithSearch = ( {
 	const [ isFocused, setIsFocused ] = useState( false );
 
 	const { searchedItems, isFetching, onInputChange, getFilteredItems } =
-		usePageSearch( selectedItem, exclude );
+		useItemSearch( selectedItem, exclude );
 
 	const handleSelect = useCallback(
 		( item: PageItem | null ) => {

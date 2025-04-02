@@ -21,13 +21,13 @@ type UsePageSearchReturn = {
 >;
 
 /**
- * The usePageSearch hook is used to search for pages.
+ * The useItemSearch hook is used to search for page items.
  *
- * @param selectedItem - The selected page item.
- * @param exclude      - The pages to exclude from the search results.
- * @return The searched pages and a boolean indicating if the pages are loading.
+ * @param selectedItem - The selected item.
+ * @param exclude      - The items to exclude from the search results.
+ * @return The searched items and a boolean indicating if the items are loading.
  */
-export const usePageSearch = (
+export const useItemSearch = (
 	selectedItem: PageItem | null,
 	exclude?: string[]
 ): UsePageSearchReturn => {
