@@ -15,19 +15,5 @@
 		"html": false,
 		"inserter": false
 	},
-	"textdomain": "woocommerce",
-	"attributes": {
-		"columns": {
-			"type": "number",
-			"default": 3
-		},
-		"rows": {
-			"type": "number",
-			"default": 3
-		},
-		"alignButtons": {
-			"type": "boolean",
-			"default": false
-		}
-	}
+	"textdomain": "woocommerce"
 }
