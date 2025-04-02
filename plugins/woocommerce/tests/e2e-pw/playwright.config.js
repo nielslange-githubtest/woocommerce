@@ -109,7 +109,8 @@ export default defineConfig( {
 		...setupProjects,
 		{
 			name: 'e2e',
-			testIgnore: '**/api-tests/**',
+			// testIgnore: '**/api-tests/**',
+			testMatch: '**/order/**',
 			dependencies: [ 'site setup' ],
 		},
 		{
