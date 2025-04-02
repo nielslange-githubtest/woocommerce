@@ -61,10 +61,9 @@ class AddressAutocomplete {
 
 					$new_settings[] = [
 						'id'       => 'woocommerce_address_autocomplete_provider',
-						'name'     => __( 'Address autocomplete provider', 'woocommerce' ),
+						'name'     => __( 'Preferred address autocomplete provider', 'woocommerce' ),
 						'type'     => 'select',
 						'class'    => 'wc-enhanced-select',
-						'desc_tip' => __( 'Select your preferred address autocomplete provider.', 'woocommerce' ),
 						'default'  => array_key_first( $this->providers ) ?? '',
 						'options'  => $provider_options,
 					];
