@@ -30,13 +30,10 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-echo 'Variables list'
-printenv
-baseBranch="origin/trunk"
-
-changedFiles=$(git diff $(git merge-base HEAD $baseBranch) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
+changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [[ ! -z $changedFiles ]]; then
 	echo 'Detected changes'
+	echo $changedFiles
     #pnpm utils ci-jobs --base-ref $baseBranch --event ${ githubEvent }
     #printenv
 fi
