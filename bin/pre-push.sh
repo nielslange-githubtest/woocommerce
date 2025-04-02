@@ -39,7 +39,7 @@ if [ ! -z $changedFiles ]; then
 	echo 'pre-push: lint changes'
     ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' 2>&1)
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
-    echo $lintingJobs
+    echo $lintingJobs | jq '( .[].projectName + ":" + .[].command )'
 fi
 
 echo 'Aborting push (local development purposes)'
