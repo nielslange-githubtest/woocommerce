@@ -55,6 +55,8 @@ class WC_Settings_General extends WC_Settings_Page {
 		$autocomplete_desc_tip                   = __( 'Suggest full addresses for customer as they type.', 'woocommerce' );
 
 		if ( Features::is_enabled( 'experimental-blocks' ) ) {
+			// This is in a try because getting the class from the container may fail if the class is not available.
+			// If it fails, these settings should not be shown as the feature is not available.
 			try {
 				$autocomplete_class     = Package::container()->get( AddressAutocomplete::class );
 				$autocomplete_providers = $autocomplete_class->get_registered_providers();
@@ -95,7 +97,7 @@ class WC_Settings_General extends WC_Settings_Page {
 					);
 				}
 			} catch ( \Exception $e ) {
-				// If the class is not available, we don't show the setting.
+				// If the class is not available, we don't want to show the setting.
 				$enable_autocomplete_setting             = array();
 				$autocomplete_preferred_provider_setting = array();
 			}
