@@ -25,4 +25,8 @@ export const supports = {
 		},
 	} ),
 	__experimentalSelector: '.wc-block-components-product-image',
+	dimensions: {
+		aspectRatio: true,
+		__experimentalSkipSerialization: true,
+	},
 };
