@@ -12,10 +12,9 @@ import './editor.scss';
 import sharedAttributes, {
 	sharedAttributeBlockTypes,
 } from '../../utils/shared-attributes';
+import metadata from './block.json';
 
-registerBlockType( 'woocommerce/product-on-sale', {
-	title: __( 'On Sale Products', 'woocommerce' ),
-	apiVersion: 3,
+registerBlockType( metadata, {
 	icon: {
 		src: (
 			<Icon
@@ -23,20 +22,6 @@ registerBlockType( 'woocommerce/product-on-sale', {
 				className="wc-block-editor-components-block-icon"
 			/>
 		),
-	},
-	category: 'woocommerce',
-	keywords: [ __( 'WooCommerce', 'woocommerce' ) ],
-	description: __(
-		'Display a grid of products currently on sale.',
-		'woocommerce'
-	),
-	supports: {
-		interactivity: {
-			clientNavigation: false,
-		},
-		align: [ 'wide', 'full' ],
-		html: false,
-		inserter: false,
 	},
 	attributes: {
 		...sharedAttributes,
