@@ -366,4 +366,51 @@ class AddressAutocompleteTest extends MockeryTestCase {
 		$this->assertGreaterThan( $default_address_pos, $autocomplete_pos );
 		$this->assertEquals( $default_address_pos + 1, $autocomplete_pos );
 	}
+
+	/**
+	 * Test getting preferred provider when set in options.
+	 */
+	public function test_get_preferred_provider_from_options() {
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-1', 'Provider One' );
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-2', 'Provider Two' );
+
+		update_option( 'woocommerce_address_autocomplete_provider', 'provider-2' );
+
+		$preferred_provider = $this->sut->get_preferred_provider();
+		$this->assertEquals( 'provider-2', $preferred_provider );
+	}
+
+	/**
+	 * Test getting preferred provider when option is not set.
+	 */
+	public function test_get_preferred_provider_fallback() {
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-1', 'Provider One' );
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-2', 'Provider Two' );
+
+		delete_option( 'woocommerce_address_autocomplete_provider' );
+
+		$preferred_provider = $this->sut->get_preferred_provider();
+		$this->assertEquals( 'provider-1', $preferred_provider );
+	}
+
+	/**
+	 * Test getting preferred provider when selected provider is no longer available.
+	 */
+	public function test_get_preferred_provider_unavailable() {
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-1', 'Provider One' );
+		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-2', 'Provider Two' );
+
+		update_option( 'woocommerce_address_autocomplete_provider', 'provider-3' );
+
+		$preferred_provider = $this->sut->get_preferred_provider();
+		$this->assertEquals( 'provider-1', $preferred_provider );
+	}
+
+	/**
+	 * Test getting preferred provider with no providers registered.
+	 */
+	public function test_get_preferred_provider_no_providers() {
+		$preferred_provider = $this->sut->get_preferred_provider();
+		$this->assertEmpty( $preferred_provider );
+	}
 }
