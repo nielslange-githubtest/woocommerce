@@ -813,6 +813,7 @@ class ListTable extends WP_List_Table {
 
 		$orders_table   = esc_sql( OrdersTableDataStore::get_orders_table_name() );
 		$min_max_months = $wpdb->get_row(
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is escaped above.
 			$wpdb->prepare(
 				"
 					SELECT MIN( t.date_created_gmt ) as min_date_gmt,
@@ -824,6 +825,7 @@ class ListTable extends WP_List_Table {
 				$this->order_type,
 				OrderStatus::TRASH
 			)
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		);
 
 		/**
@@ -845,7 +847,7 @@ class ListTable extends WP_List_Table {
 				new \DateTimeZone( 'UTC' )
 			);
 			$start->setTimezone( wp_timezone() );
-			$start->setDate( $start->format( 'Y'), $start->format( 'm' ), 1 );
+			$start->setDate( $start->format( 'Y' ), $start->format( 'm' ), 1 );
 			$start->setTime( 0, 0 );
 
 			$end = new \WC_DateTime(
@@ -853,7 +855,7 @@ class ListTable extends WP_List_Table {
 				new \DateTimeZone( 'UTC' )
 			);
 			$end->setTimezone( wp_timezone() );
-			$end->setDate( $end->format( 'Y'), $end->format( 'm' ), 1 );
+			$end->setDate( $end->format( 'Y' ), $end->format( 'm' ), 1 );
 			$end->setTime( 0, 0 );
 
 			if ( $start > $this_month ) {
