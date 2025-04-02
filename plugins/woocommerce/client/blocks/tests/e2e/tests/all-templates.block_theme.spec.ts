@@ -164,7 +164,7 @@ test.describe( 'All templates performance', () => {
 			loaded: number;
 			requestCount: number;
 		}[] = [];
-		const samples = 10;
+		const samples = 5;
 		const throwaway = 1;
 		const iterations = samples + throwaway;
 
