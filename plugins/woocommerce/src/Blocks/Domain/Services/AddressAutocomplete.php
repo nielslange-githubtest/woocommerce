@@ -62,7 +62,7 @@ class AddressAutocomplete {
 						'type'     => 'select',
 						'class'    => 'wc-enhanced-select',
 						'desc_tip' => __( 'Select your preferred address autocomplete provider.', 'woocommerce' ),
-						'default'  => array_key_first( $this->providers ),
+						'default'  => array_key_first( $this->providers ) ?? '',
 						'options'  => $provider_options,
 					];
 				}
