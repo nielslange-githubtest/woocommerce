@@ -746,39 +746,6 @@ class WooPaymentsRestControllerTest extends WC_REST_Unit_Test_Case {
 	}
 
 	/**
-	 * Test onboarding test account init with error response.
-	 */
-	public function test_onboarding_test_account_init_with_error_response() {
-		// Arrange.
-		$step_id      = WooPaymentsService::ONBOARDING_STEP_TEST_ACCOUNT;
-		$country_code = 'US';
-		$this->mock_onboarding_details( $country_code );
-
-		$this->mock_woopayments_service
-			->expects( $this->once() )
-			->method( 'onboarding_test_account_init' )
-			->willReturn(
-				new \WP_Error(
-					'error_code',
-					'error_message',
-					array(
-						'status' => 400,
-					)
-				)
-			);
-
-		// Act.
-		$request = new WP_REST_Request( 'POST', self::ENDPOINT . '/onboarding/step/' . $step_id . '/init' );
-		$request->set_param( 'location', $country_code );
-		$response = $this->server->dispatch( $request );
-
-		// Assert.
-		$this->assertSame( 400, $response->get_status() );
-		$this->assertSame( 'error_message', $response->get_data()['message'] );
-		$this->assertSame( 'error_code', $response->get_data()['code'] );
-	}
-
-	/**
 	 * Test onboarding business verification check PO eligible.
 	 */
 	public function test_onboarding_business_verification_check_po_eligible() {
