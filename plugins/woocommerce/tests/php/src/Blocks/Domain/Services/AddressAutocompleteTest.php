@@ -226,32 +226,32 @@ class AddressAutocompleteTest extends MockeryTestCase {
 	 * Test settings when no providers are registered.
 	 */
 	public function test_add_address_autocomplete_settings_no_providers() {
-		$initial_settings = [
-			[
-				'id'   => 'woocommerce_default_customer_address',
-				'type' => 'select',
-			],
-		];
+		// Do it this way to simulate the actual settings page with the filter.
+		$settings_class = new \WC_Settings_General();
+		$settings       = $settings_class->get_settings_for_section( '' );
 
-		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
-
-		// Verify the original setting is preserved.
-		$this->assertArrayHasKey( 0, $settings );
-		$this->assertEquals( 'woocommerce_default_customer_address', $settings[0]['id'] );
-
-		// Find the autocomplete setting.
-		$autocomplete_setting = null;
+		// Find the autocomplete settings.
+		$autocomplete_enabled_setting  = null;
+		$autocomplete_provider_setting = null;
 		foreach ( $settings as $setting ) {
 			if ( isset( $setting['id'] ) && 'woocommerce_address_autocomplete_enabled' === $setting['id'] ) {
-				$autocomplete_setting = $setting;
+				$autocomplete_enabled_setting = $setting;
+				break;
+			}
+			if ( isset( $setting['id'] ) && 'woocommerce_address_autocomplete_provider' === $setting['id'] ) {
+				$autocomplete_provider_setting = $setting;
 				break;
 			}
 		}
 
-		$this->assertNotNull( $autocomplete_setting );
-		$this->assertEquals( 'checkbox', $autocomplete_setting['type'] );
-		$this->assertTrue( $autocomplete_setting['disabled'] );
-		$this->assertStringContainsString( 'WooPayments', $autocomplete_setting['desc_tip'] );
+		// Preferred provider should not be in the settings if no providers are registered.
+		$this->assertNull( $autocomplete_provider_setting );
+
+
+		$this->assertNotNull( $autocomplete_enabled_setting );
+		$this->assertEquals( 'checkbox', $autocomplete_enabled_setting['type'] );
+		$this->assertTrue( $autocomplete_enabled_setting['disabled'] );
+		$this->assertStringContainsString( 'WooPayments', $autocomplete_enabled_setting['desc_tip'] );
 	}
 
 	/**
@@ -260,28 +260,31 @@ class AddressAutocompleteTest extends MockeryTestCase {
 	public function test_add_address_autocomplete_settings_single_provider() {
 		__experimental_woocommerce_register_address_autocomplete_provider( 'test-provider', 'Test Provider' );
 
-		$initial_settings = [
-			[
-				'id'   => 'woocommerce_default_customer_address',
-				'type' => 'select',
-			],
-		];
-
-		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+		// Do it this way to simulate the actual settings page with the filter.
+		$settings_class = new \WC_Settings_General();
+		$settings       = $settings_class->get_settings_for_section( '' );
 
 		// Find the autocomplete setting.
-		$autocomplete_setting = null;
+		$autocomplete_enabled_setting  = null;
+		$autocomplete_provider_setting = null;
 		foreach ( $settings as $setting ) {
 			if ( isset( $setting['id'] ) && 'woocommerce_address_autocomplete_enabled' === $setting['id'] ) {
-				$autocomplete_setting = $setting;
+				$autocomplete_enabled_setting = $setting;
+				break;
+			}
+			if ( isset( $setting['id'] ) && 'woocommerce_address_autocomplete_provider' === $setting['id'] ) {
+				$autocomplete_provider_setting = $setting;
 				break;
 			}
 		}
 
-		$this->assertNotNull( $autocomplete_setting );
-		$this->assertEquals( 'checkbox', $autocomplete_setting['type'] );
-		$this->assertFalse( $autocomplete_setting['disabled'] );
-		$this->assertStringNotContainsString( 'WooPayments', $autocomplete_setting['desc_tip'] );
+		// Preferred provider should not be in the settings if only one provider is registered.
+		$this->assertNull( $autocomplete_provider_setting );
+
+		$this->assertNotNull( $autocomplete_enabled_setting );
+		$this->assertEquals( 'checkbox', $autocomplete_enabled_setting['type'] );
+		$this->assertFalse( $autocomplete_enabled_setting['disabled'] );
+		$this->assertStringNotContainsString( 'WooPayments', $autocomplete_enabled_setting['desc_tip'] );
 
 		// Verify provider select is not added when only one provider exists.
 		$provider_setting = null;
@@ -302,14 +305,9 @@ class AddressAutocompleteTest extends MockeryTestCase {
 		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-1', 'Provider One' );
 		__experimental_woocommerce_register_address_autocomplete_provider( 'provider-2', 'Provider Two' );
 
-		$initial_settings = [
-			[
-				'id'   => 'woocommerce_default_customer_address',
-				'type' => 'select',
-			],
-		];
-
-		$settings = $this->sut->add_address_autocomplete_settings( $initial_settings );
+		// Do it this way to simulate the actual settings page with the filter.
+		$settings_class = new \WC_Settings_General();
+		$settings       = $settings_class->get_settings_for_section( '' );
 
 		// Find the provider select setting.
 		$provider_setting = null;
