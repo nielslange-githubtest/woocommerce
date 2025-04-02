@@ -27,7 +27,7 @@ changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-on
 if [ -n "$changedFiles" ]; then
 	echo $changedFiles;
 
-	echo 'pre-push: validate syncpack mismatches '
+	echo -n 'pre-push: validate syncpack mismatches '
 	pnpm exec syncpack -- list-mismatches
 	if [ $? -ne 0 ]; then
 		echo "[ERR] (aborting)"
