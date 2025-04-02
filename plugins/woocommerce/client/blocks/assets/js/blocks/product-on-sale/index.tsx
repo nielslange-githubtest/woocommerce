@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { createBlock, registerBlockType } from '@wordpress/blocks';
 import { Icon, percent } from '@wordpress/icons';
 /**
@@ -25,14 +24,7 @@ registerBlockType( metadata, {
 	},
 	attributes: {
 		...sharedAttributes,
-
-		/**
-		 * How to order the products: 'date', 'popularity', 'price_asc', 'price_desc' 'rating', 'title'.
-		 */
-		orderby: {
-			type: 'string',
-			default: 'date',
-		},
+		...metadata.attributes,
 	},
 	transforms: {
 		from: [
