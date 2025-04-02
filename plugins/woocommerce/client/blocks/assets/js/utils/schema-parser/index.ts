@@ -9,13 +9,17 @@ const ajv = new Ajv( {
 	allErrors: true,
 	$data: true,
 	validateSchema: true,
-	validateFormats: false,
+	validateFormats: true,
 	strictSchema: false,
 	strict: false,
 	messages: true,
 } );
 
-addFormats( ajv );
+addFormats( ajv, {
+	mode: 'fast',
+	formats: [ 'date', 'time', 'email', 'uri' ],
+	keywords: true,
+} );
 addErrors( ajv );
 
 // Add type declaration for window.schemaParser
