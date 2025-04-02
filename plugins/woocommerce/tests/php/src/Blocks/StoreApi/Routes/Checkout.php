@@ -17,6 +17,7 @@ use Automattic\WooCommerce\StoreApi\SchemaController;
 use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Blocks\Domain\Services\CheckoutFields;
 use Automattic\WooCommerce\Enums\ProductStockStatus;
+use Automattic\WooCommerce\Blocks\Shipping\PickupLocation;
 
 use Automattic\WooCommerce\Tests\Blocks\StoreApi\MockSessionHandler;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -77,14 +78,13 @@ class Checkout extends MockeryTestCase {
 		register_rest_route( $route->get_namespace(), $route->get_path(), $route->get_args(), true );
 
 		$fixtures = new FixtureData();
+		$fixtures->payments_enable_bacs();
 
-		// Add a flat rate to the default zone.
 		$flat_rate    = WC()->shipping()->get_shipping_methods()['flat_rate'];
 		$default_zone = \WC_Shipping_Zones::get_zone( 0 );
 		$default_zone->add_shipping_method( $flat_rate->id );
 		$default_zone->save();
 
-		$fixtures->payments_enable_bacs();
 		$this->products = array(
 			$fixtures->get_simple_product(
 				array(
@@ -115,6 +115,8 @@ class Checkout extends MockeryTestCase {
 		wc_empty_cart();
 		wc()->cart->add_to_cart( $this->products[0]->get_id(), 2 );
 		wc()->cart->add_to_cart( $this->products[1]->get_id(), 1 );
+		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
+		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
 	}
 
 	/**
@@ -130,6 +132,11 @@ class Checkout extends MockeryTestCase {
 		}
 		$default_zone->save();
 		remove_all_filters( 'woocommerce_get_country_locale' );
+		remove_all_actions( 'woocommerce_checkout_validate_order_before_payment' );
+		update_option( 'woocommerce_ship_to_countries', 'all' );
+		update_option( 'woocommerce_allowed_countries', 'all' );
+		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
+		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
 
 		$coupon_to_delete = new \WC_Coupon( self::TEST_COUPON_CODE );
 		$coupon_to_delete->delete( true );
@@ -187,7 +194,6 @@ class Checkout extends MockeryTestCase {
 	public function test_virtual_product_post_data() {
 		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
 		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
-		WC()->cart->empty_cart();
 		WC()->cart->add_to_cart( $this->products[2]->get_id(), 1 );
 		$request->set_body_params(
 			array(
@@ -606,6 +612,13 @@ class Checkout extends MockeryTestCase {
 		);
 
 		unset( WC()->countries->locale );
+
+		// Create shipping rates.
+		$flat_rate             = WC()->shipping()->get_shipping_methods()['flat_rate'];
+		$default_zone          = \WC_Shipping_Zones::get_zone( 0 );
+		$flat_rate_instance_id = $default_zone->add_shipping_method( $flat_rate->id );
+		$default_zone->save();
+
 		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
 		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
 
@@ -915,9 +928,6 @@ class Checkout extends MockeryTestCase {
 		WC()->session = new MockSessionHandler();
 		WC()->session->init();
 
-		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
-		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
-
 		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
 		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
 		$request->set_body_params(
@@ -980,9 +990,6 @@ class Checkout extends MockeryTestCase {
 		$old_session  = WC()->session;
 		WC()->session = new MockSessionHandler();
 		WC()->session->init();
-
-		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
-		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
 
 		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
 		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
@@ -1155,6 +1162,11 @@ class Checkout extends MockeryTestCase {
 			$wpdb->update( "{$wpdb->prefix}woocommerce_shipping_zone_methods", array( 'is_enabled' => '0' ), array( 'instance_id' => absint( $shipping_method->instance_id ) ) );
 		}
 
+		// Create a simple product and add to cart.
+		$product = \WC_Helper_Product::create_simple_product();
+		$product->save();
+		WC()->cart->add_to_cart( $product->get_id(), 1 );
+
 		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
 		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
 		$request->set_body_params(
@@ -1191,7 +1203,6 @@ class Checkout extends MockeryTestCase {
 		$response = rest_get_server()->dispatch( $request );
 		$status   = $response->get_status();
 		$data     = $response->get_data();
-
 		$this->assertEquals( 400, $status, print_r( $data, true ) );
 		$this->assertEquals( 'woocommerce_rest_invalid_shipping_option', $data['code'], print_r( $data, true ) );
 		$this->assertEquals( 'Sorry, this order requires a shipping option.', $data['message'], print_r( $data, true ) );
@@ -1392,8 +1403,118 @@ class Checkout extends MockeryTestCase {
 		$this->expectExceptionMessage( 'This is a custom validation error' );
 
 		$method->invoke( $order_controller, $order );
+	}
 
-		// Clean up the test action.
-		remove_all_actions( 'woocommerce_checkout_validate_order_before_payment' );
+	/**
+	 * Test that local pickup orders bypass shipping country validation.
+	 */
+	public function test_local_pickup_country_validation() {
+		// Create shipping rates.
+		$local_pickup             = WC()->shipping()->get_shipping_methods()['local_pickup'];
+		$default_zone             = \WC_Shipping_Zones::get_zone( 0 );
+		$local_pickup_instance_id = $default_zone->add_shipping_method( $local_pickup->id );
+		$default_zone->save();
+
+		// Create a simple product and add to cart.
+		$product = \WC_Helper_Product::create_simple_product();
+		$product->save();
+		WC()->cart->add_to_cart( $product->get_id(), 1 );
+
+		// Set shipping to a country that's not enabled for shipping.
+		update_option( 'woocommerce_ship_to_countries', 'specific' );
+		update_option( 'woocommerce_specific_ship_to_countries', array( 'GB' ) );
+
+		// Set chosen shipping method to pickup location.
+		WC()->session->set( 'chosen_shipping_methods', array( 'local_pickup:' . $local_pickup_instance_id ) );
+		WC()->session->save_data();
+
+		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
+		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
+		$request->set_body_params(
+			array(
+				'billing_address'  => (object) array(
+					'first_name'                  => 'test',
+					'last_name'                   => 'test',
+					'address_1'                   => 'test',
+					'city'                        => 'test',
+					'state'                       => 'CA',
+					'postcode'                    => '12345',
+					'country'                     => 'US',
+					'email'                       => 'test@test.com',
+					'plugin-namespace/student-id' => '12345678',
+				),
+				'shipping_address' => (object) array(
+					'first_name'                  => 'test',
+					'last_name'                   => 'test',
+					'address_1'                   => 'test',
+					'city'                        => 'test',
+					'state'                       => 'CA',
+					'postcode'                    => '12345',
+					'country'                     => 'FR',
+					'plugin-namespace/student-id' => '12345678',
+				),
+				'payment_method'   => WC_Gateway_BACS::ID,
+			)
+		);
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status(), print_r( $response->get_data(), true ) );
+	}
+
+	/**
+	 * Test that local pickup orders still validate billing country.
+	 */
+	public function test_local_pickup_invalid_billing_country() {
+		// Create shipping rates.
+		$local_pickup             = WC()->shipping()->get_shipping_methods()['local_pickup'];
+		$default_zone             = \WC_Shipping_Zones::get_zone( 0 );
+		$local_pickup_instance_id = $default_zone->add_shipping_method( $local_pickup->id );
+		$default_zone->save();
+
+		// Create a simple product and add to cart.
+		$product = \WC_Helper_Product::create_simple_product();
+		$product->save();
+		WC()->cart->add_to_cart( $product->get_id(), 1 );
+
+		// Set allowed countries to just US.
+		update_option( 'woocommerce_allowed_countries', 'specific' );
+		update_option( 'woocommerce_specific_allowed_countries', array( 'US' ) );
+
+		// Set chosen shipping method.
+		WC()->session->set( 'chosen_shipping_methods', array( 'local_pickup:' . $local_pickup_instance_id ) );
+
+		$request = new \WP_REST_Request( 'POST', '/wc/store/v1/checkout' );
+		$request->set_header( 'Nonce', wp_create_nonce( 'wc_store_api' ) );
+		$request->set_body_params(
+			array(
+				'billing_address'  => (object) array(
+					'first_name'                  => 'test',
+					'last_name'                   => 'test',
+					'address_1'                   => 'test',
+					'city'                        => 'test',
+					'state'                       => 'CA',
+					'postcode'                    => '12345',
+					'country'                     => 'FR',
+					'email'                       => 'test@test.com',
+					'plugin-namespace/student-id' => '12345678',
+				),
+				'shipping_address' => (object) array(
+					'first_name'                  => 'test',
+					'last_name'                   => 'test',
+					'address_1'                   => 'test',
+					'city'                        => 'test',
+					'state'                       => 'CA',
+					'postcode'                    => '12345',
+					'country'                     => 'FR',
+					'plugin-namespace/student-id' => '12345678',
+				),
+				'payment_method'   => WC_Gateway_BACS::ID,
+			)
+		);
+
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'woocommerce_rest_invalid_address_country', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Sorry, we do not allow orders from the provided country (FR)', $response->get_data()['message'] );
 	}
 }

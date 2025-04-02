@@ -649,7 +649,7 @@ class OrderController {
 		// Validate that the chosen shipping methods are valid according to the returned package rates.
 		$packages = WC()->shipping()->get_packages();
 		foreach ( $packages as $package_id => $package ) {
-			$chosen_rate_for_package    = wc_get_chosen_shipping_method_for_package( $package_id, $package );
+			$chosen_rate_for_package    = $chosen_shipping_methods[ $package_id ];
 			$valid_rate_ids_for_package = wp_list_pluck( $package['rates'], 'id' );
 
 			if ( ! is_string( $chosen_rate_for_package ) || ! ArrayUtils::string_contains_array( $chosen_rate_for_package, $valid_rate_ids_for_package ) ) {

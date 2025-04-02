@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -334,7 +335,7 @@ class WC_Shipping {
 		if ( ! is_array( $stored_rates ) || $package_hash !== $stored_rates['package_hash'] || 'yes' === get_option( 'woocommerce_shipping_debug_mode', 'no' ) ) {
 			foreach ( $this->load_shipping_methods( $package ) as $shipping_method ) {
 				// If the package is not shippable and the shipping method does not support local pickup, skip it.
-				if ( ! $is_shippable && ! $shipping_method->supports( 'local-pickup' ) ) {
+				if ( ! $is_shippable && ! LocalPickupUtils::is_local_pickup_method( $shipping_method->id ) ) {
 					continue;
 				}
 
