@@ -56,7 +56,7 @@ class WC_Settings_General extends WC_Settings_Page {
 		$autocomplete_providers                  = array();
 		$autocomplete_desc_tip                   = __( 'Suggest full addresses for customer as they type.', 'woocommerce' );
 
-		if ( Constants::get_constant( 'EXPERIMENTAL_WC_ADDRESS_AUTOCOMPLETE' ) ) {
+		if ( Constants::get_constant( 'WC_EXPERIMENTAL_ADDRESS_AUTOCOMPLETE' ) ) {
 			try {
 				$autocomplete_class     = Package::container()->get( AddressAutocomplete::class );
 				$autocomplete_providers = $autocomplete_class->get_registered_providers();
