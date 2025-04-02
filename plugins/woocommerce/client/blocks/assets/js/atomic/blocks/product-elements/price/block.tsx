@@ -79,7 +79,7 @@ export const Block = ( props: Props ): JSX.Element | null => {
 		: getCurrencyFromPriceResponse( prices );
 
 	const pricePreview = '5000';
-	const isOnSale = prices.price !== prices.regular_price;
+	const isOnSale = prices?.price !== prices?.regular_price;
 	const priceClassName = clsx( {
 		[ `${ parentClassName }__product-price__value` ]: parentClassName,
 		[ `${ parentClassName }__product-price__value--on-sale` ]: isOnSale,

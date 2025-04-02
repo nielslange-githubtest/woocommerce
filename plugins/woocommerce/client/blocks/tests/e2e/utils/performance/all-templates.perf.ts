@@ -142,53 +142,6 @@ async function measureMultipleIframesLoadingTime(
 					iframe.contentWindow?.document.readyState === 'complete'
 				) {
 					processIframe( iframe, index );
-				} else {
-					// Set up listeners for incomplete iframes
-					const loadHandler = () => {
-						if (
-							iframe.contentWindow?.document.readyState ===
-							'complete'
-						) {
-							// Try processing, if it fails (returns false) we'll keep the listener
-							if ( processIframe( iframe, index ) ) {
-								// Only remove listeners if we successfully processed the iframe
-								iframe.removeEventListener(
-									'load',
-									loadHandler
-								);
-								iframe.removeEventListener(
-									'error',
-									errorHandler
-								);
-							}
-						}
-					};
-
-					const errorHandler = () => {
-						console.warn(
-							`Error loading iframe ${ templates[ index ].title }`
-						);
-						times[ index ] = {
-							title: templates[ index ].title,
-							serverResponse: 0,
-							firstPaint: 0,
-							domContentLoaded: 0,
-							loaded: 0,
-						};
-						loadedCount++;
-
-						if ( loadedCount === iframes.length ) {
-							clearTimeout( timeout );
-							resolve( times );
-						}
-
-						// Clean up listeners after error
-						iframe.removeEventListener( 'load', loadHandler );
-						iframe.removeEventListener( 'error', errorHandler );
-					};
-
-					iframe.addEventListener( 'load', loadHandler );
-					iframe.addEventListener( 'error', errorHandler );
 				}
 			} );
 		} );
@@ -224,7 +177,16 @@ test.describe( 'All templates performance', () => {
 				'/wp-admin/site-editor.php?postType=wp_template&activeView=WooCommerce'
 			);
 
-			await page.waitForSelector( 'iframe[title="Editor canvas"]' );
+			const frames = page.locator( 'iframe[title="Editor canvas"]' );
+
+			await expect( frames ).toHaveCount( 11 );
+
+			for ( const frame of await frames.all() ) {
+				const frameHandle = frame.contentFrame();
+				await frameHandle.owner().evaluate( () => {
+					return document.readyState === 'complete';
+				} );
+			}
 
 			const templates = await page
 				.locator( '.dataviews-view-grid__card' )
