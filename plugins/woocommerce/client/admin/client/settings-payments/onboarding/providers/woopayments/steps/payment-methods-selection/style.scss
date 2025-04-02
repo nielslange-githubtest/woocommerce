@@ -30,11 +30,11 @@
 				}
 			}
 
-			@media screen and ( max-width: 1024px ) {
+			@media screen and (max-width: 1024px) {
 				padding: $gap-large;
 			}
 
-			@media screen and ( max-width: 782px ) {
+			@media screen and (max-width: 782px) {
 				padding: $gap-large;
 			}
 		}
@@ -95,7 +95,7 @@
 				height: 40px;
 				border-radius: 4px;
 			}
-			@media screen and ( max-width: 782px ) {
+			@media screen and (max-width: 782px) {
 				align-items: flex-start;
 
 				img {
@@ -119,8 +119,8 @@
 .woocommerce-recommended-payment-methods {
 	// Width to fill available space.
 	width: 100%;
-	width: -moz-available;          /* WebKit-based browsers will ignore this. */
-	width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+	width: -moz-available; /* WebKit-based browsers will ignore this. */
+	width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
 	width: fill-available;
 	margin-right: $gap-small + $gap-smallest;
 	display: flex;
@@ -137,7 +137,8 @@
 	}
 
 	.woocommerce-layout__header-wrapper {
-		padding: $gap-large 1.5 * $gap-large;
+		// This is the padding for the header. Controlling each side to adapt to the content.
+		padding: $gap-large / 2 $gap-large $gap-large $gap-large * 1.5;
 		border-bottom: 1px solid $gray-200;
 		flex-shrink: 0;
 		background: $white;
@@ -149,11 +150,16 @@
 		}
 
 		.woocommerce-settings-payments-header__title {
-			margin-bottom: $gap-smaller;
-
 			@media screen and (max-width: $break-medium) {
 				padding: 0 !important;
 			}
+		}
+
+		.woocommerce-layout__header-title-and-close {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
 		}
 	}
 
