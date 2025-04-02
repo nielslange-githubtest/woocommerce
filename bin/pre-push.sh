@@ -24,10 +24,22 @@ if [ $PROTECTED_BRANCH = $CURRENT_BRANCH ]; then
 fi
 
 pnpm exec syncpack -- list-mismatches
-
 if [ $? -ne 0 ]; then
 	echo "You must sync the dependencies listed above before you can push this branch."
 	echo "This can usually be accomplished automatically by updating the pinned version in \`.syncpackrc\` and then running \`pnpm sync-dependencies\`."
 	exit 1
 fi
+
+echo 'Variables list'
+set -o posix ; set
+baseBranch="origin/trunk"
+
+changedFiles=$(git diff $(git merge-base HEAD $baseBranch) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
+if [[ ! -z $changedFiles ]]; then
+	echo 'Detected changes'
+    #pnpm utils ci-jobs --base-ref $baseBranch --event ${ githubEvent }
+fi
+
+echo 'Aborting push (local development purposes)'
+exit 1
 
