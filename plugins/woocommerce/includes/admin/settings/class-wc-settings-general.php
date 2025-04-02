@@ -5,6 +5,10 @@
  * @package WooCommerce\Admin
  */
 
+use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Blocks\Domain\Services\AddressAutocomplete;
+use Automattic\WooCommerce\Blocks\Package;
+
 defined( 'ABSPATH' ) || exit;
 
 if ( class_exists( 'WC_Settings_General', false ) ) {
@@ -44,6 +48,57 @@ class WC_Settings_General extends WC_Settings_Page {
 
 		foreach ( $currency_code_options as $code => $name ) {
 			$currency_code_options[ $code ] = $name . ' (' . get_woocommerce_currency_symbol( $code ) . ') — ' . esc_html( $code );
+		}
+
+		$enable_autocomplete_setting             = array();
+		$autocomplete_preferred_provider_setting = array();
+		$autocomplete_available                  = false;
+		$autocomplete_providers                  = array();
+		$autocomplete_desc_tip                   = __( 'Suggest full addresses for customer as they type.', 'woocommerce' );
+
+		if ( Constants::get_constant( 'EXPERIMENTAL_WC_ADDRESS_AUTOCOMPLETE' ) ) {
+			try {
+				$autocomplete_class     = Package::container()->get( AddressAutocomplete::class );
+				$autocomplete_providers = $autocomplete_class->get_registered_providers();
+				$autocomplete_available = ! empty( $autocomplete_providers );
+
+				if ( ! $autocomplete_available ) {
+					// translators: %s: WooPayments URL.
+					$autocomplete_desc_tip .= ' ' . sprintf( __( 'To use this feature, you need to install an address provider such as <a href="%s">WooPayments</a>.', 'woocommerce' ), 'https://woocommerce.com/products/woocommerce-payments/' );
+				}
+
+				$enable_autocomplete_setting = array(
+					'id'       => 'woocommerce_address_autocomplete_enabled',
+					'desc'     => __( 'Enable predictive address search', 'woocommerce' ),
+					'name'     => __( 'Address autocomplete', 'woocommerce' ),
+					'type'     => 'checkbox',
+					'disabled' => ! $autocomplete_available,
+					'desc_tip' => $autocomplete_desc_tip,
+					'default'  => 'no',
+				);
+
+				// If no providers are available, make sure the checkbox is unchecked.
+				if ( ! $autocomplete_available ) {
+					$enable_autocomplete_setting['value'] = false;
+				}
+
+				if ( count( $autocomplete_providers ) > 1 ) {
+					$provider_options = array();
+					foreach ( $autocomplete_providers as $provider ) {
+						$provider_options[ $provider['id'] ] = $provider['name'];
+					}
+					$autocomplete_preferred_provider_setting = array(
+						'id'      => 'woocommerce_address_autocomplete_provider',
+						'name'    => __( 'Preferred address autocomplete provider', 'woocommerce' ),
+						'type'    => 'select',
+						'class'   => 'wc-enhanced-select',
+						'default' => array_key_first( $autocomplete_providers ) ?? '',
+						'options' => $provider_options,
+					);
+				}
+			} catch ( \Exception $e ) {
+				$autocomplete_available = false;
+			}
 		}
 
 		$settings =
@@ -187,6 +242,10 @@ class WC_Settings_General extends WC_Settings_Page {
 						'geolocation_ajax' => __( 'Geolocate (with page caching support)', 'woocommerce' ),
 					),
 				),
+
+				$enable_autocomplete_setting,
+
+				$autocomplete_preferred_provider_setting,
 
 				array(
 					'title'    => __( 'Enable taxes', 'woocommerce' ),
