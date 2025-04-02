@@ -9,7 +9,6 @@ import { percent, Icon } from '@wordpress/icons';
  */
 import sharedConfig from '../shared/config';
 import edit from './edit';
-import { supports } from './support';
 import metadata from './block.json';
 
 registerBlockType( metadata, {
@@ -20,7 +19,6 @@ registerBlockType( metadata, {
 			className="wc-block-editor-components-block-icon"
 		/>
 	),
-	supports,
 	edit,
 	ancestor: [
 		...( sharedConfig.ancestor || [] ),
