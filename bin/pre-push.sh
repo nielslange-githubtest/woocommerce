@@ -23,18 +23,21 @@ if [ $PROTECTED_BRANCH = $CURRENT_BRANCH ]; then
 	exit 1
 fi
 
-pnpm exec syncpack -- list-mismatches
-if [ $? -ne 0 ]; then
-	echo "You must sync the dependencies listed above before you can push this branch."
-	echo "This can usually be accomplished automatically by updating the pinned version in \`.syncpackrc\` and then running \`pnpm sync-dependencies\`."
-	exit 1
+changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '.syncpackrc' 'package.json' '*/package.json')
+if [ ! -z $changedFiles ]; then
+	echo 'pre-push: validate syncpack mismatches'
+	pnpm exec syncpack -- list-mismatches
+	if [ $? -ne 0 ]; then
+		echo "You must sync the dependencies listed above before you can push this branch."
+		echo "This can usually be accomplished automatically by updating the pinned version in \`.syncpackrc\` and then running \`pnpm sync-dependencies\`."
+		exit 1
+	fi
 fi
 
-changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [ ! -z $changedFiles ]; then
-	echo 'Generating build matrix to pick linting jobs'
+	echo 'pre-push: lint changes'
     ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' &2> 1)
-    lintingJobs=$(echo $ciJobs | tr '::set-output' '\n::set-output/g' | grep '::set-output name=lint-jobs::')
+    lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
     echo $lintingJobs
 fi
 
