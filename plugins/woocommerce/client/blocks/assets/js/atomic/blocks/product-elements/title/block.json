@@ -8,6 +8,9 @@
 	"description": "Display the title of a product.",
 	"supports": {
 		"html": false,
+		"interactivity": {
+			"clientNavigation": false
+		},
 		"typography": {
 			"fontSize": true,
 			"lineHeight": true,
