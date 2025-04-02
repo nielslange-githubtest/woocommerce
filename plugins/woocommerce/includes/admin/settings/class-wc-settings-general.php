@@ -5,7 +5,7 @@
  * @package WooCommerce\Admin
  */
 
-use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Blocks\Domain\Services\AddressAutocomplete;
 use Automattic\WooCommerce\Blocks\Package;
 
@@ -54,7 +54,7 @@ class WC_Settings_General extends WC_Settings_Page {
 		$autocomplete_preferred_provider_setting = array();
 		$autocomplete_desc_tip                   = __( 'Suggest full addresses for customer as they type.', 'woocommerce' );
 
-		if ( Constants::get_constant( 'WC_EXPERIMENTAL_ADDRESS_AUTOCOMPLETE' ) ) {
+		if ( Features::is_enabled( 'experimental-blocks' ) ) {
 			try {
 				$autocomplete_class     = Package::container()->get( AddressAutocomplete::class );
 				$autocomplete_providers = $autocomplete_class->get_registered_providers();
