@@ -31,13 +31,14 @@ if [ $? -ne 0 ]; then
 fi
 
 echo 'Variables list'
-set -o posix ; set
+printenv
 baseBranch="origin/trunk"
 
 changedFiles=$(git diff $(git merge-base HEAD $baseBranch) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [[ ! -z $changedFiles ]]; then
 	echo 'Detected changes'
     #pnpm utils ci-jobs --base-ref $baseBranch --event ${ githubEvent }
+    #printenv
 fi
 
 echo 'Aborting push (local development purposes)'
