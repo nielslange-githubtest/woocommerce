@@ -271,6 +271,8 @@ test.describe( 'All templates performance', () => {
 			contentType: 'application/json',
 		} );
 
+		console.log( JSON.stringify( median, null, 2 ) );
+
 		expect( true ).toBe( true );
 	} );
 } );
