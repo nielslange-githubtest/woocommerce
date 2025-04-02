@@ -517,10 +517,6 @@ class WooPaymentsRestController extends RestApiControllerBase {
 			return new WP_Error( 'woocommerce_rest_woopayments_onboarding_error', $e->getMessage(), array( 'status' => 500 ) );
 		}
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
 		return rest_ensure_response(
 			array_merge(
 				array(
