@@ -573,7 +573,9 @@ class WooPaymentsService {
 		}
 
 		// Call the WooPayments API to get the KYC session.
-		$account_session = Utils::rest_endpoint_get_request(
+		$account_session = $this->proxy->call_static(
+			Utils::class,
+			'rest_endpoint_get_request',
 			'/wc/v3/payments/onboarding/kyc/session',
 			array(
 				'progressive'     => $progressive ? 'true' : 'false',
