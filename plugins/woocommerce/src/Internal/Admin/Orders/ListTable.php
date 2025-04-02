@@ -808,7 +808,7 @@ class ListTable extends WP_List_Table {
 	 *
 	 * @return \stdClass[]
 	 */
-	public function get_months_filter_options(): array {
+	protected function get_months_filter_options(): array {
 		global $wpdb;
 
 		$orders_table   = esc_sql( OrdersTableDataStore::get_orders_table_name() );
