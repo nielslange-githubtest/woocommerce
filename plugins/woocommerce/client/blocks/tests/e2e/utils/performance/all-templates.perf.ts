@@ -4,6 +4,7 @@
 
 import { Page } from '@playwright/test';
 import { test, expect, BLOCK_THEME_SLUG } from '@woocommerce/e2e-utils';
+import * as fs from 'fs';
 
 type TemplateInfo = {
 	title: string | null | undefined;
@@ -14,7 +15,44 @@ async function measureMultipleIframesLoadingTime(
 	page: Page,
 	templatesInfo: TemplateInfo[]
 ) {
-	const loadTimes = await page.evaluate( ( templates: TemplateInfo[] ) => {
+	const loadTimes = await page.evaluate( ( templates ) => {
+		const getLoadingMetrics = () => {
+			const [
+				{
+					requestStart,
+					responseStart,
+					responseEnd,
+					domContentLoadedEventEnd,
+					loadEventEnd,
+				},
+			] = performance.getEntriesByType(
+				'navigation'
+			) as PerformanceNavigationTiming[];
+			const paintTimings = performance.getEntriesByType(
+				'paint'
+			) as PerformancePaintTiming[];
+
+			const firstPaintStartTime = paintTimings.find(
+				( { name } ) => name === 'first-paint'
+			)!.startTime;
+
+			const firstContentfulPaintStartTime = paintTimings.find(
+				( { name } ) => name === 'first-contentful-paint'
+			)!.startTime;
+
+			return {
+				// Server side metric.
+				serverResponse: responseStart - requestStart,
+				// For client side metrics, consider the end of the response (the
+				// browser receives the HTML) as the start time (0).
+				firstPaint: firstPaintStartTime - responseEnd,
+				domContentLoaded: domContentLoadedEventEnd - responseEnd,
+				loaded: loadEventEnd - responseEnd,
+				firstContentfulPaint:
+					firstContentfulPaintStartTime - responseEnd,
+				timeSinceResponseEnd: performance.now() - responseEnd,
+			};
+		};
 		return new Promise( ( resolve ) => {
 			const iframes = templates
 				.map( ( { iframeSelector } ) =>
@@ -26,11 +64,7 @@ async function measureMultipleIframesLoadingTime(
 				return;
 			}
 
-			const times: {
-				time: number;
-				requestNumbers: number;
-				title: string | null | undefined;
-			}[] = [];
+			const times: [] = [];
 
 			let loadedCount = 0;
 
@@ -38,20 +72,9 @@ async function measureMultipleIframesLoadingTime(
 				if (
 					iframe.contentWindow?.document.readyState === 'complete'
 				) {
-					// If iframe is already loaded
-					const navigationEntry =
-						iframe.contentWindow.performance.getEntriesByType(
-							'navigation'
-						)[ 0 ];
 					times[ index ] = {
-						time:
-							navigationEntry.loadEventEnd -
-							navigationEntry.startTime,
+						...getLoadingMetrics(),
 						title: templates[ index ].title,
-						requestNumbers:
-							iframe.contentWindow.performance.getEntriesByType(
-								'resource'
-							).length,
 					};
 					loadedCount++;
 
@@ -61,19 +84,9 @@ async function measureMultipleIframesLoadingTime(
 				} else {
 					// If iframe is still loading
 					iframe.addEventListener( 'load', () => {
-						const navigationEntry =
-							iframe?.contentWindow.performance.getEntriesByType(
-								'navigation'
-							)[ 0 ];
 						times[ index ] = {
-							time:
-								navigationEntry.loadEventEnd -
-								navigationEntry.startTime,
+							...getLoadingMetrics(),
 							title: templates[ index ].title,
-							requestNumbers:
-								iframe.contentWindow.performance.getEntriesByType(
-									'resource'
-								).length,
 						};
 						loadedCount++;
 
@@ -87,11 +100,7 @@ async function measureMultipleIframesLoadingTime(
 		} );
 	}, templatesInfo );
 
-	const totalRequest = await page.evaluate( () => {
-		return performance.getEntriesByType( 'resource' ).length;
-	} );
-
-	return { loadTimes, totalRequest };
+	return { loadTimes };
 }
 
 test.describe( 'All templates performance', () => {
@@ -126,7 +135,10 @@ test.describe( 'All templates performance', () => {
 			templates
 		);
 
-		console.log( loadTimes );
+		fs.appendFileSync(
+			'./performance-report.json',
+			JSON.stringify( loadTimes )
+		);
 
 		expect( loadTimes ).toBeDefined();
 	} );
