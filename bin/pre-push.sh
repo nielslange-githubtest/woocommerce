@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 PROTECTED_BRANCH="trunk"
 CURRENT_BRANCH=$(git branch --show-current)
@@ -24,7 +24,7 @@ if [ $PROTECTED_BRANCH = $CURRENT_BRANCH ]; then
 fi
 
 changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '.syncpackrc' 'package.json' '*/package.json')
-if [ ! -z $changedFiles ]; then
+if [ -n "$changedFiles" ]; then
 	echo 'pre-push: validate syncpack mismatches'
 	pnpm exec syncpack -- list-mismatches
 	if [ $? -ne 0 ]; then
@@ -35,11 +35,16 @@ if [ ! -z $changedFiles ]; then
 fi
 
 changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
-if [ ! -z $changedFiles ]; then
+if [ -n "$changedFiles" ]; then
 	echo 'pre-push: lint changes'
     ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' 2>&1)
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
-    echo $lintingJobs | jq '( .[].projectName + ":" + .[].command )'
+    # echo $lintingJobs | jq '( "pnpm --filter=" + .[].projectName + " " + .[].command )'
+
+	echo $lintingJobs | jq -r '.[]' | while read job; do
+		echo "${job["projectName"]}"
+	done
+
 fi
 
 echo 'Aborting push (local development purposes)'
