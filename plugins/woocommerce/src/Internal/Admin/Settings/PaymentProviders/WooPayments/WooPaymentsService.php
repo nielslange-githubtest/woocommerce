@@ -932,7 +932,7 @@ class WooPaymentsService {
 
 		// Update the stored step data.
 		$nox_profile['onboarding'][ $location ]['steps'][ $step_id ] = $data;
-		update_option( self::NOX_PROFILE_OPTION_KEY, $nox_profile );
+
 		return $this->proxy->call_function( 'update_option', self::NOX_PROFILE_OPTION_KEY, $nox_profile, false );
 	}
 
