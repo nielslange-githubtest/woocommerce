@@ -23,7 +23,7 @@ if [ $PROTECTED_BRANCH = $CURRENT_BRANCH ]; then
 	exit 1
 fi
 
-changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '.syncpackrc' 'package.json')
+changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '.syncpackrc' 'package.json' '*/package.json')
 if [ -n "$changedFiles" ]; then
 	echo -n 'pre-push: validate syncpack mismatches '
 	pnpm exec syncpack -- list-mismatches
