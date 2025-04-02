@@ -15,8 +15,5 @@ export function registerProductField( id: string, field: Field< Product > ) {
 }
 
 export function getProductField( id: string ) {
-	console.log( 'Getting product field:', id );
-	console.log( 'Available product fields:', Object.keys( productFields ) );
-	console.log( 'Requested field value:', productFields[ id ] );
 	return productFields[ id ];
 }

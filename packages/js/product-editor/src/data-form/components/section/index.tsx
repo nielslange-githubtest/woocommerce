@@ -63,7 +63,6 @@ export function ProductSection( {
 	const SectionTagName = title ? 'fieldset' : 'div';
 
 	const onChange = ( edits: Partial< Product > ) => {
-		console.log( 'edits', edits );
 		editEntityRecord( 'postType', postType, productId, edits );
 	};
 

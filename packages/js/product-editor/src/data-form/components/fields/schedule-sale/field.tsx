@@ -5,7 +5,6 @@ import { DateTimePickerControl } from '@woocommerce/components';
 import { Product } from '@woocommerce/data';
 import { recordEvent } from '@woocommerce/tracks';
 import { ToggleControl } from '@wordpress/components';
-import { useEntityProp } from '@wordpress/core-data';
 import {
 	createElement,
 	useCallback,
@@ -30,19 +29,18 @@ export function ScheduleSaleFieldEdit( {
 	data,
 	onChange,
 }: DataFormControlProps< Product > ) {
+	const salePrice = data.sale_price;
+	const dateOnSaleFromGmt = data.date_on_sale_from_gmt;
+	const dateOnSaleToGmt = data.date_on_sale_to_gmt;
+
 	const { hasEdit } = useProductEdits();
 
 	const dateTimeFormat = getSettings().formats.datetime;
 
 	const [ showScheduleSale, setShowScheduleSale ] = useState( false );
 
-	const salePrice = data.sale_price;
-
 	const isSalePriceGreaterThanZero =
 		Number.parseFloat( salePrice || '0' ) > 0;
-
-	const dateOnSaleFromGmt = data.date_on_sale_from_gmt;
-	const dateOnSaleToGmt = data.date_on_sale_to_gmt;
 
 	const today = moment().startOf( 'minute' ).toISOString();
 
