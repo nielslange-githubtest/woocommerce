@@ -8,6 +8,11 @@ import { Frame, Page } from '@playwright/test';
  */
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 
+/**
+ * Internal dependencies
+ */
+import { median } from '../utils';
+
 async function getFrameMetrics( frame: Frame ) {
 	return await frame.evaluate( () => {
 		const navigationEntries =
@@ -52,20 +57,28 @@ async function getFrameMetrics( frame: Frame ) {
 }
 
 test.describe( 'All templates performance', () => {
-	test( 'Loading', async ( { page }, testInfo ) => {
-		const results: {
-			frameId: string;
-			serverResponse: number;
-			firstPaint: number;
-			domContentLoaded: number;
-			loaded: number;
-			requestCount: number;
-		}[] = [];
-		const samples = 3;
-		const throwaway = 1;
-		const iterations = samples + throwaway;
+	test.afterAll( async ( {}, testInfo ) => {
+		const medians = {};
+		Object.keys( results ).forEach( ( metric ) => {
+			medians[ metric ] = median( results[ metric ] );
+		} );
 
-		for ( let i = 0; i < iterations; i++ ) {
+		console.log( medians, 'medians' );
+		await testInfo.attach( 'results', {
+			body: JSON.stringify( { 'all-templates': medians }, null, 2 ),
+			contentType: 'application/json',
+		} );
+	} );
+
+	const results = {};
+	const samples = 3;
+	const throwaway = 1;
+	const iterations = samples + throwaway;
+
+	for ( let i = 0; i < iterations; i++ ) {
+		test( `Run the test (${ i } of ${ iterations })`, async ( {
+			page,
+		} ) => {
 			let requestCount = 0;
 			page.on( 'request', () => {
 				requestCount++;
@@ -85,7 +98,7 @@ test.describe( 'All templates performance', () => {
 				} )
 				.toBe( 11 );
 
-			const loadTimes: ( {
+			const allFrameMetrics: ( {
 				frameId: string;
 				serverResponse: number;
 				firstPaint: number;
@@ -102,74 +115,32 @@ test.describe( 'All templates performance', () => {
 					if ( ! frameMetrics ) {
 						throw new Error( 'Could not get frame metrics' );
 					}
-					loadTimes.push( frameMetrics );
+					allFrameMetrics.push( frameMetrics );
 				} )
 			);
 
-			await page.pause();
-
 			if ( i > throwaway ) {
-				// console.log( loadTimes, 'loadTimes' );
+				allFrameMetrics.forEach( ( frameMetrics ) => {
+					if ( ! frameMetrics ) return;
+					Object.entries( frameMetrics ).forEach(
+						( [ metric, value ] ) => {
+							// Skip frameId as it's not a numeric metric
+							if ( metric === 'frameId' ) return;
 
-				const fixedLoadTimes = loadTimes.map( ( loadTime ) => {
-					return {
-						...loadTime,
-						requestCount,
-					};
+							if ( ! results[ metric ] ) {
+								results[ metric ] = [];
+							}
+							results[ metric ].push( value );
+						}
+					);
 				} );
 
-				results.push( ...fixedLoadTimes );
+				if ( ! results[ 'requestCount' ] ) {
+					results[ 'requestCount' ] = [];
+				}
+
+				results[ 'requestCount' ].push( requestCount );
 			}
-
-			// console.log( results );
-		}
-		const valuesByKeys = results.reduce( ( acc, curr ) => {
-			const frameId = curr.frameId;
-			if ( ! frameId ) {
-				return acc;
-			}
-			acc[ frameId ] = {
-				...acc[ frameId ],
-				serverResponse: [
-					...( acc[ frameId ]?.serverResponse || [] ),
-					curr.serverResponse,
-				],
-				firstPaint: [
-					...( acc[ frameId ]?.firstPaint || [] ),
-					curr.firstPaint,
-				],
-				domContentLoaded: [
-					...( acc[ frameId ]?.domContentLoaded || [] ),
-					curr.domContentLoaded,
-				],
-				loaded: [ ...( acc[ frameId ]?.loaded || [] ), curr.loaded ],
-				requestCount: [
-					...( acc[ frameId ]?.requestCount || [] ),
-					curr.requestCount,
-				],
-			};
-			return acc;
-		}, {} );
-
-		const median = {};
-		for ( const title in valuesByKeys ) {
-			const values = valuesByKeys[ title ];
-			median[ title ] = {}; // Initialize an object for this title
-
-			for ( const key in values ) {
-				values[ key ].sort( ( a, b ) => a - b );
-				median[ title ][ key ] =
-					values[ key ][ Math.floor( values[ key ].length / 2 ) ];
-			}
-		}
-
-		console.log( median, 'median' );
-
-		await testInfo.attach( 'all-templates.json', {
-			body: JSON.stringify( median, null, 2 ),
-			contentType: 'application/json',
 		} );
-
-		expect( true ).toBe( true );
-	} );
+	}
 } );
