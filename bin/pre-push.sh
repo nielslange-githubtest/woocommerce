@@ -50,7 +50,7 @@ if [ -n "$changedFiles" ]; then
 		echo -n "-> Executing '$command' ($iteration of ${#jobs[*]}) "
 		result=$($command 2>&1)
 		if [ $? -ne 0 ]; then
-			echo "[ERR] (aborting, please run manually)"
+			echo "[ERR] (aborting, please run manually to troubleshoot)"
 			exit 1
 		fi
 		echo "[OK]"
