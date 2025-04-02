@@ -44,8 +44,9 @@ if [ -n "$changedFiles" ]; then
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
 	# Slightly complicated trailing thru linting jobs provided in JSON-format.
     iteration=1
-	readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
-	for job in "${jobs[@]}"; do
+    while read job; do
+	#readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
+	#for job in "${jobs[@]}"; do
 		command=$(echo $job | jq --raw-output '( "pnpm --filter=" + .projectName + " " + .command )')
 		echo -n "-> Executing '$command' ($iteration of ${#jobs[*]}) "
 		result=$($command 2>&1)
@@ -55,5 +56,9 @@ if [ -n "$changedFiles" ]; then
 		fi
 		echo "[OK]"
 		iteration=$(expr $iteration + 1)
-	done
+	done < <(echo $lintingJobs | jq --compact-output '.[]')
 fi
+
+
+echo "Aborting"
+exit 1
