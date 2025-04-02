@@ -44,7 +44,7 @@ if [ -n "$changedFiles" ]; then
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
 	# Slightly complicated trailing thru linting jobs provided in JSON-format.
     iteration=1
-    iterations=$( echo $lintingJobs | jq --compact-output '.[] | length' )
+    iterations=$( echo $lintingJobs | jq length )
     while read job; do
 	#readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
 	#for job in "${jobs[@]}"; do
