@@ -2,6 +2,7 @@
 namespace Automattic\WooCommerce\Blocks\Domain;
 
 use Automattic\Jetpack\Constants;
+use Automattic\WooCommerce\Admin\Features\Features;
 use Automattic\WooCommerce\Blocks\Assets\Api as AssetApi;
 use Automattic\WooCommerce\Blocks\Assets\AssetDataRegistry;
 use Automattic\WooCommerce\Blocks\AssetsController;
@@ -404,7 +405,7 @@ class Bootstrap {
 				return new BlockTemplatesController();
 			}
 		);
-		if ( Constants::is_defined( 'WC_EXPERIMENTAL_ADDRESS_AUTOCOMPLETE' ) && Constants::get_constant( 'WC_EXPERIMENTAL_ADDRESS_AUTOCOMPLETE' ) ) {
+		if ( Features::is_enabled( 'experimental-blocks' ) ) {
 			$this->container->register(
 				AddressAutocomplete::class,
 				function () {
