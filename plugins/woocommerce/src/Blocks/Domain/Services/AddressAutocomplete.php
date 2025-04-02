@@ -125,6 +125,27 @@ class AddressAutocomplete {
 	}
 
 	/**
+	 * Get the preferred provider, this is what was selected in the WooCommerce settings or the first registered
+	 * provider if no preference was set, or if the provider selected is not registered anymore.
+	 *
+	 * @return string
+	 */
+	public function get_preferred_provider(): string {
+
+		if ( empty( $this->providers ) ) {
+			return '';
+		}
+
+		$preferred_provider = get_option( 'woocommerce_address_autocomplete_provider', '' );
+
+		if ( $this->is_provider_available( $preferred_provider ) ) {
+			return $preferred_provider;
+		}
+
+		return array_key_first( $this->providers );
+	}
+
+	/**
 	 * Check if a specific provider is registered.
 	 *
 	 * @param string $provider_id The provider ID to check.
