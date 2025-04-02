@@ -90,7 +90,9 @@ export interface WooPaymentsProviderOnboardingStep {
 	};
 	content?: ReactNode;
 	context?: {
-		payment_methods: RecommendedPaymentMethod[];
+		recommended_pms: RecommendedPaymentMethod[];
+		pms_state: Record< string, boolean >;
+		overview_page_url?: string;
 		fields: {
 			business_types: Country[];
 			industry_to_mcc: Record< string, string >;

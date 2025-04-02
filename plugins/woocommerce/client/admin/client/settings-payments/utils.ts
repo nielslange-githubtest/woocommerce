@@ -191,3 +191,98 @@ export const providersContainWooPaymentsInDevMode = (
 	const wooPayments = providers.find( ( obj ) => isWooPayments( obj.id ) );
 	return !! wooPayments?.state?.dev_mode;
 };
+
+/**
+ * Combines Apple Pay and Google Pay into a single payment method.
+ *
+ * If both Apple Pay and Google Pay exist in the list of payment methods, they are combined into a single
+ * method with the ID `apple_google`, including data from both methods. If either is missing, the original
+ * list is returned.
+ */
+export const combineRequestMethods = (
+	paymentMethods: RecommendedPaymentMethod[]
+) => {
+	const applePay = getPaymentMethodById( 'apple_pay' )( paymentMethods );
+	const googlePay = getPaymentMethodById( 'google_pay' )( paymentMethods );
+
+	if ( ! applePay || ! googlePay ) {
+		return paymentMethods; // If either Apple Pay or Google Pay is not found, return the original paymentMethods
+	}
+
+	return paymentMethods
+		.map( ( method ) => {
+			if ( method.id === 'apple_pay' ) {
+				// Combine apple_pay and google_pay data into a new payment method
+				return {
+					...method,
+					id: 'apple_google',
+					extraTitle: googlePay.title,
+					extraDescription: googlePay.description,
+					extraIcon: googlePay.icon,
+				};
+			}
+
+			// Exclude GooglePay from the list
+			if ( method.id === 'google_pay' ) {
+				return null;
+			}
+
+			return method; // Keep the rest of the payment methods
+		} )
+		.filter(
+			( method ): method is RecommendedPaymentMethod => method !== null
+		); // Filter null values
+};
+
+/**
+ * Combines Apple Pay and Google Pay into a single state.
+ *
+ * If both Apple Pay and Google Pay exist in the list of payment methods, they are combined into a single
+ * state with the ID `apple_google`, including data from both methods. If either is missing, the original
+ * state is returned.
+ */
+export const combinePaymentMethodsState = (
+	paymentMethodsState: Record< string, boolean >
+) => {
+	return Object.keys( paymentMethodsState ).reduce( ( acc, key ) => {
+		if ( key === 'apple_pay' || key === 'google_pay' ) {
+			acc.apple_google = paymentMethodsState[ key ];
+		} else {
+			acc[ key ] = paymentMethodsState[ key ];
+		}
+		return acc;
+	}, {} as Record< string, boolean > );
+};
+
+/**
+ * Decouples Apple Pay and Google Pay into two separate states.
+ *
+ * If an id of `apple_google` exists in the list of payment methods, it is split into two separate states: `apple_pay` and `google_pay`.
+ */
+export const decouplePaymentMethodsState = (
+	paymentMethodsState: Record< string, boolean >
+) => {
+	return Object.keys( paymentMethodsState ).reduce( ( acc, key ) => {
+		if ( key === 'apple_google' ) {
+			acc.apple_pay = paymentMethodsState[ key ];
+			acc.google_pay = paymentMethodsState[ key ];
+		} else {
+			acc[ key ] = paymentMethodsState[ key ];
+		}
+		return acc;
+	}, {} as Record< string, boolean > );
+};
+
+/**
+ * Checks whether a payment method should be rendered.
+ */
+export const shouldRenderPaymentMethod = (
+	method: RecommendedPaymentMethod,
+	method_enabled: boolean
+) => {
+	if ( method.category === 'primary' ) {
+		return true;
+	}
+
+	return method_enabled ?? false;
+};
