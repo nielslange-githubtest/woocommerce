@@ -52,14 +52,13 @@ export function ProductEditorDevToolsBar( {
 
 	const [ id ] = useEntityProp( 'postType', postType, 'id' );
 
-	// @ts-expect-error TODO: react-18-upgrade: getEditedEntityRecord return Product type which is not defined in @wordpress/core-data
-	const product: Product = useSelect(
+	const product = useSelect(
 		( select ) =>
 			select( coreDataStore ).getEditedEntityRecord(
 				'postType',
 				postType,
 				id
-			),
+			) as unknown as Product,
 		[ id, postType ]
 	);
 
