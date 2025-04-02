@@ -32,10 +32,9 @@ fi
 
 changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [ ! -z $changedFiles ]; then
-	echo 'Detected changes'
-	echo $changedFiles
-    #pnpm utils ci-jobs --base-ref $baseBranch --event ${ githubEvent }
-    #printenv
+	echo 'Generating build matrix to pick linting jobs'
+    pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request'
+    printenv
 fi
 
 echo 'Aborting push (local development purposes)'
