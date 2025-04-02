@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "woocommerce/product-on-sale",
+	"version": "1.0.0",
+	"title": "Products on Sale",
+	"category": "woocommerce",
+	"description": "Display a grid of products currently on sale.",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false
+	},
+	"textdomain": "woocommerce",
+	"attributes": {
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"rows": {
+			"type": "number",
+			"default": 3
+		},
+		"alignButtons": {
+			"type": "boolean",
+			"default": false
+		}
+	}
+}
