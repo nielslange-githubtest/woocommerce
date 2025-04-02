@@ -37,14 +37,23 @@ fi
 changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [ -n "$changedFiles" ]; then
 	echo 'pre-push: lint changes'
+	# This pre-push check aims to reduce CI load, hence we mimic CI matrix generation and pick linting jobs identical to CI environment.
     ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' 2>&1)
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
-    # echo $lintingJobs | jq '( "pnpm --filter=" + .[].projectName + " " + .[].command )'
-
-	echo $lintingJobs | jq -r '.[]' | while read job; do
-		echo "${job["projectName"]}"
+	readarray -t jobs < <(echo $lintingJobs | jq --compact-output '.[]')
+	echo "-> total linting jobs to run: ${#jobs[*]}"
+	for job in "${jobs[@]}"; do
+		command=$(echo $job | jq --raw-output '( "pnpm --filter=" + .projectName + " " + .command )')
+		echo -n "-> Linting with '$command'"
+		result=$($command 2>&1)
+		if [ $? -ne 0 ]; then
+			echo " [ERR] (aborting)"
+			echo $result
+			exit 1
+		else
+			echo " [OK]"
+		fi
 	done
-
 fi
 
 echo 'Aborting push (local development purposes)'
