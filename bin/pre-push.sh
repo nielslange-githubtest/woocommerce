@@ -34,9 +34,10 @@ if [ ! -z $changedFiles ]; then
 	fi
 fi
 
+changedFiles=$(git diff $(git merge-base HEAD origin/trunk) --relative --name-only --diff-filter=d -- '*.php' '*.js' '*.jsx' '*.ts' '*.tsx')
 if [ ! -z $changedFiles ]; then
 	echo 'pre-push: lint changes'
-    ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' &2> 1)
+    ciJobs=$(CI=1 pnpm utils ci-jobs --base-ref origin/trunk --event 'pull_request' 2>&1)
     lintingJobs=$(echo $ciJobs | sed 's/::set-output/\n::set-output/g' | grep '::set-output name=lint-jobs::' | sed 's/::set-output name=lint-jobs:://g')
     echo $lintingJobs
 fi
