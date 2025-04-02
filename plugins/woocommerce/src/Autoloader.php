@@ -12,8 +12,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 3.7.0
  */
-class Autoloader
-{
+class Autoloader {
 
 	/**
 	 * Static-only class.

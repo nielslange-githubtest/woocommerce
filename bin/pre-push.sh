@@ -57,7 +57,3 @@ if [ -n "$changedFiles" ]; then
 		iteration=$(expr $iteration + 1)
 	done < <(echo $lintingJobs | jq --compact-output '.[]')
 fi
-
-
-echo "Aborting"
-exit 1
