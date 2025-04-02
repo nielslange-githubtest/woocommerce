@@ -9,7 +9,6 @@ import { __experimentalGetSpacingClassesAndStyles } from '@wordpress/block-edito
 /**
  * Internal dependencies
  */
-import sharedConfig from '../shared/config';
 import attributes from './attributes';
 import edit from './edit';
 import {
@@ -20,7 +19,8 @@ import {
 import { Save } from './save';
 
 const blockConfig: BlockConfiguration = {
-	...sharedConfig,
+	category: 'woocommerce-product-elements',
+	apiVersion: 3,
 	// Product Title is not expected to be available anywhere other than in All Products.
 	// Everywhere else we use core/post-title variation.
 	ancestor: [ 'woocommerce/all-products' ],

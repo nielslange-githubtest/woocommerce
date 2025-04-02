@@ -9,12 +9,8 @@ import { barcode } from '@woocommerce/icons';
  * Internal dependencies
  */
 import metadata from './block.json';
-import sharedConfig from '../shared/config';
 import edit from './edit';
-
 registerBlockType( metadata, {
-	...sharedConfig,
-	supports: metadata.supports,
 	icon: (
 		<Icon
 			icon={ barcode }

@@ -7,12 +7,11 @@ import { percent, Icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import sharedConfig from '../shared/config';
+import save from '../save';
 import edit from './edit';
 import metadata from './block.json';
 
 registerBlockType( metadata, {
-	...sharedConfig,
 	icon: (
 		<Icon
 			icon={ percent }
@@ -20,8 +19,5 @@ registerBlockType( metadata, {
 		/>
 	),
 	edit,
-	ancestor: [
-		...( sharedConfig.ancestor || [] ),
-		'woocommerce/product-gallery',
-	],
+	save,
 } );

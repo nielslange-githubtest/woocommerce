@@ -4,6 +4,7 @@
 	"icon": "info",
 	"title": "Product Rating",
 	"description": "Display the average rating of a product.",
+	"category": "woocommerce-product-elements",
 	"attributes": {
 		"productId": {
 			"type": "number",
@@ -46,6 +47,12 @@
 		},
 		"__experimentalSelector": ".wc-block-components-product-rating"
 	},
+	"ancestor": [
+		"woocommerce/all-products",
+		"woocommerce/single-product",
+		"woocommerce/product-template",
+		"core/post-template"
+	],
 	"usesContext": [ "query", "queryId", "postId" ],
 	"keywords": [ "WooCommerce" ],
 	"textdomain": "woocommerce",

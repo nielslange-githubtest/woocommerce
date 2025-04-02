@@ -7,16 +7,16 @@ import { registerProductBlockType } from '@woocommerce/atomic-utils';
 /**
  * Internal dependencies
  */
-import sharedConfig from '../shared/config';
+import save from '../save';
 import edit from './edit';
 import { BLOCK_ICON as icon } from './constants';
 import metadata from './block.json';
 
 const blockConfig: BlockConfiguration = {
-	...sharedConfig,
 	...metadata,
 	icon: { src: icon },
 	edit,
+	save,
 };
 
 registerProductBlockType( blockConfig, {
