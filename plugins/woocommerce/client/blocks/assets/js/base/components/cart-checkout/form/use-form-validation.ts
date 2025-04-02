@@ -107,7 +107,7 @@ export const useFormValidation = (
 	if ( ! data ) {
 		return {
 			errors: currentResults.current,
-			previousErrors,
+			previousErrors: undefined,
 		};
 	}
 
@@ -198,6 +198,7 @@ export const useFormValidation = (
 				break;
 		}
 		const validate = parser.compile( schema );
+		// AJV mutates validate function and errors to it, so we reach from it. Result only has a boolean value if errors are present.
 		const result = validate( data );
 
 		if ( ! result && validate.errors ) {

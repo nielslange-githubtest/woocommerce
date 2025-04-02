@@ -249,25 +249,30 @@ export const validateAdditionalFields = (
 	// Check each additional field for validation errors
 	// The validation store prefixes ads a prefix depending on the field location
 	for ( const fieldKey of Object.keys( additionalFields ) ) {
-		let prefix = '';
-		if ( CONTACT_FORM_KEYS.includes( fieldKey as keyof ContactForm ) ) {
-			prefix = 'contact_';
-		} else if (
-			ORDER_FORM_KEYS.includes( fieldKey as keyof AdditionalValues )
-		) {
-			prefix = 'order_';
-		} else {
-			return false;
-		}
-
-		const error = select( validationStore ).getValidationError(
-			`${ prefix }${ fieldKey }`
-		);
-
-		if ( error && ! error.hidden ) {
+		if ( hasValidationError( fieldKey ) ) {
 			return false;
 		}
 	}
 
 	return true;
+};
+
+export const hasValidationError = ( fieldKey: string ) => {
+	let prefix = '';
+	if ( CONTACT_FORM_KEYS.includes( fieldKey as keyof ContactForm ) ) {
+		prefix = 'contact_';
+	} else if (
+		ORDER_FORM_KEYS.includes( fieldKey as keyof AdditionalValues )
+	) {
+		prefix = 'order_';
+	} else {
+		return false;
+	}
+	const error = select( validationStore ).getValidationError(
+		`${ prefix }${ fieldKey }`
+	);
+	if ( error ) {
+		return true;
+	}
+	return false;
 };
