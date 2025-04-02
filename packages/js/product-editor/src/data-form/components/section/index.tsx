@@ -62,18 +62,8 @@ export function ProductSection( {
 	);
 	const SectionTagName = title ? 'fieldset' : 'div';
 
-	const form = useMemo( () => {
-		return {
-			type: 'regular' as const,
-			fields: sectionTemplate[ 2 ]
-				?.filter(
-					( field ) => field[ 0 ] === 'woocommerce/product-name-field'
-				)
-				.map( () => 'name' ),
-		};
-	}, [ sectionTemplate ] );
-
 	const onChange = ( edits: Partial< Product > ) => {
+		console.log( 'edits', edits );
 		editEntityRecord( 'postType', postType, productId, edits );
 	};
 
@@ -102,6 +92,42 @@ export function ProductSection( {
 						} else if (
 							field[ 0 ] === 'woocommerce/product-name-field'
 						) {
+							const form = {
+								type: 'regular' as const,
+								fields: sectionTemplate[ 2 ]
+									?.filter(
+										( field1 ) =>
+											field1[ 0 ] ===
+											'woocommerce/product-name-field'
+									)
+									.map( () => 'name' ),
+							};
+							return (
+								<DataForm
+									key={ field[ 1 ]?._templateBlockId }
+									fields={ fields }
+									form={ form }
+									onChange={ onChange }
+									data={ record }
+								/>
+							);
+						} else if (
+							field[ 0 ] ===
+							'woocommerce/product-schedule-sale-fields'
+						) {
+							const form = {
+								type: 'regular' as const,
+								fields: sectionTemplate[ 2 ]
+									?.filter(
+										( field2 ) =>
+											field2[ 0 ] ===
+											'woocommerce/product-schedule-sale-fields'
+									)
+									.map(
+										() =>
+											'woocommerce/product-schedule-sale-fields'
+									),
+							};
 							return (
 								<DataForm
 									key={ field[ 1 ]?._templateBlockId }
